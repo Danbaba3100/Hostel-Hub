@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspections | Hostel Hub Agent</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/agent-inspections.css">
+  <script src="js/agent-inspections.js" defer></script>
+</head>
+
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="agent-dashboard.html">
+        <span class="brand-mark">H</span>
+        <span>Hostel<span class="brand-light">Hub</span></span>
+      </a>
+
+      <p class="sidebar-label">AGENT WORKSPACE</p>
+
+      <nav class="sidebar-nav">
+        <a class="nav-link" href="agent-dashboard.html">
+          <span class="nav-icon">▦</span>
+          Dashboard
+        </a>
+
+        <a class="nav-link" href="agent-listings.html">
+          <span class="nav-icon">⌂</span>
+          My Listings
+        </a>
+
+        <a class="nav-link active" href="agent-inspections.html" aria-current="page">
+          <span class="nav-icon">▣</span>
+          Inspections
+          <span class="nav-count" id="inspectionNavCount">0</span>
+        </a>
+        <a class="nav-link" href="agent-profile.html">
+  <span class="nav-icon">♙</span>
+  My Profile
+</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <span class="help-icon">?</span>
+          <strong>Need help?</strong>
+          <p>Need assistance managing your inspections?</p>
+          <a href="contact.html">Contact support →</a>
+        </div>
+
+        <a class="back-link" href="index.html">
+          <span>↗</span>
+          Back to website
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button
+          class="menu-toggle"
+          id="menuToggle"
+          type="button"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+        >☰</button>
+
+        <div class="topbar-heading">
+          <span class="eyebrow">AGENT WORKSPACE</span>
+          <h1>Inspection Requests</h1>
+        </div>
+
+        <div class="topbar-actions">
+          <span class="status-pill"><span></span> Agent account</span>
+          <a href="agent-profile.html" class="avatar" id="headerAvatar" aria-label="Agent profile">A</a>
+        </div>
+      </header>
+
+      <section class="page-intro">
+        <div>
+          <h2>Student Inspections</h2>
+          <p>Manage hostel viewing requests, contact students, and keep track of completed inspections.</p>
+        </div>
+      </section>
+
+      <section class="notice">
+        <span class="notice-icon">ⓘ</span>
+        <div>
+          <strong>Stay on top of your inspection requests</strong>
+          <p>Contact students to confirm their preferred viewing time. Remember to update each request when the inspection is completed.</p>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Total requests</span>
+            <span class="stat-icon blue">▣</span>
+          </div>
+          <strong id="totalRequests">0</strong>
+          <small>All student requests</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Pending</span>
+            <span class="stat-icon amber">◷</span>
+          </div>
+          <strong id="pendingRequests">0</strong>
+          <small>Awaiting completion</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Completed</span>
+            <span class="stat-icon green">✓</span>
+          </div>
+          <strong id="completedRequests">0</strong>
+          <small>Completed inspections</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Today's inspections</span>
+            <span class="stat-icon purple">◷</span>
+          </div>
+          <strong id="todayRequests">0</strong>
+          <small>Scheduled for today</small>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Inspection Requests</h2>
+            <p>View student details and manage their preferred inspection times.</p>
+          </div>
+          <span class="results-count" id="resultsCount">0 requests</span>
+        </div>
+
+        <div class="filters">
+          <label class="search-box">
+            <span>⌕</span>
+            <input
+              type="search"
+              id="inspectionSearch"
+              placeholder="Search student, hostel or phone..."
+              aria-label="Search inspection requests"
+            >
+          </label>
+
+          <select id="inspectionStatusFilter" aria-label="Filter by inspection status">
+            <option value="all">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+          </select>
+
+          <select id="inspectionDateFilter" aria-label="Filter by inspection date">
+            <option value="all">All dates</option>
+            <option value="today">Today</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past dates</option>
+          </select>
+        </div>
+
+        <div id="inspectionList" class="inspection-list"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <div class="empty-icon">▣</div>
+          <h3 id="emptyTitle">No inspection requests</h3>
+          <p id="emptyDescription">Student inspection requests will appear here.</p>
+          <button class="btn btn-outline" id="clearFiltersBtn" type="button">
+            Clear filters
+          </button>
+        </div>
+
+        <div class="table-footer">
+          <span id="footerText">Showing 0 requests</span>
+          <button class="text-button" id="clearFiltersLink" type="button">Clear filters</button>
+        </div>
+      </section>
+
+      <footer class="dashboard-footer">
+        <span>© 2026 Hostel Hub</span>
+        <span>Agent Dashboard · Frontend prototype</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage and review Hostel Hub listings">
+    <title>Hostel Management | Hostel Hub</title>
+    <link rel="stylesheet" href="css/admin-hostels.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <a href="admin-dashboard.html" class="brand">
+            <span class="brand-icon"><i data-lucide="house"></i></span>
+            <span><strong>Hostel Hub</strong><small>Admin Panel</small></span>
+        </a>
+
+        <nav class="nav-menu">
+            <a href="admin-dashboard.html" class="nav-link">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="admin-hostels.html" class="nav-link active">
+                <i data-lucide="building-2"></i> Hostels
+            </a>
+            <a href="admin-agents.html" class="nav-link">
+                <i data-lucide="users"></i> Agents
+            </a>
+            <a href="admin-bookings.html" class="nav-link">
+                <i data-lucide="calendar-check"></i> Bookings
+            </a>
+            <a href="admin-reports.html" class="nav-link">
+                <i data-lucide="flag"></i> Reports
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <i data-lucide="shield-check"></i>
+            <div><strong>Platform safety</strong><small>Review listings carefully.</small></div>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-area">
+        <header class="topbar">
+            <button class="icon-button menu-toggle" id="menuToggle"
+                    aria-label="Toggle navigation" aria-expanded="false">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <div class="breadcrumb">Admin Panel <span>/</span> Hostels</div>
+
+            <div class="topbar-right">
+                <span class="avatar">AD</span>
+                <div><strong>Admin</strong><small>Administrator</small></div>
+            </div>
+        </header>
+
+        <div class="content">
+            <section class="page-heading">
+                <div>
+                    <span class="eyebrow">LISTING MANAGEMENT</span>
+                    <h1>Hostel Management</h1>
+                    <p>Review, manage and monitor accommodation listings.</p>
+                </div>
+                <button class="secondary-button" id="exportButton">
+                    <i data-lucide="download"></i> Export CSV
+                </button>
+            </section>
+
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-icon green"><i data-lucide="building-2"></i></span>
+                    <div><p>Total Hostels</p><h2 id="totalCount">0</h2></div>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon blue"><i data-lucide="check-circle"></i></span>
+                    <div><p>Approved</p><h2 id="approvedCount">0</h2></div>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon orange"><i data-lucide="clock"></i></span>
+                    <div><p>Under Review</p><h2 id="pendingCount">0</h2></div>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon red"><i data-lucide="x-circle"></i></span>
+                    <div><p>Rejected</p><h2 id="rejectedCount">0</h2></div>
+                </article>
+            </section>
+
+            <section class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>All Listings</h2>
+                        <p>Search listings and review their current status.</p>
+                    </div>
+                    <span class="demo-label">DEMO DATA</span>
+                </div>
+
+                <div class="filters">
+                    <label class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="search" id="searchInput"
+                               placeholder="Search hostel, location or agent..."
+                               aria-label="Search hostels">
+                    </label>
+
+                    <select id="statusFilter" aria-label="Filter by status">
+                        <option value="all">All statuses</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+
+                    <select id="locationFilter" aria-label="Filter by location">
+                        <option value="all">All locations</option>
+                        <option value="Oke-Baale">Oke-Baale</option>
+                        <option value="Alekuwodo">Alekuwodo</option>
+                        <option value="Lameco">Lameco</option>
+                        <option value="Ogo-Oluwa">Ogo-Oluwa</option>
+                    </select>
+
+                    <button class="clear-button" id="clearFilters">Clear</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hostel</th>
+                                <th>Location</th>
+                                <th>Annual Price</th>
+                                <th>Agent</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostelTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" id="emptyState" hidden>
+                    <i data-lucide="search-x"></i>
+                    <h3>No matching hostels</h3>
+                    <p>Try changing your search or filters.</p>
+                    <button class="secondary-button" id="emptyClear">
+                        Clear filters
+                    </button>
+                </div>
+
+                <div class="table-footer">
+                    <span id="resultCount">Showing 0 listings</span>
+                </div>
+            </section>
+
+            <footer class="footer">
+                Hostel Hub Admin Panel · Demo version
+            </footer>
+        </div>
+    </main>
+</div>
+
+<!-- Listing review modal -->
+<div class="modal-backdrop" id="reviewModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true"
+             aria-labelledby="modalTitle">
+        <div class="modal-heading">
+            <div><span class="eyebrow">LISTING REVIEW</span><h2 id="modalTitle">Review Hostel</h2></div>
+            <button class="icon-button" id="closeModal" aria-label="Close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div id="reviewContent" class="review-content"></div>
+
+        <label class="field-label" for="reviewNote">Review note</label>
+        <textarea id="reviewNote" rows="3"
+                  placeholder="Optional note about this decision..."></textarea>
+
+        <p class="modal-warning">
+            Demo only: decisions are not saved to a server.
+        </p>
+
+        <div class="modal-actions">
+            <button class="secondary-button" id="cancelReview">Cancel</button>
+            <button class="reject-button" id="rejectButton">Reject</button>
+            <button class="approve-button" id="approveButton">Approve</button>
+        </div>
+    </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/admin-hostels.js"></script>
+</body>
+</html>
+```

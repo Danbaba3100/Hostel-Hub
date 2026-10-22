@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Book Inspection | Hostel Hub</title>
+
+    <meta
+        name="description"
+        content="Book a hostel inspection with Hostel Hub and inspect your accommodation before making a decision."
+    >
+
+    <link rel="stylesheet" href="css/booking.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a href="index.html" class="logo">
+                Hostel<span>Hub</span>
+            </a>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="hostels.html" class="active">Find Hostels</a>
+                <a href="locations.html">Locations</a>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Open navigation"
+            >
+                ☰
+            </button>
+
+        </div>
+    </header>
+
+
+    <!-- =========================
+         PAGE HERO
+    ========================== -->
+    <section class="booking-hero">
+
+        <div class="booking-hero-container">
+
+            <div class="breadcrumb">
+                <a href="hostels.html">Find Hostels</a>
+                <span>›</span>
+                <a href="hostel-details.html?id=royal-court">
+                    Hostel Details
+                </a>
+                <span>›</span>
+                <span>Book Inspection</span>
+            </div>
+
+            <p class="hero-eyebrow">
+                INSPECTION REQUEST
+            </p>
+
+            <h1>
+                Book a hostel inspection.
+            </h1>
+
+            <p>
+                Tell us when you'd like to visit. The agent will receive
+                your request and confirm the inspection time.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         MAIN BOOKING SECTION
+    ========================== -->
+    <main class="booking-section">
+
+        <div class="booking-container">
+
+
+            <!-- =========================
+                 FORM
+            ========================== -->
+            <div class="booking-form-wrapper">
+
+                <div class="form-header">
+
+                    <p class="section-eyebrow">
+                        YOUR DETAILS
+                    </p>
+
+                    <h2>
+                        Request an inspection
+                    </h2>
+
+                    <p>
+                        Fill in your details below. No payment is required
+                        to request an inspection.
+                    </p>
+
+                </div>
+
+
+                <form id="inspectionForm" novalidate>
+
+
+                    <!-- FULL NAME -->
+                    <div class="form-group">
+
+                        <label for="fullName">
+                            Full Name
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PHONE -->
+                    <div class="form-group">
+
+                        <label for="phoneNumber">
+                            Phone Number
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            placeholder="e.g. 08012345678"
+                            autocomplete="tel"
+                            required
+                        >
+
+                        <small>
+                            We'll use this number to contact you about
+                            the inspection.
+                        </small>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                            <small>(Optional)</small>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="name@example.com"
+                            autocomplete="email"
+                        >
+
+                    </div>
+
+
+                    <!-- DATE + TIME -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="inspectionDate">
+                                Preferred Date
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="date"
+                                id="inspectionDate"
+                                name="inspectionDate"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="inspectionTime">
+                                Preferred Time
+                                <span>*</span>
+                            </label>
+
+                            <select
+                                id="inspectionTime"
+                                name="inspectionTime"
+                                required
+                            >
+
+                                <option value="">
+                                    Select a time
+                                </option>
+
+                                <option value="8:00 AM">
+                                    8:00 AM
+                                </option>
+
+                                <option value="9:00 AM">
+                                    9:00 AM
+                                </option>
+
+                                <option value="10:00 AM">
+                                    10:00 AM
+                                </option>
+
+                                <option value="11:00 AM">
+                                    11:00 AM
+                                </option>
+
+                                <option value="12:00 PM">
+                                    12:00 PM
+                                </option>
+
+                                <option value="1:00 PM">
+                                    1:00 PM
+                                </option>
+
+                                <option value="2:00 PM">
+                                    2:00 PM
+                                </option>
+
+                                <option value="3:00 PM">
+                                    3:00 PM
+                                </option>
+
+                                <option value="4:00 PM">
+                                    4:00 PM
+                                </option>
+
+                                <option value="5:00 PM">
+                                    5:00 PM
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- VISITORS -->
+                    <div class="form-group">
+
+                        <label for="visitors">
+                            Number of Visitors
+                            <span>*</span>
+                        </label>
+
+                        <select
+                            id="visitors"
+                            name="visitors"
+                            required
+                        >
+
+                            <option value="">
+                                Select number of visitors
+                            </option>
+
+                            <option value="1">
+                                1 person
+                            </option>
+
+                            <option value="2">
+                                2 people
+                            </option>
+
+                            <option value="3">
+                                3 people
+                            </option>
+
+                            <option value="4">
+                                4 people
+                            </option>
+
+                            <option value="5">
+                                5 people
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- MESSAGE -->
+                    <div class="form-group">
+
+                        <label for="message">
+                            Additional Message
+                            <small>(Optional)</small>
+                        </label>
+
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="5"
+                            placeholder="Anything you'd like the agent to know?"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+                    <div class="terms-box">
+
+                        <div class="terms-icon">
+                            ✓
+                        </div>
+
+                        <p>
+                            By requesting an inspection, you agree that
+                            Hostel Hub may share your inspection details
+                            with the relevant hostel agent or landlord
+                            for the purpose of arranging the visit.
+                        </p>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+                    <button
+                        type="submit"
+                        class="submit-booking"
+                        id="submitBooking"
+                    >
+
+                        <span id="buttonText">
+                            Request Inspection
+                        </span>
+
+                        <span
+                            class="button-spinner"
+                            id="buttonSpinner"
+                        ></span>
+
+                        <span class="button-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+
+                    <p class="form-note">
+                        Your inspection request does not guarantee
+                        availability. The agent will confirm the visit.
+                    </p>
+
+                </form>
+
+            </div>
+
+
+            <!-- =========================
+                 HOSTEL SUMMARY
+            ========================== -->
+            <aside class="booking-summary">
+
+                <div class="summary-card">
+
+                    <p class="section-eyebrow">
+                        YOU'RE INSPECTING
+                    </p>
+
+                    <h2 id="summaryHostelName">
+                        Royal Court Hostel
+                    </h2>
+
+                    <p class="summary-location" id="summaryLocation">
+                        📍 Oke-Baale, Osogbo
+                    </p>
+
+
+                    <div class="summary-video">
+
+                        <video
+                            muted
+                            autoplay
+                            loop
+                            playsinline
+                            preload="metadata"
+                        >
+
+                            <source
+                                src="assets/videos/hostel-1.mp4"
+                                type="video/mp4"
+                            >
+
+                        </video>
+
+                    </div>
+
+
+                    <div class="summary-details">
+
+                        <div>
+                            <span>Price</span>
+                            <strong id="summaryPrice">
+                                ₦180,000/year
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Room Type</span>
+                            <strong id="summaryRoom">
+                                Self-contained
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Status</span>
+                            <strong class="available">
+                                Available
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="hostel-details.html?id=royal-court"
+                        class="view-hostel"
+                    >
+                        View Hostel Details
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+
+                <!-- TRUST CARD -->
+                <div class="trust-card">
+
+                    <div class="trust-heading">
+
+                        <div class="trust-icon">
+                            ✓
+                        </div>
+
+                        <h3>
+                            Inspect before you decide
+                        </h3>
+
+                    </div>
+
+                    <p>
+                        Never rely only on a listing. Visit the hostel,
+                        check the environment and ask questions before
+                        making your accommodation decision.
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         BOTTOM CTA
+    ========================== -->
+    <section class="booking-cta">
+
+        <div class="booking-cta-container">
+
+            <div>
+
+                <p class="cta-eyebrow">
+                    NOT SURE YET?
+                </p>
+
+                <h2>
+                    Explore other hostels.
+                </h2>
+
+                <p>
+                    Compare different hostels before choosing
+                    the one that's right for you.
+                </p>
+
+            </div>
+
+            <a
+                href="hostels.html"
+                class="cta-button"
+            >
+                Find More Hostels
+                <span>→</span>
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a
+                    href="index.html"
+                    class="footer-logo"
+                >
+                    Hostel<span>Hub</span>
+                </a>
+
+                <p>
+                    Helping students find accommodation,
+                    compare options and inspect with confidence.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div class="footer-column">
+
+                    <h3>Explore</h3>
+
+                    <a href="hostels.html">
+                        Find Hostels
+                    </a>
+
+                    <a href="locations.html">
+                        Locations
+                    </a>
+
+                    <a href="how-it-works.html">
+                        How It Works
+                    </a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h3>Company</h3>
+
+                    <a href="contact.html">
+                        Contact
+                    </a>
+
+                    <a href="report.html">
+                        Report Listing
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="footer-bottom-container">
+
+                <p>
+                    © 2026 Hostel Hub. All rights reserved.
+                </p>
+
+                <p>
+                    Built for students.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script src="js/main.js"></script>
+    <script src="js/booking.js"></script>
+
+</body>
+</html>

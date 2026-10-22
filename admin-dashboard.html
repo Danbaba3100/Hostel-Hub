@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hostel Hub administration dashboard">
+    <title>Admin Dashboard | Hostel Hub</title>
+
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="brand">
+                <span class="brand-icon"><i data-lucide="house"></i></span>
+                <span>
+                    <strong>Hostel Hub</strong>
+                    <small>Safe Stays. Better Living.</small>
+                </span>
+            </a>
+
+            <nav class="sidebar-nav" aria-label="Admin navigation">
+                <a href="admin-dashboard.html" class="nav-link active">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="admin-hostels.html" class="nav-link" data-page="Hostel Management">
+                    <i data-lucide="building-2"></i>
+                    <span>Hostels</span>
+                </a>
+
+                <a href="admin-agents.html" class="nav-link" data-page="Agent Management">
+                    <i data-lucide="users"></i>
+                    <span>Agents</span>
+                </a>
+
+                <a href="admin-bookings.html" class="nav-link" data-page="Inspection Bookings">
+                    <i data-lucide="calendar-check"></i>
+                    <span>Bookings</span>
+                </a>
+
+                <a href="admin-reports.html" class="nav-link" data-page="Reports">
+                    <i data-lucide="flag"></i>
+                    <span>Reports</span>
+                    <span class="nav-count">6</span>
+                </a>
+
+                <a href="admin-users.html" class="nav-link" data-page="User Management">
+                    <i data-lucide="user-round"></i>
+                    <span>Users</span>
+                </a>
+
+                <a href="admin-settings.html" class="nav-link" data-page="Settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="support-icon">
+                    <i data-lucide="headset"></i>
+                </div>
+                <div>
+                    <strong>Need help?</strong>
+                    <a href="contact.html">Contact support</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <main class="main-area">
+
+            <!-- Topbar -->
+            <header class="topbar">
+                <button class="icon-button menu-toggle"
+                        id="menuToggle"
+                        aria-label="Open navigation"
+                        aria-expanded="false">
+                    <i data-lucide="menu"></i>
+                </button>
+
+                <form class="top-search" id="globalSearchForm">
+                    <i data-lucide="search"></i>
+                    <input
+                        type="search"
+                        id="globalSearch"
+                        placeholder="Search hostels, agents, or bookings..."
+                        aria-label="Search dashboard">
+                </form>
+
+                <div class="topbar-actions">
+                    <button class="icon-button notification-button"
+                            id="notificationButton"
+                            aria-label="View notifications">
+                        <i data-lucide="bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+
+                    <button class="admin-profile"
+                            id="profileButton"
+                            aria-label="Administrator profile">
+                        <span class="avatar">AD</span>
+                        <span class="profile-text">
+                            <strong>Admin</strong>
+                            <small>Administrator</small>
+                        </span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+
+                <!-- Welcome section -->
+                <section class="welcome-section">
+                    <div>
+                        <p class="eyebrow">ADMINISTRATION</p>
+                        <h1>Welcome back, Daniel <span>👋</span></h1>
+                        <p class="welcome-subtitle">
+                            Here's what's happening on Hostel Hub today.
+                        </p>
+                    </div>
+
+                    <div class="date-display">
+                        <span id="currentDate">Loading date...</span>
+                        <small id="currentTime"></small>
+                    </div>
+                </section>
+
+                <!-- Statistics -->
+                <section class="stats-grid" aria-label="Platform statistics">
+                    <article class="stat-card">
+                        <div class="stat-icon green">
+                            <i data-lucide="house"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Total Hostels</p>
+                            <h2 id="totalHostels">14</h2>
+                            <span class="stat-note">
+                                <i data-lucide="trending-up"></i>
+                                2 added this month
+                            </span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon blue">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Registered Agents</p>
+                            <h2 id="totalAgents">8</h2>
+                            <span class="stat-note">
+                                <i data-lucide="trending-up"></i>
+                                1 new this month
+                            </span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon green">
+                            <i data-lucide="calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Inspection Bookings</p>
+                            <h2 id="totalBookings">23</h2>
+                            <span class="stat-note">
+                                <i data-lucide="trending-up"></i>
+                                5 new this week
+                            </span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon orange">
+                            <i data-lucide="flag"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Open Reports</p>
+                            <h2 id="totalReports">6</h2>
+                            <span class="stat-note warning-note">
+                                Requires attention
+                            </span>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- Activity chart and feed -->
+                <section class="overview-grid">
+
+                    <article class="panel chart-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Platform Overview</h2>
+                                <p>Key activity over the last 7 days</p>
+                            </div>
+
+                            <select id="chartPeriod" aria-label="Activity period">
+                                <option value="7">Last 7 days</option>
+                                <option value="30">Last 30 days</option>
+                            </select>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-y-labels" aria-hidden="true">
+                                <span>25</span>
+                                <span>20</span>
+                                <span>15</span>
+                                <span>10</span>
+                                <span>5</span>
+                                <span>0</span>
+                            </div>
+
+                            <div class="chart-main">
+                                <svg id="activityChart"
+                                     viewBox="0 0 700 300"
+                                     preserveAspectRatio="none"
+                                     role="img"
+                                     aria-label="Sample chart showing bookings, new listings and reports">
+                                    <defs>
+                                        <linearGradient id="bookingFill"
+                                                        x1="0" y1="0"
+                                                        x2="0" y2="1">
+                                            <stop offset="0%"
+                                                  stop-color="#36df7b"
+                                                  stop-opacity=".18"/>
+                                            <stop offset="100%"
+                                                  stop-color="#36df7b"
+                                                  stop-opacity="0"/>
+                                        </linearGradient>
+                                    </defs>
+
+                                    <g class="chart-grid-lines">
+                                        <line x1="0" y1="20" x2="700" y2="20"/>
+                                        <line x1="0" y1="70" x2="700" y2="70"/>
+                                        <line x1="0" y1="120" x2="700" y2="120"/>
+                                        <line x1="0" y1="170" x2="700" y2="170"/>
+                                        <line x1="0" y1="220" x2="700" y2="220"/>
+                                        <line x1="0" y1="270" x2="700" y2="270"/>
+
+                                        <line x1="0" y1="20" x2="0" y2="270"/>
+                                        <line x1="116" y1="20" x2="116" y2="270"/>
+                                        <line x1="233" y1="20" x2="233" y2="270"/>
+                                        <line x1="350" y1="20" x2="350" y2="270"/>
+                                        <line x1="466" y1="20" x2="466" y2="270"/>
+                                        <line x1="583" y1="20" x2="583" y2="270"/>
+                                        <line x1="700" y1="20" x2="700" y2="270"/>
+                                    </g>
+
+                                    <path id="bookingsArea"
+                                          class="chart-area"
+                                          fill="url(#bookingFill)"
+                                          d="M0 200 L116 150 L233 180 L350 120 L466 160 L583 120 L700 60 L700 270 L0 270 Z"/>
+
+                                    <polyline id="bookingsLine"
+                                              class="chart-line bookings-line"
+                                              points="0,200 116,150 233,180 350,120 466,160 583,120 700,60"/>
+
+                                    <polyline id="listingsLine"
+                                              class="chart-line listings-line"
+                                              points="0,230 116,210 233,220 350,190 466,200 583,200 700,170"/>
+
+                                    <polyline id="reportsLine"
+                                              class="chart-line reports-line"
+                                              points="0,250 116,235 233,245 350,225 466,240 583,230 700,215"/>
+
+                                    <g id="chartPoints"></g>
+                                </svg>
+
+                                <div class="chart-x-labels" id="chartLabels">
+                                    <span>Mon</span>
+                                    <span>Tue</span>
+                                    <span>Wed</span>
+                                    <span>Thu</span>
+                                    <span>Fri</span>
+                                    <span>Sat</span>
+                                    <span>Sun</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-legend">
+                            <span><i class="legend-dot bookings-dot"></i>Bookings</span>
+                            <span><i class="legend-dot listings-dot"></i>New Listings</span>
+                            <span><i class="legend-dot reports-dot"></i>Reports</span>
+                        </div>
+                    </article>
+
+                    <article class="panel activity-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Recent Activity</h2>
+                                <p>Latest platform updates</p>
+                            </div>
+                            <button class="text-button"
+                                    data-page="Activity Log">View all</button>
+                        </div>
+
+                        <div class="activity-list" id="activityList">
+                            <div class="activity-item">
+                                <span class="activity-icon green">
+                                    <i data-lucide="calendar-check"></i>
+                                </span>
+                                <div class="activity-copy">
+                                    <strong>New inspection booking</strong>
+                                    <p>Royal Court Hostel · Oke-Baale</p>
+                                </div>
+                                <time>2h ago</time>
+                            </div>
+
+                            <div class="activity-item">
+                                <span class="activity-icon purple">
+                                    <i data-lucide="file-warning"></i>
+                                </span>
+                                <div class="activity-copy">
+                                    <strong>New report submitted</strong>
+                                    <p>Green View Hostel · Misleading video</p>
+                                </div>
+                                <time>4h ago</time>
+                            </div>
+
+                            <div class="activity-item">
+                                <span class="activity-icon blue">
+                                    <i data-lucide="user-plus"></i>
+                                </span>
+                                <div class="activity-copy">
+                                    <strong>Agent registered</strong>
+                                    <p>New agent account created</p>
+                                </div>
+                                <time>6h ago</time>
+                            </div>
+
+                            <div class="activity-item">
+                                <span class="activity-icon green">
+                                    <i data-lucide="check-circle"></i>
+                                </span>
+                                <div class="activity-copy">
+                                    <strong>Hostel approved</strong>
+                                    <p>Sunrise Hostel · Ogo-Oluwa</p>
+                                </div>
+                                <time>8h ago</time>
+                            </div>
+
+                            <div class="activity-item">
+                                <span class="activity-icon red">
+                                    <i data-lucide="flag"></i>
+                                </span>
+                                <div class="activity-copy">
+                                    <strong>New report submitted</strong>
+                                    <p>Peace Lodge · Incorrect price</p>
+                                </div>
+                                <time>12h ago</time>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- Recent hostels -->
+                <section class="panel hostels-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Recent Hostels</h2>
+                            <p>Recently added accommodation listings</p>
+                        </div>
+                        <button class="text-button"
+        type="button"
+        onclick="window.location.href='admin-hostels.html'">
+    View all hostels
+</button>
+                    </div>
+
+                    <div class="table-toolbar">
+                        <label class="table-search">
+                            <i data-lucide="search"></i>
+                            <input type="search"
+                                   id="hostelSearch"
+                                   placeholder="Search hostel name or location..."
+                                   aria-label="Search hostels">
+                        </label>
+
+                        <select id="statusFilter" aria-label="Filter by status">
+                            <option value="all">All statuses</option>
+                            <option value="Available">Available</option>
+                            <option value="Under Review">Under Review</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hostel</th>
+                                    <th>Location</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hostelTableBody">
+                                <!-- Filled by admin-dashboard.js -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-empty" id="tableEmpty" hidden>
+                        <i data-lucide="search-x"></i>
+                        <p>No hostels match your search.</p>
+                        <button class="text-button" id="resetTable">Clear filters</button>
+                    </div>
+
+                    <div class="table-footer">
+                        <span id="tableCount">Showing 4 hostels</span>
+                        <button class="secondary-button"
+        type="button"
+        onclick="window.location.href='admin-hostels.html'">
+    Manage hostels
+    <i data-lucide="arrow-right"></i>
+</button>
+                    </div>
+                </section>
+
+                <!-- Safety banner -->
+                <section class="safety-banner">
+                    <div class="safety-icon">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <div class="safety-copy">
+                        <strong>Keep the platform safe</strong>
+                        <p>Review new listings, verify agents, and monitor reports.</p>
+                    </div>
+                    <button class="primary-button" data-page="Reports">
+                        View reports
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </section>
+
+                <footer class="dashboard-footer">
+                    <p>© <span id="currentYear"></span> Hostel Hub. All rights reserved.</p>
+                    <span>Admin Dashboard · Demo Version</span>
+                </footer>
+
+            </div>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

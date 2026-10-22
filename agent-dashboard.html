@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Dashboard | Hostel Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/agent-dashboard.css">
+  <script src="js/agent-dashboard.js" defer></script>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">H</span>
+        <span>Hostel<span class="brand-light">Hub</span></span>
+      </a>
+
+      <div class="sidebar-label">AGENT WORKSPACE</div>
+
+      <nav class="sidebar-nav" aria-label="Agent navigation">
+        <a class="nav-link active" href="#overview" data-section="overview">
+          <span class="nav-icon">▦</span> Dashboard
+        </a>
+        <a class="nav-link" href="agent-listings.html" data-section="listings">
+          <span class="nav-icon">⌂</span> My Listings
+        </a>
+        <a class="nav-link" href="agent-inspections.html" data-section="inspections">
+          <span class="nav-icon">▣</span> Inspections
+          <span class="nav-count" id="inspectionNavCount">2</span>
+        </a>
+        
+<a class="nav-link" href="agent-profile.html">
+  <span class="nav-icon">♙</span>
+  My Profile
+</a>
+
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <div class="help-icon">?</div>
+          <strong>Need help?</strong>
+          <p>Need assistance managing your listings?</p>
+          <a href="contact.html">Contact support →</a>
+        </div>
+        <a class="nav-link" href="index.html">
+          <span class="nav-icon">↗</span> Back to website
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        <div class="topbar-heading">
+          <span class="eyebrow">AGENT WORKSPACE</span>
+          <h1>Agent Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-pill"><span></span> Agent account</span>
+          <div class="avatar" aria-label="Agent profile">A</div>
+        </div>
+      </header>
+
+      <section class="welcome-row">
+        <div>
+          <h2>Welcome back, Agent!</h2>
+          <p>Manage your hostel listings and keep track of student inspections.</p>
+        </div>
+        <button class="btn btn-primary" id="addListingBtn">
+          <span>＋</span> Add New Listing
+        </button>
+      </section>
+
+      <div class="notice-banner">
+        <span class="notice-icon">ⓘ</span>
+        <div>
+          <strong>Listing approval process</strong>
+          <p>New listings and edits require admin approval before they can be published to students.</p>
+        </div>
+      </div>
+
+      <section class="stats-grid" aria-label="Dashboard statistics">
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Total listings</span>
+            <span class="stat-icon blue">⌂</span>
+          </div>
+          <strong class="stat-number" id="totalListings">0</strong>
+          <span class="stat-note">Your hostel properties</span>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Published</span>
+            <span class="stat-icon green">✓</span>
+          </div>
+          <strong class="stat-number" id="publishedListings">0</strong>
+          <span class="stat-note">Approved and active</span>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Pending approval</span>
+            <span class="stat-icon amber">◷</span>
+          </div>
+          <strong class="stat-number" id="pendingListings">0</strong>
+          <span class="stat-note">Awaiting admin review</span>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Inspection requests</span>
+            <span class="stat-icon purple">▣</span>
+          </div>
+          <strong class="stat-number" id="totalInspections">0</strong>
+          <span class="stat-note">Student inspection requests</span>
+        </article>
+      </section>
+
+      <section class="panel" id="listings">
+        <div class="panel-header">
+          <div>
+            <h2>My Hostel Listings</h2>
+            <p>Manage the properties you have added to Hostel Hub.</p>
+          </div>
+          <button class="btn btn-primary btn-small" id="addListingBtnTop">＋ Add Listing</button>
+        </div>
+
+        <div class="filter-bar">
+          <label class="search-box">
+            <span>⌕</span>
+            <input type="search" id="listingSearch" placeholder="Search hostel name or location..." aria-label="Search listings">
+          </label>
+          <select id="listingStatusFilter" aria-label="Filter listings by status">
+            <option value="all">All statuses</option>
+            <option value="Published">Published</option>
+            <option value="Pending Approval">Pending approval</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>HOSTEL</th>
+                <th>ANNUAL RENT</th>
+                <th>LOCATION</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="listingsTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="listingsEmpty" hidden>
+            <div class="empty-icon">⌂</div>
+            <h3>No listings found</h3>
+            <p>Add your first hostel listing or change your search filters.</p>
+            <button class="btn btn-primary btn-small" id="emptyAddListingBtn">Add a listing</button>
+          </div>
+        </div>
+        <div class="table-footer" id="listingsTableFooter">Showing 0 listings</div>
+      </section>
+
+      <section class="panel inspections-panel" id="inspections">
+        <div class="panel-header">
+          <div>
+            <h2>Inspection Requests</h2>
+            <p>Keep track of students interested in viewing your properties.</p>
+          </div>
+          <span class="section-tag" id="inspectionCountLabel">0 requests</span>
+        </div>
+        <div class="inspection-list" id="inspectionList"></div>
+        <div class="empty-state" id="inspectionsEmpty" hidden>
+          <div class="empty-icon">▣</div>
+          <h3>No inspection requests</h3>
+          <p>Student inspection requests will appear here when available.</p>
+        </div>
+      </section>
+
+      <footer class="dashboard-footer">
+        <span>© 2026 Hostel Hub</span>
+        <span>Agent Dashboard · Frontend prototype</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Add/Edit Listing Modal -->
+  <div class="modal-backdrop" id="listingModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="listingModalTitle">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">PROPERTY MANAGEMENT</span>
+          <h2 id="listingModalTitle">Add New Hostel</h2>
+          <p>Provide accurate information so students know what to expect.</p>
+        </div>
+        <button class="modal-close" id="closeListingModal" type="button" aria-label="Close modal">×</button>
+      </div>
+
+      <form id="listingForm">
+        <div class="form-section">
+          <h3>Basic information</h3>
+          <p class="form-section-description">Enter the main details of your property.</p>
+
+          <div class="form-grid">
+            <div class="form-field full-field">
+              <label for="hostelName">Hostel name <span class="required">*</span></label>
+              <input type="text" id="hostelName" name="hostelName" placeholder="e.g. Peace Estate Hostel" required maxlength="100">
+            </div>
+
+            <div class="form-field">
+              <label for="hostelLocation">Location / address <span class="required">*</span></label>
+              <input type="text" id="hostelLocation" name="hostelLocation" placeholder="e.g. Oke Baale, Osogbo" required maxlength="160">
+            </div>
+
+            <div class="form-field">
+              <label for="hostelType">Hostel type <span class="required">*</span></label>
+              <select id="hostelType" name="hostelType" required>
+                <option value="">Select type</option>
+                <option value="Self-contained">Self-contained</option>
+                <option value="Single room">Single room</option>
+                <option value="Shared apartment">Shared apartment</option>
+                <option value="One-bedroom apartment">One-bedroom apartment</option>
+                <option value="Two-bedroom apartment">Two-bedroom apartment</option>
+                <option value="Room and parlour">Room and parlour</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="hostelRooms">Available rooms / units <span class="required">*</span></label>
+              <input type="number" id="hostelRooms" name="hostelRooms" min="1" step="1" placeholder="e.g. 8" required>
+            </div>
+
+            <div class="form-field">
+              <label for="hostelDistance">Distance from campus</label>
+              <input type="text" id="hostelDistance" name="hostelDistance" placeholder="e.g. 5 minutes by bike" maxlength="100">
+            </div>
+
+            <div class="form-field">
+              <label for="hostelAvailability">Availability <span class="required">*</span></label>
+              <select id="hostelAvailability" name="hostelAvailability" required>
+                <option value="Available">Available</option>
+                <option value="Limited availability">Limited availability</option>
+                <option value="Fully occupied">Fully occupied</option>
+              </select>
+            </div>
+
+            <div class="form-field full-field">
+              <label for="hostelDescription">Hostel description <span class="required">*</span></label>
+              <textarea id="hostelDescription" name="hostelDescription" rows="4" required maxlength="1500" placeholder="Describe the hostel, its environment, security, access, and what makes it suitable for students."></textarea>
+              <small class="field-hint">Be clear and accurate. Maximum 1,500 characters.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Rent and additional fees</h3>
+          <p class="form-section-description">Enter the amounts students should expect to pay.</p>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="hostelPrice">Annual rent (₦) <span class="required">*</span></label>
+              <input type="number" id="hostelPrice" name="hostelPrice" min="0" step="100" placeholder="e.g. 250000" required>
+            </div>
+
+            <div class="form-field">
+              <label for="hostelCautionFee">Caution fee (₦)</label>
+              <input type="number" id="hostelCautionFee" name="hostelCautionFee" min="0" step="100" placeholder="0">
+            </div>
+
+            <div class="form-field">
+              <label for="hostelAgencyFee">Agency fee (₦)</label>
+              <input type="number" id="hostelAgencyFee" name="hostelAgencyFee" min="0" step="100" placeholder="0">
+            </div>
+
+            <div class="form-field">
+              <label for="hostelAgreementFee">Agreement fee (₦)</label>
+              <input type="number" id="hostelAgreementFee" name="hostelAgreementFee" min="0" step="100" placeholder="0">
+            </div>
+
+            <div class="form-field">
+              <label for="hostelServiceCharge">Service charge (₦)</label>
+              <input type="number" id="hostelServiceCharge" name="hostelServiceCharge" min="0" step="100" placeholder="0">
+            </div>
+
+            <div class="full-field cost-preview">
+              <span>Estimated upfront cost</span>
+              <strong id="estimatedTotalCost">₦0</strong>
+              <small>Annual rent plus the additional fees entered above.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Facilities and amenities</h3>
+          <p class="form-section-description">Select every facility that the hostel actually provides.</p>
+
+          <div class="facilities-grid">
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Water supply"> <span>Water supply</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Electricity"> <span>Electricity</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Security"> <span>Security</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Prepaid meter"> <span>Prepaid meter</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Ensuite bathroom"> <span>Ensuite bathroom</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Kitchen"> <span>Kitchen</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Parking space"> <span>Parking space</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Wi-Fi"> <span>Wi-Fi</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Wardrobe"> <span>Wardrobe</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Tiled floor"> <span>Tiled floor</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Good road access"> <span>Good road access</span></label>
+            <label class="facility-option"><input type="checkbox" name="facilities" value="Generator"> <span>Generator</span></label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Photos and video</h3>
+          <p class="form-section-description">Choose clear images and an optional video of the actual property.</p>
+
+          <div class="form-grid">
+            <div class="form-field full-field">
+              <label for="hostelPhotos">Hostel photos</label>
+              <input type="file" id="hostelPhotos" name="hostelPhotos" accept="image/*" multiple>
+              <small class="field-hint">Select multiple images. JPG, PNG, and other browser-supported image types are accepted.</small>
+              <div class="selected-files" id="selectedPhotos"></div>
+            </div>
+
+            <div class="form-field full-field">
+              <label for="hostelVideo">Hostel video (optional)</label>
+              <input type="file" id="hostelVideo" name="hostelVideo" accept="video/*">
+              <small class="field-hint">A short walkthrough video can help students understand the property.</small>
+              <div class="selected-files" id="selectedVideo"></div>
+            </div>
+          </div>
+          <p class="upload-notice">Prototype notice: selected media is not uploaded to a server yet. A backend and file storage are needed to publish and retain actual media.</p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline" id="cancelListingBtn" type="button">Cancel</button>
+          <button class="btn btn-primary" id="saveListingBtn" type="submit">Submit for Approval</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- Toast messages -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

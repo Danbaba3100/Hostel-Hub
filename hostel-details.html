@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hostel Details | Hostel Hub</title>
+    <meta
+        name="description"
+        content="View hostel details, watch the hostel video and book an inspection with Hostel Hub."
+    >
+
+    <link rel="stylesheet" href="css/hostel-details.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a href="index.html" class="logo">
+                Hostel<span>Hub</span>
+            </a>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="hostels.html" class="active">Find Hostels</a>
+                <a href="locations.html">Locations</a>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Open navigation">
+                ☰
+            </button>
+
+        </div>
+    </header>
+
+
+    <!-- =========================
+         PAGE HEADER
+    ========================== -->
+    <section class="details-hero">
+
+        <div class="details-hero-container">
+
+            <div class="breadcrumb">
+                <a href="hostels.html">Find Hostels</a>
+                <span>›</span>
+                <span>Hostel Details</span>
+            </div>
+
+            <div class="hero-heading">
+                <div>
+                    <p class="eyebrow">VERIFIED LISTING</p>
+
+                    <h1 id="hostelTitle">
+                        Royal Court Hostel
+                    </h1>
+
+                    <p class="hero-location" id="hostelLocation">
+                        📍 Oke-Baale, Osogbo
+                    </p>
+                </div>
+
+                <div class="verified-label">
+                    <span>✓</span>
+                    Verified
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+    <main class="details-section">
+
+        <div class="details-container">
+
+            <!-- LEFT SIDE -->
+            <div class="details-main">
+
+                <!-- VIDEO -->
+                <div class="main-video-card">
+
+                    <div class="video-wrapper">
+
+                        <video
+                            id="hostelVideo"
+                            controls
+                            preload="metadata"
+                            playsinline
+                        >
+                            <source
+                                src="assets/videos/hostel-1.mp4"
+                                type="video/mp4"
+                            >
+
+                            Your browser does not support video playback.
+                        </video>
+
+                        <div class="video-label">
+                            Hostel Tour
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- OVERVIEW -->
+                <section class="details-card">
+
+                    <div class="section-title">
+                        <p class="section-eyebrow">OVERVIEW</p>
+                        <h2>About this hostel</h2>
+                    </div>
+
+                    <p class="hostel-description" id="hostelDescription">
+                        Royal Court Hostel is a student-friendly accommodation
+                        located in Oke-Baale, Osogbo. The hostel offers a
+                        comfortable environment with essential facilities for
+                        students looking for convenient accommodation.
+                    </p>
+
+                </section>
+
+
+                <!-- QUICK INFO -->
+                <section class="details-card">
+
+                    <div class="section-title">
+                        <p class="section-eyebrow">QUICK INFORMATION</p>
+                        <h2>Hostel details</h2>
+                    </div>
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+                            <span class="info-icon">₦</span>
+                            <div>
+                                <small>Price</small>
+                                <strong id="hostelPrice">
+                                    ₦180,000 / year
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">⌂</span>
+                            <div>
+                                <small>Room Type</small>
+                                <strong id="hostelRoom">
+                                    Self-contained
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">👥</span>
+                            <div>
+                                <small>Occupancy</small>
+                                <strong id="hostelOccupancy">
+                                    2 students
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">✓</span>
+                            <div>
+                                <small>Availability</small>
+                                <strong class="available" id="hostelAvailability">
+                                    Available
+                                </strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- FACILITIES -->
+                <section class="details-card">
+
+                    <div class="section-title">
+                        <p class="section-eyebrow">FACILITIES</p>
+                        <h2>What this hostel offers</h2>
+                    </div>
+
+                    <div class="facilities-grid">
+
+                        <div class="facility">
+                            <span></span>
+                            <p>Water Supply</p>
+                        </div>
+
+                        <div class="facility">
+                            <span></span>
+                            <p>Electricity</p>
+                        </div>
+
+                        <div class="facility">
+                            <span></span>
+                            <p>Parking</p>
+                        </div>
+
+                        <div class="facility">
+                            <span>🛡</span>
+                            <p>Security</p>
+                        </div>
+
+                        <div class="facility">
+                            <span></span>
+                            <p>Kitchen</p>
+                        </div>
+
+                        <div class="facility">
+                            <span></span>
+                            <p>Bathroom</p>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+               
+
+                <!-- REPORT -->
+                <div class="report-section">
+
+                    <p>
+                        Something doesn't look right about this listing?
+                    </p>
+
+                    <a
+                        href="report.html?hostel=royal-court"
+                        class="report-link"
+                    >
+                        Report this listing
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT SIDE / BOOKING -->
+            <aside class="booking-card">
+
+                <div class="booking-card-top">
+
+                    <p class="booking-eyebrow">
+                        INTERESTED IN THIS HOSTEL?
+                    </p>
+
+                    <h2>
+                        See it for yourself.
+                    </h2>
+
+                    <p>
+                        Book an inspection and visit the hostel before
+                        making any decision.
+                    </p>
+
+                </div>
+
+                <div class="booking-price">
+
+                    <span>Starting from</span>
+
+                    <strong id="bookingPrice">
+                        ₦180,000
+                    </strong>
+
+                    <small>per year</small>
+
+                </div>
+
+                <a
+                    href="book-inspection.html?hostel=royal-court"
+                    class="booking-button"
+                >
+                    Book Inspection
+                    <span>→</span>
+                </a>
+
+                <div class="booking-note">
+                    <span>✓</span>
+                    No payment required to request an inspection.
+                </div>
+
+                <div class="trust-list">
+
+                    <div>
+                        <span>✓</span>
+                        Verified listing
+                    </div>
+
+                    <div>
+                        <span>✓</span>
+                        Inspect before deciding
+                    </div>
+
+                    <div>
+                        <span>✓</span>
+                        Student-focused platform
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         CTA
+    ========================== -->
+    <section class="details-cta">
+
+        <div class="details-cta-container">
+
+            <div>
+                <p class="cta-eyebrow">STILL LOOKING?</p>
+
+                <h2>
+                    Explore more student hostels.
+                </h2>
+
+                <p>
+                    Compare different locations, prices and room types
+                    before choosing your next hostel.
+                </p>
+            </div>
+
+            <a href="hostels.html" class="cta-button">
+                Find More Hostels
+                <span>→</span>
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a href="index.html" class="footer-logo">
+                    Hostel<span>Hub</span>
+                </a>
+
+                <p>
+                    Helping students find accommodation,
+                    compare options and inspect with confidence.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div class="footer-column">
+
+                    <h3>Explore</h3>
+
+                    <a href="hostels.html">Find Hostels</a>
+                    <a href="locations.html">Locations</a>
+                    <a href="how-it-works.html">How It Works</a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h3>Company</h3>
+
+                    <a href="contact.html">Contact</a>
+                    <a href="report.html">Report Listing</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="footer-bottom-container">
+
+                <p>
+                    © 2026 Hostel Hub. All rights reserved.
+                </p>
+
+                <p>
+                    Built for students.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script src="js/main.js"></script>
+    <script src="js/hostel-details.js"></script>
+
+</body>
+</html>

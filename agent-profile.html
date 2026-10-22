@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Profile | Hostel Hub</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/agent-profile.css">
+  <script src="js/agent-profile.js" defer></script>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">H</span>
+        <span>Hostel<span class="brand-light">Hub</span></span>
+      </a>
+
+      <div class="sidebar-label">AGENT WORKSPACE</div>
+
+      <nav class="sidebar-nav" aria-label="Agent navigation">
+        <a class="nav-link" href="agent-dashboard.html">
+          <span class="nav-icon">▦</span> Dashboard
+        </a>
+        <a class="nav-link" href="agent-dashboard.html">
+          <span class="nav-icon">⌂</span> My Listings
+        </a>
+        <a class="nav-link" href="agent-dashboard.html">
+          <span class="nav-icon">▣</span> Inspections
+        </a>
+        <a class="nav-link active" href="agent-profile.html" aria-current="page">
+          <span class="nav-icon">♙</span> My Profile
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <div class="help-icon">?</div>
+          <strong>Need help?</strong>
+          <p>Need assistance managing your account?</p>
+          <a href="contact.html">Contact support →</a>
+        </div>
+
+        <a class="nav-link" href="index.html">
+          <span class="nav-icon">↗</span> Back to website
+        </a>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle"
+          type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+
+        <div class="topbar-heading">
+          <span class="eyebrow">AGENT WORKSPACE</span>
+          <h1>My Profile</h1>
+        </div>
+
+        <div class="topbar-actions">
+          <span class="status-pill"><span></span> Agent account</span>
+          <div class="avatar" id="headerAvatar">A</div>
+        </div>
+      </header>
+
+      <section class="page-intro">
+        <div>
+          <h2>Profile Settings</h2>
+          <p>Manage your personal details and the contact information students use to reach you.</p>
+        </div>
+        <span class="profile-tag"><span></span> Agent profile</span>
+      </section>
+
+      <section class="profile-summary">
+        <div class="profile-avatar" id="profileAvatar">A</div>
+        <div class="profile-summary-info">
+          <h2 id="summaryName">Your Name</h2>
+          <p id="summaryEmail">your@email.com</p>
+          <span class="summary-role">Hostel Hub Agent</span>
+        </div>
+        <button class="btn btn-outline" id="editProfileBtn" type="button">
+          ✎ Edit profile
+        </button>
+      </section>
+
+      <div class="profile-layout">
+        <section class="panel profile-form-panel" id="profileFormSection">
+          <div class="panel-header">
+            <div>
+              <h2>Personal Information</h2>
+              <p>Keep your contact details up to date.</p>
+            </div>
+            <span class="panel-icon">♙</span>
+          </div>
+
+          <form id="profileForm">
+            <div class="form-section">
+              <h3>Basic details</h3>
+
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="agentFullName">Full name <span class="required">*</span></label>
+                  <input id="agentFullName" name="agentFullName"
+                    type="text" maxlength="100" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-field">
+                  <label for="agentEmail">Email address <span class="required">*</span></label>
+                  <input id="agentEmail" name="agentEmail"
+                    type="email" maxlength="150" placeholder="you@example.com" required>
+                </div>
+
+                <div class="form-field">
+                  <label for="agentPhone">Phone number <span class="required">*</span></label>
+                  <input id="agentPhone" name="agentPhone"
+                    type="tel" maxlength="25" placeholder="e.g. 08012345678" required>
+                </div>
+
+                <div class="form-field">
+                  <label for="agentWhatsApp">WhatsApp number <span class="required">*</span></label>
+                  <input id="agentWhatsApp" name="agentWhatsApp"
+                    type="tel" maxlength="25" placeholder="e.g. 08012345678" required>
+                  <small>Use the number on which you want to receive inspection enquiries.</small>
+                </div>
+
+                <div class="form-field full-field">
+                  <label for="agentAddress">Business address / operating area</label>
+                  <input id="agentAddress" name="agentAddress"
+                    type="text" maxlength="180" placeholder="e.g. Osogbo, Osun State">
+                </div>
+
+                <div class="form-field full-field">
+                  <label for="agentBio">About you</label>
+                  <textarea id="agentBio" name="agentBio" rows="4" maxlength="600"
+                    placeholder="Briefly introduce yourself and the accommodation services you provide."></textarea>
+                  <small>Maximum 600 characters.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Agency information</h3>
+              <p class="section-description">Optional details about your property business.</p>
+
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="agencyName">Agency / business name</label>
+                  <input id="agencyName" name="agencyName"
+                    type="text" maxlength="120" placeholder="Enter business name">
+                </div>
+
+                <div class="form-field">
+                  <label for="agencyType">Account type</label>
+                  <select id="agencyType" name="agencyType">
+                    <option value="Independent Agent">Independent Agent</option>
+                    <option value="Registered Agency">Registered Agency</option>
+                    <option value="Property Manager">Property Manager</option>
+                    <option value="Landlord">Landlord</option>
+                  </select>
+                </div>
+
+                <div class="form-field full-field">
+                  <label for="agencyWebsite">Website or social media link</label>
+                  <input id="agencyWebsite" name="agencyWebsite"
+                    type="url" maxlength="250" placeholder="https://example.com">
+                  <small>Optional. Enter a complete link beginning with https://</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-notice">
+              <span class="notice-icon">ⓘ</span>
+              <p>
+                Your WhatsApp number will be used for future inspection notifications
+                after the booking system and messaging service are connected.
+              </p>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-outline" id="resetProfileBtn" type="button">
+                Cancel changes
+              </button>
+              <button class="btn btn-primary" type="submit">
+                Save Profile
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="right-column">
+          <section class="panel tips-panel">
+            <div class="side-panel-heading">
+              <span class="tips-icon">✦</span>
+              <h2>Profile tips</h2>
+            </div>
+
+            <div class="tip-item">
+              <span class="tip-number">01</span>
+              <div>
+                <strong>Use your real details</strong>
+                <p>Accurate information helps students know who they are contacting.</p>
+              </div>
+            </div>
+
+            <div class="tip-item">
+              <span class="tip-number">02</span>
+              <div>
+                <strong>Check your WhatsApp number</strong>
+                <p>Make sure the number is active and can receive messages.</p>
+              </div>
+            </div>
+
+            <div class="tip-item">
+              <span class="tip-number">03</span>
+              <div>
+                <strong>Describe your services</strong>
+                <p>A short introduction helps students understand your role.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel account-panel">
+            <span class="account-icon">✓</span>
+            <h2>Account information</h2>
+            <p>This page currently saves profile details in this browser only.</p>
+            <div class="account-row">
+              <span>Profile status</span>
+              <strong class="local-status">Local prototype</strong>
+            </div>
+            <div class="account-row">
+              <span>Messaging connection</span>
+              <strong>Not connected</strong>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="dashboard-footer">
+        <span>© 2026 Hostel Hub</span>
+        <span>Agent Workspace · Profile Settings</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

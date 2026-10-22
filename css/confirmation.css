@@ -1,0 +1,396 @@
+css
+/* ================================
+   CONFIRMATION PAGE
+================================ */
+
+.confirmation-page {
+    min-height: calc(100vh - 80px);
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding: 70px 20px 90px;
+
+    background: var(--off-white);
+}
+
+
+/* ================================
+   CONFIRMATION CARD
+================================ */
+
+.confirmation-card {
+    width: 100%;
+    max-width: 700px;
+
+    padding: 45px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    text-align: center;
+
+    box-shadow: 0 15px 45px rgba(7, 24, 39, 0.07);
+}
+
+
+/* ================================
+   SUCCESS ICON
+================================ */
+
+.success-icon {
+    width: 70px;
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 20px;
+
+    border-radius: 50%;
+
+    background: var(--green-soft);
+    color: var(--green-dark);
+
+    font-size: 30px;
+    font-weight: 800;
+}
+
+
+/* ================================
+   HEADING
+================================ */
+
+.confirmation-label {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: var(--green-dark);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+.confirmation-card h1 {
+    margin: 0 0 15px;
+
+    color: var(--text-dark);
+
+    font-size: clamp(30px, 5vw, 42px);
+
+    line-height: 1.15;
+}
+
+.confirmation-text {
+    max-width: 560px;
+
+    margin: 0 auto;
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+
+/* ================================
+   REFERENCE
+================================ */
+
+.reference-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 30px;
+    padding: 16px 20px;
+
+    background: var(--off-white);
+
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+
+    text-align: left;
+}
+
+.reference-box span {
+    color: var(--text);
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.reference-box strong {
+    color: var(--text-dark);
+
+    font-size: 14px;
+
+    letter-spacing: 0.5px;
+}
+
+
+/* ================================
+   HOSTEL SUMMARY
+================================ */
+
+.confirmation-hostel {
+    display: flex;
+    align-items: stretch;
+
+    margin-top: 25px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    text-align: left;
+}
+
+.hostel-summary-video {
+    width: 220px;
+    min-height: 150px;
+
+    flex-shrink: 0;
+
+    background: var(--navy);
+}
+
+.hostel-summary-video video {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.hostel-summary-content {
+    flex: 1;
+
+    padding: 24px;
+}
+
+.verified-label {
+    display: inline-block;
+
+    margin-bottom: 8px;
+
+    color: var(--green-dark);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.hostel-summary-content h2 {
+    margin: 0 0 7px;
+
+    color: var(--text-dark);
+
+    font-size: 21px;
+}
+
+.hostel-summary-content p {
+    margin: 0;
+
+    color: var(--text);
+
+    font-size: 13px;
+}
+
+
+/* ================================
+   NEXT STEPS
+================================ */
+
+.next-steps {
+    margin-top: 35px;
+
+    padding-top: 30px;
+
+    border-top: 1px solid var(--border);
+
+    text-align: left;
+}
+
+.next-steps > h2 {
+    margin: 0 0 22px;
+
+    color: var(--text-dark);
+
+    font-size: 19px;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.step:last-child {
+    margin-bottom: 0;
+}
+
+.step-icon {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--green-soft);
+    color: var(--green-dark);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.step h3 {
+    margin: 2px 0 5px;
+
+    color: var(--text-dark);
+
+    font-size: 14px;
+}
+
+.step p {
+    margin: 0;
+
+    color: var(--text);
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+/* ================================
+   ACTIONS
+================================ */
+
+.confirmation-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+
+    margin-top: 35px;
+}
+
+.primary-action,
+.secondary-action {
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+.primary-action {
+    background: var(--green-dark);
+    color: var(--white);
+}
+
+.primary-action:hover {
+    background: #066b3f;
+}
+
+.secondary-action {
+    background: var(--white);
+    color: var(--text-dark);
+
+    border: 1px solid var(--border);
+}
+
+.secondary-action:hover {
+    border-color: var(--green);
+    color: var(--green-dark);
+}
+
+.confirmation-note {
+    margin: 20px 0 0;
+
+    color: #89949d;
+
+    font-size: 11px;
+}
+
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 650px) {
+
+    .confirmation-page {
+        padding: 40px 15px 60px;
+    }
+
+    .confirmation-card {
+        padding: 30px 20px;
+
+        border-radius: 16px;
+    }
+
+    .confirmation-hostel {
+        display: block;
+    }
+
+    .hostel-summary-video {
+        width: 100%;
+        height: 190px;
+        min-height: 0;
+    }
+
+    .hostel-summary-content {
+        padding: 20px;
+    }
+
+    .reference-box {
+        gap: 10px;
+    }
+
+    .confirmation-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 400px) {
+
+    .confirmation-card {
+        padding: 25px 16px;
+    }
+
+    .success-icon {
+        width: 60px;
+        height: 60px;
+
+        font-size: 25px;
+    }
+}

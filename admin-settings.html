@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Hostel Hub Admin</title>
+
+    <link rel="stylesheet" href="css/admin-settings.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>Hostel<span>Hub</span></h2>
+            <p>ADMIN PANEL</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="admin-dashboard.html" class="nav-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="admin-hostels.html" class="nav-link">
+                <i data-lucide="building-2"></i>
+                <span>Hostels</span>
+            </a>
+
+            <a href="admin-agents.html" class="nav-link">
+                <i data-lucide="users-round"></i>
+                <span>Agents</span>
+            </a>
+
+            <a href="admin-bookings.html" class="nav-link">
+                <i data-lucide="calendar-check"></i>
+                <span>Bookings</span>
+            </a>
+
+            <a href="admin-reports.html" class="nav-link">
+                <i data-lucide="chart-no-axes-combined"></i>
+                <span>Reports</span>
+            </a>
+
+            <a href="admin-settings.html" class="nav-link active">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-avatar">A</div>
+            <div>
+                <strong>Administrator</strong>
+                <p>Super Admin</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle"
+                    aria-label="Toggle navigation">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <div class="page-heading">
+                <h1>Settings</h1>
+                <p>Manage your administrator profile and preferences.</p>
+            </div>
+
+            <div class="topbar-actions">
+                <span class="admin-avatar">A</span>
+            </div>
+        </header>
+
+        <section class="settings-intro">
+            <div>
+                <h2>Account Settings</h2>
+                <p>Manage your Hostel Hub administration preferences.</p>
+            </div>
+        </section>
+
+        <div class="settings-layout">
+
+            <nav class="settings-nav" aria-label="Settings sections">
+                <button class="settings-tab active" data-section="profile">
+                    <i data-lucide="user-round"></i>
+                    <span>Admin Profile</span>
+                </button>
+
+                <button class="settings-tab" data-section="notifications">
+                    <i data-lucide="bell"></i>
+                    <span>Notifications</span>
+                </button>
+
+                <button class="settings-tab" data-section="security">
+                    <i data-lucide="shield-check"></i>
+                    <span>Security</span>
+                </button>
+
+                <button class="settings-tab" data-section="general">
+                    <i data-lucide="sliders-horizontal"></i>
+                    <span>General Preferences</span>
+                </button>
+            </nav>
+
+            <div class="settings-content">
+
+                <!-- ADMIN PROFILE -->
+
+                <section class="settings-panel active" id="profile">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Admin Profile</h2>
+                            <p>Update your administrator information.</p>
+                        </div>
+                    </div>
+
+                    <form id="profileForm">
+                        <div class="profile-preview">
+                            <div class="profile-avatar" id="profileAvatar">A</div>
+                            <div>
+                                <h3 id="profileDisplayName">Administrator</h3>
+                                <p>Super Admin</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="adminName">Full Name</label>
+                                <input type="text" id="adminName"
+                                       name="adminName"
+                                       placeholder="Enter your full name"
+                                       value="Administrator" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adminEmail">Email Address</label>
+                                <input type="email" id="adminEmail"
+                                       name="adminEmail"
+                                       placeholder="admin@example.com"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adminPhone">Phone Number</label>
+                                <input type="tel" id="adminPhone"
+                                       name="adminPhone"
+                                       placeholder="Enter phone number">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adminRole">Role</label>
+                                <input type="text" id="adminRole"
+                                       value="Super Admin" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                Save Profile
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- NOTIFICATIONS -->
+
+                <section class="settings-panel" id="notifications" hidden>
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Notification Preferences</h2>
+                            <p>Choose which updates you want to receive.</p>
+                        </div>
+                    </div>
+
+                    <form id="notificationForm">
+                        <div class="preference-row">
+                            <div>
+                                <h3>New Bookings</h3>
+                                <p>Receive updates when an inspection is booked.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="notifyBookings"
+                                       checked>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-row">
+                            <div>
+                                <h3>Listing Reports</h3>
+                                <p>Receive updates about reported hostel listings.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="notifyReports"
+                                       checked>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-row">
+                            <div>
+                                <h3>New Hostel Listings</h3>
+                                <p>Receive updates when new listings are submitted.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="notifyHostels"
+                                       checked>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-row">
+                            <div>
+                                <h3>Agent Updates</h3>
+                                <p>Receive updates about agent activity.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="notifyAgents">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                Save Preferences
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- SECURITY -->
+
+                <section class="settings-panel" id="security" hidden>
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Security</h2>
+                            <p>Manage your administrator password.</p>
+                        </div>
+                    </div>
+
+                    <div class="notice">
+                        <i data-lucide="info"></i>
+                        <p>
+                            Password changes require a connected authentication
+                            system. This form will not change your actual password
+                            until authentication is implemented.
+                        </p>
+                    </div>
+
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword"
+                                   autocomplete="current-password"
+                                   placeholder="Enter current password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword"
+                                   autocomplete="new-password"
+                                   placeholder="At least 8 characters"
+                                   minlength="8" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword"
+                                   autocomplete="new-password"
+                                   placeholder="Repeat new password" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                Update Password
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- GENERAL PREFERENCES -->
+
+                <section class="settings-panel" id="general" hidden>
+                    <div class="panel-heading">
+                        <div>
+                            <h2>General Preferences</h2>
+                            <p>Configure basic dashboard preferences.</p>
+                        </div>
+                    </div>
+
+                    <form id="generalForm">
+                        <div class="form-group">
+                            <label for="platformName">Platform Name</label>
+                            <input type="text" id="platformName"
+                                   value="Hostel Hub" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dateFormat">Date Format</label>
+                            <select id="dateFormat">
+                                <option value="en-GB">DD/MM/YYYY</option>
+                                <option value="en-US">MM/DD/YYYY</option>
+                                <option value="en-CA">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+
+                        <div class="preference-row">
+                            <div>
+                                <h3>Compact Dashboard</h3>
+                                <p>Use a more compact layout where supported.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="compactDashboard">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            <p>Hostel Hub Admin Panel</p>
+            <p>Some settings require backend integration to take effect.</p>
+        </footer>
+
+    </main>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/admin-settings.js"></script>
+</body>
+</html>

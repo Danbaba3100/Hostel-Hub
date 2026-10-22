@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Find Hostels | Hostel Hub</title>
+
+    <link rel="stylesheet" href="css/hostels.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <a href="index.html" class="logo">
+                Hostel<span>Hub</span>
+            </a>
+
+            <nav class="nav-links" id="navLinks">
+
+                <a href="index.html">
+                    Home
+                </a>
+
+                <a href="hostels.html" class="active">
+                    Find Hostels
+                </a>
+
+                <a href="locations.html">
+                    Locations
+                </a>
+
+                <a href="how-it-works.html">
+                    How It Works
+                </a>
+
+                <a href="contact.html">
+                    Contact
+                </a>
+
+            </nav>
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open navigation menu"
+            >
+                ☰
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         PAGE HERO
+    ========================== -->
+
+    <main>
+
+        <section class="hostels-hero">
+
+            <div class="hostels-hero-container">
+
+                <div class="hostels-hero-content">
+
+                    <span class="hero-eyebrow">
+                        FIND YOUR SPACE
+                    </span>
+
+                    <h1>
+                        Find a hostel that
+                        <span>works for you.</span>
+                    </h1>
+
+                    <p>
+                        Browse student hostels around UNIOSUN,
+                        compare your options and watch real hostel
+                        videos before booking an inspection.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             SEARCH & FILTERS
+        ========================== -->
+
+        <section class="filter-section">
+
+            <div class="filter-container">
+
+                <div class="search-box">
+
+                    <span class="search-icon">⌕</span>
+
+                    <input
+                        type="text"
+                        id="hostelSearch"
+                        placeholder="Search hostel by name or location..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div class="filter-row">
+
+                    <!-- Location -->
+
+                    <div class="filter-group">
+
+                        <label for="locationFilter">
+                            Location
+                        </label>
+
+                        <select id="locationFilter">
+
+                            <option value="all">
+                                All locations
+                            </option>
+
+                            <option value="oke-baale">
+                                Oke-Baale
+                            </option>
+
+                            <option value="alekuwodo">
+                                Alekuwodo
+                            </option>
+
+                            <option value="lameco">
+                                Lameco
+                            </option>
+
+                            <option value="ogo-oluwa">
+                                Ogo-Oluwa
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Price -->
+
+                    <div class="filter-group">
+
+                        <label for="priceFilter">
+                            Price
+                        </label>
+
+                        <select id="priceFilter">
+
+                            <option value="all">
+                                Any price
+                            </option>
+
+                            <option value="under-150">
+                                Under ₦150,000
+                            </option>
+
+                            <option value="150-180">
+                                ₦150,000 – ₦180,000
+                            </option>
+
+                            <option value="180-200">
+                                ₦180,000 – ₦200,000
+                            </option>
+
+                            <option value="above-200">
+                                Above ₦200,000
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Room type -->
+
+                    <div class="filter-group">
+
+                        <label for="roomFilter">
+                            Room Type
+                        </label>
+
+                        <select id="roomFilter">
+
+                            <option value="all">
+                                All room types
+                            </option>
+
+                            <option value="self-contained">
+                                Self-contained
+                            </option>
+
+                            <option value="room-parlour">
+                                Room & Parlour
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="clear-filters"
+                        id="clearFilters"
+                    >
+                        Clear Filters
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             HOSTEL RESULTS
+        ========================== -->
+
+        <section class="hostels-section">
+
+            <div class="hostels-container">
+
+
+                <!-- Results heading -->
+
+                <div class="results-heading">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            AVAILABLE HOSTELS
+                        </span>
+
+                        <h2>
+                            Explore your options
+                        </h2>
+
+                    </div>
+
+                    <p id="resultsCount">
+                        Showing 4 hostels
+                    </p>
+
+                </div>
+
+
+                <!-- Hostel grid -->
+
+                <div class="hostel-grid" id="hostelGrid">
+
+
+                    <!-- =========================
+                         ROYAL COURT
+                    ========================== -->
+
+                    <article
+                        class="hostel-card"
+                        data-name="Royal Court Hostel"
+                        data-location="oke-baale"
+                        data-price="180000"
+                        data-room="self-contained"
+                    >
+
+                        <div class="video-wrapper">
+
+                            <video
+                                src="assets/videos/hostel-1.mp4"
+                                muted
+                                loop
+                                playsinline
+                                preload="metadata"
+                            ></video>
+
+                            <div class="video-overlay">
+
+                                <button
+                                    class="video-play"
+                                    type="button"
+                                    aria-label="Play Royal Court Hostel video"
+                                >
+                                    ▶
+                                </button>
+
+                            </div>
+
+                            <span class="verified-badge">
+                                ✓ Verified
+                            </span>
+
+                        </div>
+
+
+                        <div class="hostel-card-content">
+
+                            <span class="hostel-location">
+                                Oke-Baale
+                            </span>
+
+                            <h3>
+                                Royal Court Hostel
+                            </h3>
+
+                            <p class="hostel-description">
+                                A student-friendly self-contained
+                                hostel in Oke-Baale with convenient
+                                access to everyday facilities.
+                            </p>
+
+                            <div class="hostel-meta">
+
+                                <span>
+                                    Self-contained
+                                </span>
+
+                                <span>
+                                    2 Students
+                                </span>
+
+                                <span>
+                                    Available
+                                </span>
+
+                            </div>
+
+                            <div class="hostel-card-bottom">
+
+                                <div class="hostel-price">
+                                    ₦180,000
+                                    <small>/ year</small>
+                                </div>
+
+                                <a
+                                    href="hostel-details.html?id=royal-court"
+                                    class="hostel-link"
+                                >
+                                    View Hostel
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- =========================
+                         PEACE LODGE
+                    ========================== -->
+
+                    <article
+                        class="hostel-card"
+                        data-name="Peace Lodge"
+                        data-location="alekuwodo"
+                        data-price="150000"
+                        data-room="room-parlour"
+                    >
+
+                        <div class="video-wrapper">
+
+                            <video
+                                src="assets/videos/hostel-2.mp4"
+                                muted
+                                loop
+                                playsinline
+                                preload="metadata"
+                            ></video>
+
+                            <div class="video-overlay">
+
+                                <button
+                                    class="video-play"
+                                    type="button"
+                                    aria-label="Play Peace Lodge video"
+                                >
+                                    ▶
+                                </button>
+
+                            </div>
+
+                            <span class="verified-badge">
+                                ✓ Verified
+                            </span>
+
+                        </div>
+
+
+                        <div class="hostel-card-content">
+
+                            <span class="hostel-location">
+                                Alekuwodo
+                            </span>
+
+                            <h3>
+                                Peace Lodge
+                            </h3>
+
+                            <p class="hostel-description">
+                                Affordable student accommodation
+                                with a room and parlour layout in
+                                Alekuwodo.
+                            </p>
+
+                            <div class="hostel-meta">
+
+                                <span>
+                                    Room & Parlour
+                                </span>
+
+                                <span>
+                                    3 Students
+                                </span>
+
+                                <span>
+                                    Available
+                                </span>
+
+                            </div>
+
+                            <div class="hostel-card-bottom">
+
+                                <div class="hostel-price">
+                                    ₦150,000
+                                    <small>/ year</small>
+                                </div>
+
+                                <a
+                                    href="hostel-details.html?id=peace-lodge"
+                                    class="hostel-link"
+                                >
+                                    View Hostel
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- =========================
+                         GREEN VIEW
+                    ========================== -->
+
+                    <article
+                        class="hostel-card"
+                        data-name="Green View Hostel"
+                        data-location="lameco"
+                        data-price="200000"
+                        data-room="self-contained"
+                    >
+
+                        <div class="video-wrapper">
+
+                            <video
+                                src="assets/videos/hostel-3.mp4"
+                                muted
+                                loop
+                                playsinline
+                                preload="metadata"
+                            ></video>
+
+                            <div class="video-overlay">
+
+                                <button
+                                    class="video-play"
+                                    type="button"
+                                    aria-label="Play Green View Hostel video"
+                                >
+                                    ▶
+                                </button>
+
+                            </div>
+
+                            <span class="verified-badge">
+                                ✓ Verified
+                            </span>
+
+                        </div>
+
+
+                        <div class="hostel-card-content">
+
+                            <span class="hostel-location">
+                                Lameco
+                            </span>
+
+                            <h3>
+                                Green View Hostel
+                            </h3>
+
+                            <p class="hostel-description">
+                                Comfortable self-contained
+                                accommodation with a quiet
+                                student-friendly environment.
+                            </p>
+
+                            <div class="hostel-meta">
+
+                                <span>
+                                    Self-contained
+                                </span>
+
+                                <span>
+                                    2 Students
+                                </span>
+
+                                <span>
+                                    Available
+                                </span>
+
+                            </div>
+
+                            <div class="hostel-card-bottom">
+
+                                <div class="hostel-price">
+                                    ₦200,000
+                                    <small>/ year</small>
+                                </div>
+
+                                <a
+                                    href="hostel-details.html?id=green-view"
+                                    class="hostel-link"
+                                >
+                                    View Hostel
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- =========================
+                         SUNRISE HOSTEL
+                    ========================== -->
+
+                    <article
+                        class="hostel-card"
+                        data-name="Sunrise Hostel"
+                        data-location="ogo-oluwa"
+                        data-price="160000"
+                        data-room="room-parlour"
+                    >
+
+                        <div class="video-wrapper">
+
+                            <video
+                                src="assets/videos/hostel-4.mp4"
+                                muted
+                                loop
+                                playsinline
+                                preload="metadata"
+                            ></video>
+
+                            <div class="video-overlay">
+
+                                <button
+                                    class="video-play"
+                                    type="button"
+                                    aria-label="Play Sunrise Hostel video"
+                                >
+                                    ▶
+                                </button>
+
+                            </div>
+
+                            <span class="verified-badge">
+                                ✓ Verified
+                            </span>
+
+                        </div>
+
+
+                        <div class="hostel-card-content">
+
+                            <span class="hostel-location">
+                                Ogo-Oluwa
+                            </span>
+
+                            <h3>
+                                Sunrise Hostel
+                            </h3>
+
+                            <p class="hostel-description">
+                                Spacious room and parlour
+                                accommodation suitable for students
+                                looking for value.
+                            </p>
+
+                            <div class="hostel-meta">
+
+                                <span>
+                                    Room & Parlour
+                                </span>
+
+                                <span>
+                                    4 Students
+                                </span>
+
+                                <span>
+                                    Available
+                                </span>
+
+                            </div>
+
+                            <div class="hostel-card-bottom">
+
+                                <div class="hostel-price">
+                                    ₦160,000
+                                    <small>/ year</small>
+                                </div>
+
+                                <a
+                                    href="hostel-details.html?id=sunrise"
+                                    class="hostel-link"
+                                >
+                                    View Hostel
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                </div>
+
+
+                <!-- =========================
+                     EMPTY STATE
+                ========================== -->
+
+                <div
+                    class="empty-state"
+                    id="emptyState"
+                    style="display: none;"
+                >
+
+                    <div class="empty-icon">
+                        ⌕
+                    </div>
+
+                    <h3>
+                        No hostels found
+                    </h3>
+
+                    <p>
+                        Try changing your search or filters
+                        to see more hostels.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="empty-button"
+                        id="emptyClearButton"
+                    >
+                        Clear Filters
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             BOTTOM CTA
+        ========================== -->
+
+        <section class="hostels-cta">
+
+            <div class="hostels-cta-container">
+
+                <div class="hostels-cta-content">
+
+                    <span>
+                        DON'T RUSH YOUR DECISION
+                    </span>
+
+                    <h2>
+                        Watch the hostel.
+                        <br>
+                        Then inspect it.
+                    </h2>
+
+                    <p>
+                        Never rely on a few pictures alone.
+                        Watch the real hostel video and book an
+                        inspection before making your decision.
+                    </p>
+
+                    <a
+                        href="how-it-works.html"
+                        class="cta-button"
+                    >
+                        How Hostel Hub Works
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a href="index.html" class="footer-logo">
+                    Hostel<span>Hub</span>
+                </a>
+
+                <p>
+                    Find your hostel. Inspect with confidence.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div class="footer-column">
+
+                    <h4>
+                        Explore
+                    </h4>
+
+                    <a href="hostels.html">
+                        Find Hostels
+                    </a>
+
+                    <a href="locations.html">
+                        Locations
+                    </a>
+
+                    <a href="how-it-works.html">
+                        How It Works
+                    </a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h4>
+                        Hostel Hub
+                    </h4>
+
+                    <a href="contact.html">
+                        Contact
+                    </a>
+
+                    <a href="report.html">
+                        Report Listing
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="footer-bottom-container">
+
+                <p>
+                    © 2026 Hostel Hub. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script src="js/main.js"></script>
+    <script src="js/hostels.js"></script>
+
+</body>
+</html>

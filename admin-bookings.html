@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hostel Hub booking management">
+    <title>Booking Management | Hostel Hub</title>
+
+    <link rel="stylesheet" href="css/admin-bookings.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="brand">
+                <span class="brand-icon"><i data-lucide="house"></i></span>
+                <span>
+                    <strong>Hostel Hub</strong>
+                    <small>Safe Stays. Better Living.</small>
+                </span>
+            </a>
+
+            <nav class="sidebar-nav" aria-label="Admin navigation">
+                <a href="admin-dashboard.html" class="nav-link">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="admin-hostels.html" class="nav-link">
+                    <i data-lucide="building-2"></i>
+                    <span>Hostels</span>
+                </a>
+                <a href="admin-agents.html" class="nav-link">
+                    <i data-lucide="users"></i>
+                    <span>Agents</span>
+                </a>
+                <a href="admin-bookings.html" class="nav-link active">
+                    <i data-lucide="calendar-check"></i>
+                    <span>Bookings</span>
+                </a>
+                <a href="#" class="nav-link" data-page="Reports">
+                    <i data-lucide="flag"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="#" class="nav-link" data-page="User Management">
+                    <i data-lucide="user-round"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#" class="nav-link" data-page="Settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="support-icon"><i data-lucide="headset"></i></div>
+                <div>
+                    <strong>Need help?</strong>
+                    <a href="contact.html">Contact support</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="topbar">
+                <button class="icon-button menu-toggle" id="menuToggle"
+                    aria-label="Open navigation" aria-expanded="false">
+                    <i data-lucide="menu"></i>
+                </button>
+
+                <form class="top-search" id="globalSearchForm">
+                    <i data-lucide="search"></i>
+                    <input type="search" id="globalSearch"
+                        placeholder="Search bookings..."
+                        aria-label="Search bookings">
+                </form>
+
+                <div class="topbar-actions">
+                    <button class="icon-button" id="notificationButton"
+                        aria-label="View notifications">
+                        <i data-lucide="bell"></i>
+                    </button>
+
+                    <button class="admin-profile" id="profileButton"
+                        aria-label="Administrator profile">
+                        <span class="avatar">AD</span>
+                        <span class="profile-text">
+                            <strong>Admin</strong>
+                            <small>Administrator</small>
+                        </span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <section class="welcome-section">
+                    <div>
+                        <p class="eyebrow">ADMINISTRATION</p>
+                        <h1>Booking Management</h1>
+                        <p class="welcome-subtitle">
+                            Manage student hostel inspection bookings.
+                        </p>
+                    </div>
+
+                    <div class="date-display">
+                        <span id="currentDate"></span>
+                        <small id="currentTime"></small>
+                    </div>
+                </section>
+
+                <section class="stats-grid" aria-label="Booking statistics">
+                    <article class="stat-card">
+                        <div class="stat-icon green">
+                            <i data-lucide="calendar-days"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Total Bookings</p>
+                            <h2 id="totalBookings">0</h2>
+                            <span class="stat-note">All inspection requests</span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon orange">
+                            <i data-lucide="clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Pending</p>
+                            <h2 id="pendingBookings">0</h2>
+                            <span class="stat-note">Awaiting confirmation</span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon blue">
+                            <i data-lucide="calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Confirmed</p>
+                            <h2 id="confirmedBookings">0</h2>
+                            <span class="stat-note">Scheduled inspections</span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon purple">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Completed</p>
+                            <h2 id="completedBookings">0</h2>
+                            <span class="stat-note">Finished inspections</span>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="panel bookings-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Inspection Bookings</h2>
+                            <p>Review and manage student requests.</p>
+                        </div>
+                        <button class="secondary-button" id="resetFilters" type="button">
+                            <i data-lucide="rotate-ccw"></i>
+                            Reset filters
+                        </button>
+                    </div>
+
+                    <div class="table-toolbar">
+                        <label class="table-search">
+                            <i data-lucide="search"></i>
+                            <input type="search" id="bookingSearch"
+                                placeholder="Search student, hostel or ID..."
+                                aria-label="Search bookings">
+                        </label>
+
+                        <select id="statusFilter" aria-label="Filter by status">
+                            <option value="all">All statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+
+                        <select id="dateFilter" aria-label="Filter by date">
+                            <option value="all">All dates</option>
+                            <option value="upcoming">Today and future</option>
+                            <option value="past">Past dates</option>
+                        </select>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Student</th>
+                                    <th>Hostel</th>
+                                    <th>Inspection Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-empty" id="emptyState" hidden>
+                        <i data-lucide="calendar-x"></i>
+                        <h3>No bookings found</h3>
+                        <p>Try changing your search or filters.</p>
+                    </div>
+
+                    <div class="table-footer">
+                        <span id="resultCount">Showing 0 bookings</span>
+                    </div>
+                </section>
+
+                <footer class="dashboard-footer">
+                    <p>© <span id="currentYear"></span> Hostel Hub. All rights reserved.</p>
+                    <span>Admin Dashboard · Demo Version</span>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="modal-overlay" id="bookingModal" hidden>
+        <section class="modal" role="dialog"
+            aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-heading">
+                <div>
+                    <p class="eyebrow">BOOKING DETAILS</p>
+                    <h2 id="modalTitle">Booking information</h2>
+                </div>
+                <button class="icon-button" id="closeModal"
+                    type="button" aria-label="Close details">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div id="bookingDetails" class="booking-details"></div>
+            <div class="modal-actions" id="modalActions"></div>
+        </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="js/admin-bookings.js"></script>
+</body>
+</html>

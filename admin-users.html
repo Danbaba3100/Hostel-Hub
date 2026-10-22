@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints Management | Hostel Hub Admin</title>
+
+    <link rel="stylesheet" href="css/admin-users.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="admin-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i data-lucide="building-2"></i>
+                </div>
+
+                <div class="brand-text">
+                    <h2>Hostel Hub</h2>
+                    <p>Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="admin-hostels.html">
+                    <i data-lucide="building"></i>
+                    <span>Hostel Management</span>
+                </a>
+
+                <a href="admin-agents.html">
+                    <i data-lucide="users"></i>
+                    <span>Agent Management</span>
+                </a>
+
+                <a href="admin-bookings.html">
+                    <i data-lucide="calendar-check"></i>
+                    <span>Inspection Bookings</span>
+                </a>
+
+                <a href="admin-users.html" class="active" aria-current="page">
+                    <i data-lucide="message-square-warning"></i>
+                    <span>Complaints</span>
+                </a>
+
+                <a href="admin-reports.html">
+                    <i data-lucide="chart-no-axes-combined"></i>
+                    <span>Reports &amp; Analytics</span>
+                </a>
+
+                <a href="admin-settings.html">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- TOP BAR -->
+            <header class="page-header">
+                <button
+                    class="menu-toggle"
+                    id="menuToggle"
+                    type="button"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false"
+                >
+                    <i data-lucide="menu"></i>
+                </button>
+
+                <div class="page-heading">
+                    <h1>Complaints Management</h1>
+                    <p>Review and manage complaints about hostels and agents.</p>
+                </div>
+            </header>
+
+            <!-- SUMMARY CARDS -->
+            <section class="stats-grid" aria-label="Complaint statistics">
+
+                <article class="stat-card">
+                    <div class="stat-icon blue">
+                        <i data-lucide="inbox"></i>
+                    </div>
+                    <div>
+                        <p>Total Complaints</p>
+                        <h2 id="totalComplaints">0</h2>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon orange">
+                        <i data-lucide="clock-3"></i>
+                    </div>
+                    <div>
+                        <p>Pending</p>
+                        <h2 id="pendingComplaints">0</h2>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon purple">
+                        <i data-lucide="search-check"></i>
+                    </div>
+                    <div>
+                        <p>Under Review</p>
+                        <h2 id="reviewComplaints">0</h2>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon green">
+                        <i data-lucide="check-circle"></i>
+                    </div>
+                    <div>
+                        <p>Resolved</p>
+                        <h2 id="resolvedComplaints">0</h2>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- COMPLAINTS TABLE -->
+            <section class="complaints-card">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>All Complaints</h2>
+                        <p>Review reports submitted by students and visitors.</p>
+                    </div>
+
+                    <span class="demo-badge">Sample Data</span>
+                </div>
+
+                <!-- SEARCH AND FILTERS -->
+                <div class="filters-bar">
+
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input
+                            type="search"
+                            id="complaintSearch"
+                            placeholder="Search complaints..."
+                            aria-label="Search complaints"
+                        >
+                    </div>
+
+                    <select id="statusFilter" aria-label="Filter by status">
+                        <option value="all">All statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Dismissed">Dismissed</option>
+                    </select>
+
+                    <select id="categoryFilter" aria-label="Filter by category">
+                        <option value="all">All categories</option>
+                        <option value="Hostel">Hostel</option>
+                        <option value="Agent">Agent</option>
+                        <option value="Payment">Payment</option>
+                        <option value="Fraud">Fraud</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <select id="priorityFilter" aria-label="Filter by priority">
+                        <option value="all">All priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+
+                </div>
+
+                <!-- TABLE -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Complaint</th>
+                                <th>Reported Against</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="complaintsTableBody">
+                            <!-- Generated by admin-users.js -->
+                        </tbody>
+                    </table>
+
+                    <div class="empty-state" id="emptyState" hidden>
+                        <i data-lucide="inbox"></i>
+                        <h3>No complaints found</h3>
+                        <p>Try changing your search or filters.</p>
+                    </div>
+                </div>
+
+                <div class="table-footer">
+                    <p id="complaintCount">Showing 0 complaints</p>
+                </div>
+
+            </section>
+
+            <footer class="page-footer">
+                <p>Hostel Hub Admin Panel &copy; 2026</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- COMPLAINT DETAILS MODAL -->
+    <div
+        class="modal-overlay"
+        id="complaintModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+        hidden
+    >
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <div>
+                    <p class="modal-eyebrow">Complaint details</p>
+                    <h2 id="modalTitle">Review Complaint</h2>
+                </div>
+
+                <button
+                    class="modal-close"
+                    id="closeModal"
+                    type="button"
+                    aria-label="Close complaint details"
+                >
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body" id="complaintDetails">
+                <!-- Generated by admin-users.js -->
+            </div>
+
+            <div class="modal-actions">
+                <button
+                    class="btn btn-secondary"
+                    id="dismissComplaint"
+                    type="button"
+                >
+                    Dismiss
+                </button>
+
+                <button
+                    class="btn btn-secondary"
+                    id="reviewComplaint"
+                    type="button"
+                >
+                    Mark Under Review
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    id="resolveComplaint"
+                    type="button"
+                >
+                    Mark Resolved
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div
+        class="toast"
+        id="toast"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+    <script src="js/admin-users.js"></script>
+</body>
+</html>

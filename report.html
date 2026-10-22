@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Report Listing | Hostel Hub</title>
+
+    <link rel="stylesheet" href="css/report.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a href="index.html" class="logo">
+                Hostel<span>Hub</span>
+            </a>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="hostels.html">Find Hostels</a>
+                <a href="locations.html">Locations</a>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+                ☰
+            </button>
+
+        </div>
+    </header>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+    <section class="report-hero">
+
+        <div class="report-hero-container">
+
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>›</span>
+                <a href="hostels.html">Hostels</a>
+                <span>›</span>
+                <span>Report Listing</span>
+            </div>
+
+            <div class="hero-content">
+
+                <span class="hero-eyebrow">
+                    Help us keep Hostel Hub safe
+                </span>
+
+                <h1>
+                    Report a
+                    <span>Listing</span>
+                </h1>
+
+                <p>
+                    Found something incorrect, suspicious, or misleading?
+                    Let us know so we can review the listing.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         REPORT SECTION
+    ========================== -->
+    <main class="report-section">
+
+        <div class="report-container">
+
+            <!-- FORM -->
+            <div class="report-form-card">
+
+                <div class="form-heading">
+
+                    <span class="section-eyebrow">
+                        Submit a report
+                    </span>
+
+                    <h2>
+                        What's wrong with this listing?
+                    </h2>
+
+                    <p>
+                        Give us as much information as possible. Your report
+                        helps other students avoid misleading or problematic listings.
+                    </p>
+
+                </div>
+
+
+                <form id="reportForm">
+
+                    <!-- HOSTEL -->
+                    <div class="form-group">
+
+                        <label for="hostelName">
+                            Hostel
+                        </label>
+
+                        <div class="hostel-selected">
+                            <span class="selected-icon">⌂</span>
+
+                            <div>
+                                <strong id="hostelName">
+                                    Loading hostel...
+                                </strong>
+
+                                <small id="hostelLocation">
+                                    Please wait...
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- REPORT REASON -->
+                    <div class="form-group">
+
+                        <label for="reportReason">
+                            Reason for reporting
+                            <span>*</span>
+                        </label>
+
+                        <select id="reportReason" required>
+
+                            <option value="">
+                                Select a reason
+                            </option>
+
+                            <option value="incorrect-information">
+                                Incorrect information
+                            </option>
+
+                            <option value="fake-listing">
+                                Fake or suspicious listing
+                            </option>
+
+                            <option value="wrong-price">
+                                Wrong price
+                            </option>
+
+                            <option value="hostel-unavailable">
+                                Hostel is no longer available
+                            </option>
+
+                            <option value="misleading-video">
+                                Misleading or incorrect video
+                            </option>
+
+                            <option value="agent-issue">
+                                Agent or landlord issue
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+                    <div class="form-group">
+
+                        <label for="reportDetails">
+                            Tell us more
+                            <span>*</span>
+                        </label>
+
+                        <textarea
+                            id="reportDetails"
+                            rows="6"
+                            placeholder="Describe the issue you noticed..."
+                            required
+                        ></textarea>
+
+                        <small class="input-hint">
+                            Please provide clear details so our team can investigate.
+                        </small>
+
+                    </div>
+
+
+                    <!-- NAME -->
+                    <div class="form-group">
+
+                        <label for="reporterName">
+                            Your name
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="reporterName"
+                            placeholder="Enter your name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PHONE -->
+                    <div class="form-group">
+
+                        <label for="reporterPhone">
+                            Phone number
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="reporterPhone"
+                            placeholder="08012345678"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+                    <div class="form-group">
+
+                        <label for="reporterEmail">
+                            Email
+                            <small>(optional)</small>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="reporterEmail"
+                            placeholder="you@example.com"
+                        >
+
+                    </div>
+
+
+                    <!-- TERMS -->
+                    <div class="report-notice">
+
+                        <div class="notice-icon">
+                            ✓
+                        </div>
+
+                        <p>
+                            Please only submit genuine reports. False or
+                            misleading reports may make it harder for us to
+                            protect students from problematic listings.
+                        </p>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+                    <button
+                        type="submit"
+                        class="submit-report"
+                        id="submitReport"
+                    >
+
+                        <span id="buttonText">
+                            Submit Report
+                        </span>
+
+                        <span
+                            class="button-spinner"
+                            id="buttonSpinner"
+                        ></span>
+
+                        <span class="button-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- SIDE INFORMATION -->
+            <aside class="report-sidebar">
+
+                <div class="sidebar-card">
+
+                    <div class="sidebar-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        Why report a listing?
+                    </h3>
+
+                    <p>
+                        Hostel Hub is designed to help students make better
+                        accommodation decisions. Reports help us identify
+                        listings that need attention.
+                    </p>
+
+                    <ul>
+
+                        <li>
+                            <span>✓</span>
+                            Keep hostel information accurate
+                        </li>
+
+                        <li>
+                            <span>✓</span>
+                            Help identify suspicious listings
+                        </li>
+
+                        <li>
+                            <span>✓</span>
+                            Protect other students
+                        </li>
+
+                        <li>
+                            <span>✓</span>
+                            Improve the Hostel Hub community
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <div class="sidebar-help">
+
+                    <span class="help-eyebrow">
+                        Need more help?
+                    </span>
+
+                    <h3>
+                        Have a serious concern?
+                    </h3>
+
+                    <p>
+                        If you need to speak with the Hostel Hub team,
+                        you can contact us directly.
+                    </p>
+
+                    <a href="contact.html" class="help-button">
+                        Contact Us
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         CTA
+    ========================== -->
+    <section class="report-cta">
+
+        <div class="report-cta-container">
+
+            <div class="cta-content">
+
+                <span class="cta-eyebrow">
+                    Hostel Hub
+                </span>
+
+                <h2>
+                    Find your hostel.
+                    <span>Inspect with confidence.</span>
+                </h2>
+
+                <p>
+                    Browse verified accommodation options around UNIOSUN
+                    and make a more informed decision.
+                </p>
+
+            </div>
+
+            <a href="hostels.html" class="cta-button">
+                Browse Hostels
+                <span>→</span>
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a href="index.html" class="footer-logo">
+                    Hostel<span>Hub</span>
+                </a>
+
+                <p>
+                    Helping students find accommodation with more
+                    confidence around UNIOSUN.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div class="footer-column">
+
+                    <h4>
+                        Explore
+                    </h4>
+
+                    <a href="hostels.html">Find Hostels</a>
+                    <a href="locations.html">Locations</a>
+                    <a href="how-it-works.html">How It Works</a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h4>
+                        Company
+                    </h4>
+
+                    <a href="contact.html">Contact</a>
+                    <a href="report.html">Report Listing</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="footer-bottom-container">
+
+                <p>
+                    © 2026 Hostel Hub. All rights reserved.
+                </p>
+
+                <p>
+                    Built for students.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script src="js/main.js"></script>
+    <script src="js/report.js"></script>
+
+</body>
+</html>

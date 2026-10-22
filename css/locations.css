@@ -1,0 +1,865 @@
+css
+/* =========================================================
+   HOSTEL HUB
+   LOCATIONS PAGE
+   PAGE-SPECIFIC STYLES
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE RESET
+   ========================================================= */
+
+.locations-page-hero,
+.locations-page-hero *,
+.locations-list-section,
+.locations-list-section *,
+.locations-bottom-cta,
+.locations-bottom-cta * {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   LOCATIONS NAVBAR OVERRIDE
+   ========================================================= */
+
+/*
+   The main navbar was originally designed to sit on top
+   of the dark homepage hero.
+
+   On this page we explicitly give it the same dark navy
+   background so the white navigation text remains visible.
+*/
+
+body {
+    margin: 0;
+}
+
+body .navbar {
+    position: sticky !important;
+    width: 100%;
+    background: #071827 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1000;
+}
+
+body .navbar .nav-container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    min-height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+body .navbar .logo {
+    color: #ffffff !important;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+body .navbar .logo span {
+    color: #36df7b !important;
+}
+
+body .navbar .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+body .navbar .nav-links a {
+    color: #dce6eb !important;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+body .navbar .nav-links a:hover {
+    color: #36df7b !important;
+}
+
+body .navbar .nav-links a.active {
+    color: #36df7b !important;
+}
+
+body .navbar .menu-toggle {
+    color: #ffffff !important;
+    background: transparent !important;
+    border: none;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.locations-page-hero {
+    width: 100%;
+    min-height: 480px;
+
+    background: #071827 !important;
+
+    padding: 100px 20px 105px;
+
+    position: relative;
+    overflow: hidden;
+}
+
+.locations-page-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 620px;
+    height: 620px;
+
+    right: -280px;
+    top: -330px;
+
+    border-radius: 50%;
+
+    background: rgba(54, 223, 123, 0.08);
+
+    pointer-events: none;
+}
+
+.locations-page-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 250px;
+    height: 250px;
+
+    left: -150px;
+    bottom: -160px;
+
+    border-radius: 50%;
+
+    background: rgba(54, 223, 123, 0.04);
+
+    pointer-events: none;
+}
+
+.locations-page-hero-container {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+
+    position: relative;
+    z-index: 2;
+}
+
+.locations-page-eyebrow {
+    display: inline-block;
+
+    margin-bottom: 22px;
+
+    color: #36df7b !important;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1.8px;
+}
+
+.locations-page-hero h1 {
+    max-width: 820px;
+
+    margin: 0;
+
+    color: #ffffff !important;
+
+    font-size: clamp(44px, 6vw, 72px);
+
+    line-height: 1.05;
+
+    letter-spacing: -2.5px;
+
+    font-weight: 800;
+}
+
+.locations-page-hero h1 span {
+    color: #36df7b !important;
+}
+
+.locations-page-hero p {
+    max-width: 620px;
+
+    margin: 28px 0 0;
+
+    color: #b8c6d0 !important;
+
+    font-size: 18px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   LOCATIONS SECTION
+   ========================================================= */
+
+.locations-list-section {
+    width: 100%;
+
+    background: #f8faf9 !important;
+
+    padding: 100px 20px;
+}
+
+.locations-list-container {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+}
+
+.locations-list-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    gap: 50px;
+
+    margin-bottom: 50px;
+}
+
+.locations-list-eyebrow {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #087f4b !important;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+.locations-list-heading h2 {
+    margin: 0;
+
+    color: #102131 !important;
+
+    font-size: clamp(32px, 4vw, 48px);
+
+    line-height: 1.1;
+
+    letter-spacing: -1px;
+}
+
+.locations-list-heading p {
+    max-width: 390px;
+
+    margin: 0;
+
+    color: #52616f !important;
+
+    font-size: 16px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   LOCATION GRID
+   ========================================================= */
+
+.locations-list-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+}
+
+
+/* =========================================================
+   LOCATION CARD
+   ========================================================= */
+
+.locations-place-card {
+    display: flex;
+
+    gap: 28px;
+
+    min-height: 290px;
+
+    padding: 32px;
+
+    background: #ffffff !important;
+
+    border: 1px solid #e4e9ec !important;
+
+    border-radius: 18px;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.locations-place-card:hover {
+    transform: translateY(-5px);
+
+    border-color: rgba(54, 223, 123, 0.5) !important;
+
+    box-shadow: 0 18px 45px rgba(7, 24, 39, 0.09);
+}
+
+
+/* =========================================================
+   NUMBER
+   ========================================================= */
+
+.locations-place-number {
+    flex-shrink: 0;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e9faf1 !important;
+
+    color: #087f4b !important;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   CARD CONTENT
+   ========================================================= */
+
+.locations-place-content {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.locations-place-label {
+    margin-bottom: 10px;
+
+    color: #087f4b !important;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+}
+
+.locations-place-content h3 {
+    margin: 0 0 12px;
+
+    color: #102131 !important;
+
+    font-size: 29px;
+
+    line-height: 1.15;
+
+    font-weight: 800;
+}
+
+.locations-place-content p {
+    max-width: 420px;
+
+    margin: 0;
+
+    color: #52616f !important;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   VIEW HOSTELS
+   ========================================================= */
+
+.locations-place-button {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: auto;
+
+    padding-top: 25px;
+
+    color: #102131 !important;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.locations-place-button span {
+    color: #087f4b !important;
+
+    font-size: 19px;
+
+    transition: transform 0.2s ease;
+}
+
+.locations-place-button:hover {
+    color: #087f4b !important;
+}
+
+.locations-place-button:hover span {
+    transform: translateX(5px);
+}
+
+
+/* =========================================================
+   COMING SOON
+   ========================================================= */
+
+.locations-place-card-muted {
+    background: #f3f6f5 !important;
+}
+
+.locations-place-card-muted .locations-place-number {
+    background: #e4e9e7 !important;
+
+    color: #7c8983 !important;
+}
+
+.locations-place-card-muted .locations-place-label {
+    color: #7c8983 !important;
+}
+
+.locations-place-card-muted .locations-place-content h3 {
+    color: #52616f !important;
+}
+
+.locations-place-disabled {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: auto;
+
+    padding-top: 25px;
+
+    color: #7c8983 !important;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   BOTTOM CTA
+   ========================================================= */
+
+.locations-bottom-cta {
+    width: 100%;
+
+    background: #ffffff !important;
+
+    padding: 0 20px 100px;
+}
+
+.locations-bottom-cta-container {
+    width: min(1180px, 100%);
+
+    margin: 0 auto;
+}
+
+.locations-bottom-cta-content {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 70px;
+
+    border-radius: 24px;
+
+    background: #071827 !important;
+}
+
+.locations-bottom-cta-content::after {
+    content: "";
+
+    position: absolute;
+
+    width: 350px;
+    height: 350px;
+
+    right: -120px;
+    bottom: -190px;
+
+    border-radius: 50%;
+
+    background: rgba(54, 223, 123, 0.1);
+}
+
+.locations-bottom-cta-eyebrow {
+    position: relative;
+
+    z-index: 1;
+
+    display: block;
+
+    margin-bottom: 15px;
+
+    color: #36df7b !important;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.6px;
+}
+
+.locations-bottom-cta-content h2 {
+    position: relative;
+
+    z-index: 1;
+
+    margin: 0;
+
+    color: #ffffff !important;
+
+    font-size: clamp(34px, 5vw, 55px);
+
+    line-height: 1.08;
+
+    letter-spacing: -1.5px;
+}
+
+.locations-bottom-cta-content p {
+    position: relative;
+
+    z-index: 1;
+
+    max-width: 600px;
+
+    margin: 22px 0 30px;
+
+    color: #b8c6d0 !important;
+
+    font-size: 16px;
+
+    line-height: 1.7;
+}
+
+.locations-bottom-cta-button {
+    position: relative;
+
+    z-index: 1;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 22px;
+
+    border-radius: 8px;
+
+    background: #36df7b !important;
+
+    color: #071827 !important;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+.locations-bottom-cta-button:hover {
+    background: #5bea94 !important;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    body .navbar .nav-links {
+        gap: 18px;
+    }
+
+    .locations-page-hero {
+        padding: 85px 20px 80px;
+    }
+
+    .locations-list-section {
+        padding: 75px 20px;
+    }
+
+    .locations-list-heading {
+        display: block;
+    }
+
+    .locations-list-heading p {
+        margin-top: 20px;
+    }
+
+    .locations-list-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .locations-bottom-cta {
+        padding-bottom: 75px;
+    }
+
+    .locations-bottom-cta-content {
+        padding: 50px 35px;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    body .navbar .nav-links {
+        display: none;
+    }
+
+    body .navbar .menu-toggle {
+        display: block;
+    }
+
+    body .navbar .nav-container {
+        width: min(100% - 32px, 1180px);
+    }
+
+    .locations-page-hero {
+        padding: 75px 18px 70px;
+    }
+
+    .locations-page-hero h1 {
+        font-size: 43px;
+
+        letter-spacing: -1.5px;
+    }
+
+    .locations-page-hero p {
+        font-size: 16px;
+    }
+
+    .locations-list-section {
+        padding: 60px 18px;
+    }
+
+    .locations-list-heading h2 {
+        font-size: 34px;
+    }
+
+    .locations-place-card {
+        display: block;
+
+        min-height: auto;
+
+        padding: 26px;
+    }
+
+    .locations-place-number {
+        margin-bottom: 24px;
+    }
+
+    .locations-place-content h3 {
+        font-size: 27px;
+    }
+
+    .locations-bottom-cta {
+        padding: 0 18px 60px;
+    }
+
+    .locations-bottom-cta-content {
+        padding: 40px 26px;
+
+        border-radius: 18px;
+    }
+
+    .locations-bottom-cta-content h2 {
+        font-size: 36px;
+    }
+}
+css
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+body .footer {
+    width: 100%;
+    background: #071827 !important;
+    color: #ffffff;
+
+    padding: 70px 20px 0;
+
+    margin: 0;
+}
+
+body .footer .footer-container {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+
+/* =========================
+   FOOTER BRAND
+   ========================= */
+
+body .footer .footer-brand {
+    max-width: 360px;
+}
+
+body .footer .footer-brand .logo {
+    display: inline-block;
+
+    margin-bottom: 18px;
+
+    color: #ffffff !important;
+
+    font-size: 25px;
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+body .footer .footer-brand .logo span {
+    color: #36df7b !important;
+}
+
+body .footer .footer-brand p {
+    margin: 0;
+
+    color: #9eabb5 !important;
+
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+/* =========================
+   FOOTER LINKS
+   ========================= */
+
+body .footer .footer-links {
+    display: flex;
+    gap: 90px;
+}
+
+body .footer .footer-links > div {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+body .footer .footer-links h4 {
+    margin: 0 0 8px;
+
+    color: #ffffff !important;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+body .footer .footer-links a {
+    color: #9eabb5 !important;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+body .footer .footer-links a:hover {
+    color: #36df7b !important;
+}
+
+
+/* =========================
+   FOOTER BOTTOM
+   ========================= */
+
+body .footer .footer-bottom {
+    width: min(1180px, 100%);
+
+    margin: 60px auto 0;
+
+    padding: 22px 0;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body .footer .footer-bottom p {
+    margin: 0;
+
+    color: #71808c !important;
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   FOOTER MOBILE
+   ========================= */
+
+@media (max-width: 700px) {
+
+    body .footer {
+        padding: 55px 20px 0;
+    }
+
+    body .footer .footer-container {
+        flex-direction: column;
+
+        gap: 45px;
+    }
+
+    body .footer .footer-links {
+        gap: 60px;
+    }
+
+    body .footer .footer-bottom {
+        margin-top: 45px;
+    }
+}
+
+
+@media (max-width: 450px) {
+
+    body .footer .footer-links {
+        flex-direction: column;
+
+        gap: 30px;
+    }
+
+    body .footer .footer-bottom {
+        margin-top: 40px;
+    }
+}

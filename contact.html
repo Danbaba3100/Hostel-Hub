@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Contact Us | Hostel Hub</title>
+
+    <link rel="stylesheet" href="css/contact.css">
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a href="index.html" class="logo">
+                Hostel<span>Hub</span>
+            </a>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="hostels.html">Find Hostels</a>
+                <a href="locations.html">Locations</a>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="contact.html" class="active">Contact</a>
+            </nav>
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Open navigation"
+                type="button"
+            >
+                ☰
+            </button>
+
+        </div>
+    </header>
+
+
+    <!-- ================= HERO ================= -->
+    <main>
+
+        <section class="contact-hero">
+
+            <div class="contact-hero-container">
+
+                <div class="hero-content">
+
+                    <span class="hero-eyebrow">
+                        WE'RE HERE TO HELP
+                    </span>
+
+                    <h1>
+                        Have a question?
+                        <span>Let's talk.</span>
+                    </h1>
+
+                    <p>
+                        Whether you need help finding a hostel, want to report
+                        a listing, or simply have a question about Hostel Hub,
+                        we'd love to hear from you.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CONTACT SECTION ================= -->
+        <section class="contact-section">
+
+            <div class="container contact-grid">
+
+                <!-- ================= CONTACT INFO ================= -->
+                <div class="contact-info">
+
+                    <span class="section-eyebrow">
+                        GET IN TOUCH
+                    </span>
+
+                    <h2>
+                        We're only a
+                        <span>message away.</span>
+                    </h2>
+
+                    <p class="intro-text">
+                        Have questions about a hostel, an inspection, or
+                        something else? Send us a message and we'll get back
+                        to you.
+                    </p>
+
+
+                    <div class="contact-items">
+
+                        <!-- Email -->
+                        <div class="contact-item">
+
+                            <div class="contact-icon">
+                                @
+                            </div>
+
+                            <div>
+                                <span class="contact-label">
+                                    Email
+                                </span>
+
+                                <a href="mailto:dj407938@gmail.com">
+                                    dj407938@gmail.com
+                                </a>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Phone -->
+                        <div class="contact-item">
+
+                            <div class="contact-icon">
+                                ☎
+                            </div>
+
+                            <div>
+                                <span class="contact-label">
+                                    Phone
+                                </span>
+
+                                <a href="tel:+2349045645379">
+                                    +234 904 564 5379
+                                </a>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Location -->
+                        <div class="contact-item">
+
+                            <div class="contact-icon">
+                                ⌖
+                            </div>
+
+                            <div>
+                                <span class="contact-label">
+                                    Location
+                                </span>
+
+                                <p>
+                                    Osogbo, Osun State, Nigeria
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Social / Response -->
+                    <div class="response-note">
+
+                        <div class="response-icon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <strong>
+                                Student-first support
+                            </strong>
+
+                            <p>
+                                We're building Hostel Hub to make the hostel
+                                search easier and safer for students.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= CONTACT FORM ================= -->
+                <div class="contact-form-card">
+
+                    <div class="form-header">
+
+                        <span class="form-eyebrow">
+                            SEND A MESSAGE
+                        </span>
+
+                        <h3>
+                            How can we help?
+                        </h3>
+
+                        <p>
+                            Fill out the form below and tell us what's on your mind.
+                        </p>
+
+                    </div>
+
+
+                    <form id="contactForm">
+
+                        <!-- Name -->
+                        <div class="form-group">
+
+                            <label for="contactName">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="contactName"
+                                name="name"
+                                placeholder="Enter your full name"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="form-group">
+
+                            <label for="contactEmail">
+                                Email Address
+                            </label>
+
+                            <input
+                                type="email"
+                                id="contactEmail"
+                                name="email"
+                                placeholder="name@example.com"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Subject -->
+                        <div class="form-group">
+
+                            <label for="contactSubject">
+                                Subject
+                            </label>
+
+                            <select
+                                id="contactSubject"
+                                name="subject"
+                                required
+                            >
+                                <option value="" selected disabled>
+                                    Select a subject
+                                </option>
+
+                                <option value="hostel">
+                                    Hostel enquiry
+                                </option>
+
+                                <option value="inspection">
+                                    Inspection question
+                                </option>
+
+                                <option value="report">
+                                    Report a listing
+                                </option>
+
+                                <option value="agent">
+                                    Agent / Landlord enquiry
+                                </option>
+
+                                <option value="general">
+                                    General question
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Message -->
+                        <div class="form-group">
+
+                            <label for="contactMessage">
+                                Message
+                            </label>
+
+                            <textarea
+                                id="contactMessage"
+                                name="message"
+                                rows="6"
+                                placeholder="Write your message here..."
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+                        <!-- Submit -->
+                        <button
+                            type="submit"
+                            class="submit-button"
+                            id="contactSubmit"
+                        >
+                            Send Message
+                            <span>→</span>
+                        </button>
+
+                        <p class="form-note">
+                            We'll use your email only to respond to your enquiry.
+                        </p>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= FAQ CTA ================= -->
+        <section class="help-section">
+
+            <div class="container">
+
+                <div class="help-card">
+
+                    <div class="help-content">
+
+                        <span class="section-eyebrow">
+                            LOOKING FOR A HOSTEL?
+                        </span>
+
+                        <h2>
+                            You might find your answer
+                            <span>while browsing.</span>
+                        </h2>
+
+                        <p>
+                            Explore available hostels around UNIOSUN and check
+                            their details before contacting us.
+                        </p>
+
+                    </div>
+
+                    <a href="hostels.html" class="help-button">
+                        Browse Hostels
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CTA ================= -->
+        <section class="cta-section">
+
+            <div class="cta-container">
+
+                <div class="cta-content">
+
+                    <span class="cta-eyebrow">
+                        HOSTEL HUB
+                    </span>
+
+                    <h2>
+                        Find your hostel.
+                        <span>Inspect with confidence.</span>
+                    </h2>
+
+                    <a href="hostels.html" class="cta-button">
+                        Find a Hostel
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a href="index.html" class="footer-logo">
+                    Hostel<span>Hub</span>
+                </a>
+
+                <p>
+                    Helping students find accommodation
+                    with more confidence.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div class="footer-column">
+
+                    <h4>Explore</h4>
+
+                    <a href="index.html">Home</a>
+                    <a href="hostels.html">Find Hostels</a>
+                    <a href="locations.html">Locations</a>
+                    <a href="how-it-works.html">How It Works</a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h4>Help</h4>
+
+                    <a href="contact.html">Contact</a>
+                    <a href="report.html">Report Listing</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="footer-bottom-container">
+
+                <p>
+                    © 2026 Hostel Hub. All rights reserved.
+                </p>
+
+                <span>
+                    Built for students.
+                </span>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- MAIN JS -->
+    <script src="js/main.js"></script>
+
+</body>
+</html>
