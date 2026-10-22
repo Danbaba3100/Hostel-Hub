@@ -8,6 +8,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { pool } = require('./src/db');
 const authRoutes = require('./src/auth/routes');
+const { assertJwtSecret } = require('./src/auth/tokens');
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -96,6 +97,12 @@ app.use((error, req, res, next) => {
 
 let server;
 if (require.main === module) {
+  try {
+    assertJwtSecret();
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
   server = app.listen(port, () => {
     console.log(`Hostel Hub API listening on port ${port}`);
   });
