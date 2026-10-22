@@ -1,6 +1,7 @@
 'use strict';
 
-require('dotenv').config();
+const path = require('node:path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -19,7 +20,6 @@ app.set('trust proxy', Number(process.env.TRUST_PROXY || 0));
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
-    // Requests without an Origin header are common for health checks and server tools.
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Origin is not allowed by CORS'));
   },
@@ -48,7 +48,6 @@ app.get('/api/health', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    // Do not expose database hostnames, credentials, or driver errors publicly.
     res.status(503).json({
       status: 'degraded',
       service: 'hostel-hub-api',
