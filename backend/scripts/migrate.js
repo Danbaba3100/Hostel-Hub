@@ -1,8 +1,8 @@
 'use strict';
 
-require('dotenv').config();
-const fs = require('node:fs/promises');
 const path = require('node:path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const fs = require('node:fs/promises');
 const { pool } = require('../src/db');
 
 async function migrate() {
