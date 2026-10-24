@@ -208,6 +208,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return true;
     } catch (error) {
       console.warn("Could not load agent listings from API:", error.message);
+      listings = [];
+      apiHostelsLoaded = false;
+      renderListings();
       showToast("Could not load online listings. Check that the API is running and sign in again.");
       return false;
     }
