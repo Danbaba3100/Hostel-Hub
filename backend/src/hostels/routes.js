@@ -38,7 +38,6 @@ function toHostel(row) {
     rooms: row.units_available == null ? row.occupancy : row.units_available,
     distance: row.distance_from_campus || '',
     availability: ({ available: 'Available', limited: 'Limited availability', unavailable: 'Fully occupied' })[row.availability_status] || 'Available',
-    description: row.description,
     facilities: row.facilities || [],
     videoUrl: row.video_url,
     status: !row.is_active || row.deleted_at
@@ -137,7 +136,7 @@ router.post('/hostels', requireAuth, requireRole('agent'), async (req, res, next
          room_type, occupancy, units_available, distance_from_campus, facilities,
          video_url, availability_status, approval_status, is_active, agent_id
        ) VALUES (
-         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12,$13,$14,$15,'pending',true,$16
+         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12,$13,$14,$15,$16,'pending',true,$17
        )
        RETURNING id`,
       [
@@ -145,7 +144,7 @@ router.post('/hostels', requireAuth, requireRole('agent'), async (req, res, next
         value.address || null, value.priceNgn, value.cautionFeeNgn,
         value.agencyFeeNgn, value.agreementFeeNgn, value.serviceChargeNgn,
         value.roomType, value.unitsAvailable, value.distanceFromCampus || null,
-        value.facilities, value.videoUrl, req.user.id
+        value.facilities, value.videoUrl, value.availabilityStatus, req.user.id
       ]
     );
     const created = await pool.query(
