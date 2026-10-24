@@ -742,6 +742,15 @@ tbody tr:hover {
   font-size: 10px;
 }
 
+/* The form must be a flex container so its body can scroll inside the modal. */
+.modal-card > form {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* Listing modal */
 
 .modal {
