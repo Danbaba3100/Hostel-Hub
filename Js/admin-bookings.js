@@ -1,83 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // =========================================
-    // SAMPLE BOOKING DATA
-    // Demo data only. Not connected to a backend.
-    // =========================================
-
-    const bookings = [
-        {
-            id: "HH-BK-1001",
-            student: "Adebayo Samuel",
-            email: "samuel@example.com",
-            phone: "08012345678",
-            hostel: "Royal Court Hostel",
-            location: "Oke-Baale, Osogbo",
-            date: "2026-10-15",
-            time: "10:00",
-            status: "Pending",
-            note: "Interested in a self-contained room."
-        },
-        {
-            id: "HH-BK-1002",
-            student: "Grace Adeola",
-            email: "grace@example.com",
-            phone: "08023456789",
-            hostel: "Peace Lodge",
-            location: "Alekuwodo, Osogbo",
-            date: "2026-10-12",
-            time: "12:30",
-            status: "Confirmed",
-            note: "Would like to inspect the available rooms."
-        },
-        {
-            id: "HH-BK-1003",
-            student: "Oluwaseun David",
-            email: "david@example.com",
-            phone: "08034567890",
-            hostel: "Green View Hostel",
-            location: "Lameco, Osogbo",
-            date: "2026-10-08",
-            time: "14:00",
-            status: "Completed",
-            note: "Inspection completed."
-        },
-        {
-            id: "HH-BK-1004",
-            student: "Mary Johnson",
-            email: "mary@example.com",
-            phone: "08045678901",
-            hostel: "Sunrise Hostel",
-            location: "Ogo-Oluwa, Osogbo",
-            date: "2026-10-18",
-            time: "09:30",
-            status: "Pending",
-            note: "Please confirm the inspection time."
-        },
-        {
-            id: "HH-BK-1005",
-            student: "Tunde Ibrahim",
-            email: "tunde@example.com",
-            phone: "08056789012",
-            hostel: "Royal Court Hostel",
-            location: "Oke-Baale, Osogbo",
-            date: "2026-10-10",
-            time: "11:00",
-            status: "Cancelled",
-            note: "Student cancelled the request."
-        },
-        {
-            id: "HH-BK-1006",
-            student: "Esther Peter",
-            email: "esther@example.com",
-            phone: "08067890123",
-            hostel: "Green View Hostel",
-            location: "Lameco, Osogbo",
-            date: "2026-10-20",
-            time: "13:00",
-            status: "Confirmed",
-            note: "Interested in a room close to campus."
-        }
-    ];
+    const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+    const TOKEN_KEY = "hostelHubAccessToken";
+    const USER_KEY = "hostelHubUser";
+    let bookings = [];
 
     // =========================================
     // ELEMENTS
@@ -159,14 +84,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function formatTime(timeString) {
-        const [hours, minutes] = timeString.split(":").map(Number);
+        const value = String(timeString || "");
+        if (/\b(am|pm)\b/i.test(value)) return value;
+        const match = value.match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return value;
         const date = new Date();
-        date.setHours(hours, minutes, 0, 0);
+        date.setHours(Number(match[1]), Number(match[2]), 0, 0);
+        return date.toLocaleTimeString("en-NG", { hour: "numeric", minute: "2-digit" });
+    }
 
-        return date.toLocaleTimeString("en-NG", {
-            hour: "numeric",
-            minute: "2-digit"
-        });
+    async function apiRequest(path, options = {}) {
+        const token = sessionStorage.getItem(TOKEN_KEY);
+        if (!token) {
+            window.location.replace("admin-login.html");
+            throw new Error("Please sign in as an administrator.");
+        }
+        const headers = { Authorization: "Bearer " + token, ...(options.headers || {}) };
+        if (options.body !== undefined) headers["Content-Type"] = "application/json";
+        let response;
+        try {
+            response = await fetch(API_BASE + path, { ...options, headers });
+        } catch {
+            throw new Error("Cannot reach the Hostel Hub API. Make sure the backend is running on port 4000.");
+        }
+        if (response.status === 401) {
+            sessionStorage.removeItem(TOKEN_KEY);
+            sessionStorage.removeItem(USER_KEY);
+            window.location.replace("admin-login.html");
+            throw new Error("Your session expired. Please sign in again.");
+        }
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((payload && payload.error && payload.error.message) || "The request could not be completed.");
+        return payload;
+    }
+
+    function normalizeBooking(item) {
+        const rawStatus = String(item.status || "pending").toLowerCase();
+        return {
+            id: item.id,
+            referenceCode: item.referenceCode || item.reference_code || item.id,
+            student: item.student || item.studentName || item.student_name || "Unknown student",
+            email: item.email || item.studentEmail || item.student_email || "",
+            phone: item.phone || item.studentPhone || item.student_phone || "",
+            hostel: item.hostel || item.hostelName || item.hostel_name || "Unknown hostel",
+            location: item.location || item.hostelLocation || item.hostel_location || "",
+            date: item.date || item.preferredDate || item.preferred_date || "",
+            time: item.time || item.preferredTime || item.preferred_time || "",
+            status: rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1),
+            note: item.note || item.message || ""
+        };
     }
 
     function getStatusClass(status) {
@@ -425,7 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // UPDATE STATUS
     // =========================================
 
-    function updateBookingStatus(bookingId, action) {
+    async function updateBookingStatus(bookingId, action) {
         const booking = bookings.find((item) => item.id === bookingId);
 
         if (!booking) {
@@ -434,21 +400,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const transitions = {
-            confirm: {
-                from: "Pending",
-                to: "Confirmed",
-                message: "Booking confirmed."
-            },
-            complete: {
-                from: "Confirmed",
-                to: "Completed",
-                message: "Inspection marked as completed."
-            },
-            cancel: {
-                from: ["Pending", "Confirmed"],
-                to: "Cancelled",
-                message: "Booking cancelled."
-            }
+            confirm: { from: "Pending", to: "Confirmed", apiStatus: "confirmed", message: "Booking confirmed." },
+            complete: { from: "Confirmed", to: "Completed", apiStatus: "completed", message: "Inspection marked as completed." },
+            cancel: { from: ["Pending", "Confirmed"], to: "Cancelled", apiStatus: "cancelled", message: "Booking cancelled." }
         };
 
         const transition = transitions[action];
@@ -476,12 +430,19 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        booking.status = transition.to;
-
-        closeBookingModal();
-        updateStats();
-        renderBookings();
-        showToast(transition.message);
+        try {
+            await apiRequest("/admin/inspections/" + encodeURIComponent(booking.id) + "/status", {
+                method: "PATCH",
+                body: JSON.stringify({ status: transition.apiStatus })
+            });
+            booking.status = transition.to;
+            closeBookingModal();
+            updateStats();
+            renderBookings();
+            showToast(transition.message);
+        } catch (error) {
+            showToast(error.message);
+        }
     }
 
     // =========================================
@@ -590,13 +551,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // INITIALISE
     // =========================================
 
-    updateDateTime();
-    updateStats();
-    renderBookings();
-
-    if (window.lucide) {
-        window.lucide.createIcons();
+    async function loadBookings() {
+        try {
+            const payload = await apiRequest("/admin/inspections");
+            bookings = (Array.isArray(payload.bookings) ? payload.bookings : []).map(normalizeBooking);
+            updateStats();
+            renderBookings();
+            console.log("Hostel Hub: admin inspection bookings loaded", bookings.length);
+        } catch (error) {
+            bookings = [];
+            updateStats();
+            renderBookings();
+            showToast(error.message);
+            console.error("Hostel Hub: could not load admin inspection bookings.", error);
+        }
     }
 
-    console.log("Hostel Hub Booking Management loaded.");
+    updateDateTime();
+    if (window.lucide) window.lucide.createIcons();
+    loadBookings();
+
+    console.log("Hostel Hub Booking Management connected to the API.");
 });
