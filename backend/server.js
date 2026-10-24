@@ -10,6 +10,7 @@ const { pool } = require('./src/db');
 const authRoutes = require('./src/auth/routes');
 const hostelRoutes = require('./src/hostels/routes');
 const adminHostelRoutes = require('./src/admin/hostel-routes');
+const uploadRoutes = require('./src/uploads/routes');
 const { assertJwtSecret } = require('./src/auth/tokens');
 
 const app = express();
@@ -62,6 +63,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/uploads', uploadRoutes);
 app.use('/api', hostelRoutes);
 app.use('/api/admin', adminHostelRoutes);
 
