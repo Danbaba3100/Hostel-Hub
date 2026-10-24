@@ -1,8 +1,8 @@
 
 :root {
-  --primary: #2457d6;
-  --primary-dark: #1946b6;
-  --primary-light: #edf3ff;
+  --primary: #087f4b;
+  --primary-dark: #05643a;
+  --primary-light: #e9faf1;
   --text: #17233c;
   --muted: #748099;
   --border: #e7ebf2;
@@ -58,7 +58,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgba(36, 87, 214, 0.22);
+  outline: 3px solid rgba(8, 127, 75, 0.22);
   outline-offset: 2px;
 }
 
@@ -374,7 +374,7 @@ select:focus-visible {
 
 .stat-icon.blue {
   color: var(--primary);
-  background: #edf3ff;
+  background: #e9faf1;
 }
 
 .stat-icon.green {
@@ -616,11 +616,11 @@ select:focus-visible {
 
 .btn-whatsapp {
   color: white;
-  background: #2457d6;
+  background: #087f4b;
 }
 
 .btn-whatsapp:hover {
-  background: #1946b6;
+  background: #05643a;
 }
 
 .btn:disabled {
