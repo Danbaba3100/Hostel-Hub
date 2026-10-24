@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/agent-dashboard.css">
-  <script src="js/agent-dashboard.js" defer></script>
+  <script src="Js/agent-dashboard.js" defer></script>
 </head>
 <body>
   <div class="dashboard-layout">
@@ -62,13 +62,14 @@
         </div>
         <div class="topbar-actions">
           <span class="status-pill"><span></span> Agent account</span>
-          <div class="avatar" aria-label="Agent profile">A</div>
+          <div class="avatar" id="agentAvatar" aria-label="Agent profile">A</div>
+          <button class="btn btn-outline btn-small" id="logoutBtn" type="button">Log out</button>
         </div>
       </header>
 
       <section class="welcome-row">
         <div>
-          <h2>Welcome back, Agent!</h2>
+          <h2>Welcome back, <span id="agentWelcomeName">Agent</span>!</h2>
           <p>Manage your hostel listings and keep track of student inspections.</p>
         </div>
         <button class="btn btn-primary" id="addListingBtn">
@@ -183,7 +184,7 @@
 
       <footer class="dashboard-footer">
         <span>© 2026 Hostel Hub</span>
-        <span>Agent Dashboard · Frontend prototype</span>
+        <span>Agent Dashboard · Connected to Hostel Hub API</span>
       </footer>
     </main>
   </div>
@@ -318,25 +319,16 @@
         </div>
 
         <div class="form-section">
-          <h3>Photos and video</h3>
-          <p class="form-section-description">Choose clear images and an optional video of the actual property.</p>
-
+          <h3>Hostel video</h3>
+          <p class="form-section-description">Hostel Hub uses video-only listings. Add a link to a walkthrough video hosted online.</p>
           <div class="form-grid">
             <div class="form-field full-field">
-              <label for="hostelPhotos">Hostel photos</label>
-              <input type="file" id="hostelPhotos" name="hostelPhotos" accept="image/*" multiple>
-              <small class="field-hint">Select multiple images. JPG, PNG, and other browser-supported image types are accepted.</small>
-              <div class="selected-files" id="selectedPhotos"></div>
-            </div>
-
-            <div class="form-field full-field">
-              <label for="hostelVideo">Hostel video (optional)</label>
-              <input type="file" id="hostelVideo" name="hostelVideo" accept="video/*">
-              <small class="field-hint">A short walkthrough video can help students understand the property.</small>
+              <label for="hostelVideoUrl">Video URL <span class="required">*</span></label>
+              <input type="url" id="hostelVideoUrl" name="hostelVideoUrl" placeholder="https://..." required maxlength="2048">
+              <small class="field-hint">Use a shareable HTTPS link from your video host. Uploading and storing video files directly will be connected when video storage is configured.</small>
               <div class="selected-files" id="selectedVideo"></div>
             </div>
           </div>
-          <p class="upload-notice">Prototype notice: selected media is not uploaded to a server yet. A backend and file storage are needed to publish and retain actual media.</p>
         </div>
 
         <div class="modal-footer">

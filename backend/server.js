@@ -8,6 +8,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { pool } = require('./src/db');
 const authRoutes = require('./src/auth/routes');
+const hostelRoutes = require('./src/hostels/routes');
 const { assertJwtSecret } = require('./src/auth/tokens');
 
 const app = express();
@@ -60,6 +61,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api', hostelRoutes);
 
 app.get('/', (req, res) => {
   res.json({ name: 'Hostel Hub API', version: '0.2.0', health: '/api/health' });
