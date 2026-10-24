@@ -1,482 +1,406 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // =========================================
-    // SAMPLE DATA
-    // Replace this with API data in the future.
-    // =========================================
+'use strict';
 
-    const hostels = [
-        {
-            id: "royal-court",
-            name: "Royal Court Hostel",
-            location: "Oke-Baale, Osogbo",
-            price: 180000,
-            status: "Available"
-        },
-        {
-            id: "peace-lodge",
-            name: "Peace Lodge",
-            location: "Alekuwodo, Osogbo",
-            price: 150000,
-            status: "Under Review"
-        },
-        {
-            id: "green-view",
-            name: "Green View Hostel",
-            location: "Lameco, Osogbo",
-            price: 200000,
-            status: "Available"
-        },
-        {
-            id: "sunrise",
-            name: "Sunrise Hostel",
-            location: "Ogo-Oluwa, Osogbo",
-            price: 160000,
-            status: "Available"
-        }
-    ];
+document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE = 'http://localhost:4000/api';
+  const TOKEN_KEY = 'hostelHubAccessToken';
+  const USER_KEY = 'hostelHubUser';
+  const $ = (id) => document.getElementById(id);
 
-    const chartData = {
-        7: {
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            bookings: [8, 13, 10, 16, 12, 16, 22],
-            listings: [5, 7, 6, 9, 8, 8, 12],
-            reports: [2, 4, 3, 5, 3, 4, 6]
-        },
-        30: {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Today"],
-            bookings: [10, 15, 13, 19, 22],
-            listings: [4, 7, 6, 10, 12],
-            reports: [2, 3, 4, 4, 6]
-        }
+  const tableBody = $('hostelTableBody');
+  const hostelSearch = $('hostelSearch');
+  const statusFilter = $('statusFilter');
+  const tableEmpty = $('tableEmpty');
+  const tableCount = $('tableCount');
+  const globalSearch = $('globalSearch');
+  const toast = $('toast');
+  let hostels = [];
+  let bookings = [];
+  let toastTimer;
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  }
+
+  function formatPrice(price) {
+    return '₦' + Number(price || 0).toLocaleString('en-NG') + '/year';
+  }
+
+  function formatDate(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function timeAgo(value) {
+    const date = formatDate(value);
+    if (!date) return 'Date unavailable';
+    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
+    if (minutes < 60) return minutes <= 1 ? 'Just now' : minutes + 'm ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    const days = Math.floor(hours / 24);
+    return days < 7 ? days + 'd ago' : date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
+  }
+
+  async function apiRequest(path) {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      window.location.replace('admin-login.html');
+      throw new Error('Please sign in as an administrator.');
+    }
+
+    let response;
+    try {
+      response = await fetch(API_BASE + path, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+    } catch {
+      throw new Error('Cannot reach the Hostel Hub API. Make sure the backend is running on port 4000.');
+    }
+
+    if (response.status === 401) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(USER_KEY);
+      window.location.replace('admin-login.html');
+      throw new Error('Your session expired. Please sign in again.');
+    }
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      if (response.status === 403) throw new Error('Administrator access is required.');
+      throw new Error(payload?.error?.message || 'Could not load dashboard data.');
+    }
+    return payload;
+  }
+
+  function updateDateTime() {
+    const now = new Date();
+    if ($('currentDate')) $('currentDate').textContent = now.toLocaleDateString('en-NG', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    if ($('currentTime')) $('currentTime').textContent = now.toLocaleTimeString('en-NG', {
+      hour: '2-digit', minute: '2-digit'
+    });
+    if ($('currentYear')) $('currentYear').textContent = now.getFullYear();
+  }
+
+  function statusClass(status) {
+    if (status === 'Approved') return 'status-available';
+    if (status === 'Under Review') return 'status-under-review';
+    return 'status-rejected';
+  }
+
+  function renderHostels() {
+    const query = hostelSearch.value.trim().toLowerCase();
+    const selectedStatus = statusFilter.value;
+    const filtered = hostels.filter((hostel) => {
+      const matchesSearch = [hostel.name, hostel.location, hostel.agent, hostel.agentEmail]
+        .join(' ').toLowerCase().includes(query);
+      return matchesSearch && (selectedStatus === 'all' || hostel.status === selectedStatus);
+    });
+
+    tableBody.replaceChildren();
+    filtered.slice(0, 8).forEach((hostel) => {
+      const row = document.createElement('tr');
+      const nameCell = document.createElement('td');
+      const nameWrap = document.createElement('div');
+      const avatar = document.createElement('span');
+      const name = document.createElement('span');
+      nameWrap.className = 'hostel-name';
+      avatar.className = 'hostel-avatar';
+      avatar.innerHTML = '<i data-lucide="house"></i>';
+      name.textContent = hostel.name || 'Unnamed hostel';
+      nameWrap.append(avatar, name);
+      nameCell.appendChild(nameWrap);
+
+      const locationCell = document.createElement('td');
+      locationCell.className = 'location-cell';
+      locationCell.textContent = hostel.location || 'Location not provided';
+
+      const priceCell = document.createElement('td');
+      priceCell.textContent = formatPrice(hostel.price);
+
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = 'status-badge ' + statusClass(hostel.status);
+      badge.textContent = hostel.status || 'Under Review';
+      statusCell.appendChild(badge);
+
+      const actionsCell = document.createElement('td');
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+      const view = document.createElement('button');
+      view.type = 'button';
+      view.className = 'view-button';
+      view.textContent = 'View';
+      view.addEventListener('click', () => {
+        window.location.href = 'admin-hostels.html?hostel=' + encodeURIComponent(hostel.id);
+      });
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'more-button';
+      more.setAttribute('aria-label', 'Manage ' + (hostel.name || 'hostel'));
+      more.innerHTML = '<i data-lucide="more-vertical"></i>';
+      more.addEventListener('click', () => {
+        window.location.href = 'admin-hostels.html?hostel=' + encodeURIComponent(hostel.id);
+      });
+      actions.append(view, more);
+      actionsCell.appendChild(actions);
+      row.append(nameCell, locationCell, priceCell, statusCell, actionsCell);
+      tableBody.appendChild(row);
+    });
+
+    if (tableEmpty) tableEmpty.hidden = filtered.length !== 0;
+    if (tableCount) tableCount.textContent = 'Showing ' + Math.min(filtered.length, 8) + ' of ' + filtered.length + ' matching listings (' + hostels.length + ' total)';
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  function setStat(id, value, note) {
+    const element = $(id);
+    if (element) element.textContent = value;
+    const card = element?.closest('.stat-card');
+    const noteElement = card?.querySelector('.stat-note');
+    if (noteElement && note !== undefined) noteElement.textContent = note;
+  }
+
+  function updateStats() {
+    setStat('totalHostels', hostels.length, 'Live database count');
+    // The current API does not yet provide a platform-wide agent count or reports endpoint.
+    setStat('totalAgents', '—', 'Agent totals not connected');
+    setStat('totalBookings', bookings.length, 'Live inspection requests');
+    setStat('totalReports', '—', 'Reports data not connected');
+  }
+
+  function renderActivity() {
+    const list = $('activityList');
+    if (!list) return;
+    list.replaceChildren();
+    const events = [
+      ...hostels.map((h) => ({
+        date: formatDate(h.submitted),
+        icon: h.status === 'Approved' ? 'check-circle' : h.status === 'Rejected' ? 'x-circle' : 'building-2',
+        tone: h.status === 'Approved' ? 'green' : h.status === 'Rejected' ? 'red' : 'blue',
+        title: 'Hostel listing ' + (h.status || 'submitted').toLowerCase(),
+        detail: (h.name || 'Unnamed hostel') + ' · ' + (h.location || 'Location not provided'),
+        time: h.submitted
+      })),
+      ...bookings.map((b) => ({
+        date: formatDate(b.createdAt),
+        icon: 'calendar-check',
+        tone: 'green',
+        title: 'Inspection request received',
+        detail: (b.hostel || 'Hostel') + ' · ' + (b.student || 'Student'),
+        time: b.createdAt
+      }))
+    ].filter((event) => event.date).sort((a, b) => b.date - a.date).slice(0, 5);
+
+    if (!events.length) {
+      const empty = document.createElement('p');
+      empty.className = 'activity-empty';
+      empty.textContent = 'No recent activity is available yet.';
+      list.appendChild(empty);
+      return;
+    }
+
+    events.forEach((event) => {
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+      const icon = document.createElement('span');
+      icon.className = 'activity-icon ' + event.tone;
+      icon.innerHTML = '<i data-lucide="' + event.icon + '"></i>';
+      const copy = document.createElement('div');
+      copy.className = 'activity-copy';
+      const title = document.createElement('strong');
+      title.textContent = event.title;
+      const detail = document.createElement('p');
+      detail.textContent = event.detail;
+      copy.append(title, detail);
+      const time = document.createElement('time');
+      time.textContent = timeAgo(event.time);
+      item.append(icon, copy, time);
+      list.appendChild(item);
+    });
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  function renderChart(period = '7') {
+    const svg = $('activityChart');
+    const labelsContainer = $('chartLabels');
+    if (!svg || !labelsContainer) return;
+
+    const days = period === '30' ? 30 : 7;
+    const buckets = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      start.setDate(start.getDate() - i);
+      buckets.push({ start, label: days === 7
+        ? start.toLocaleDateString('en-NG', { weekday: 'short' })
+        : start.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
+        bookings: 0, listings: 0 });
+    }
+
+    const countIntoBuckets = (items, key, dateKey) => {
+      items.forEach((item) => {
+        const date = formatDate(item[dateKey]);
+        if (!date) return;
+        const dayIndex = buckets.findIndex((bucket, index) => {
+          const end = new Date(bucket.start);
+          end.setDate(end.getDate() + (days === 30 ? 1 : 1));
+          return date >= bucket.start && date < end;
+        });
+        if (dayIndex >= 0) buckets[dayIndex][key]++;
+      });
     };
+    countIntoBuckets(hostels, 'listings', 'submitted');
+    countIntoBuckets(bookings, 'bookings', 'createdAt');
 
-    // =========================================
-    // ELEMENTS
-    // =========================================
-
-    const tableBody = document.getElementById("hostelTableBody");
-    const hostelSearch = document.getElementById("hostelSearch");
-    const statusFilter = document.getElementById("statusFilter");
-    const tableEmpty = document.getElementById("tableEmpty");
-    const tableCount = document.getElementById("tableCount");
-    const globalSearch = document.getElementById("globalSearch");
-
-    const sidebar = document.getElementById("sidebar");
-    const menuToggle = document.getElementById("menuToggle");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
-
-    const toast = document.getElementById("toast");
-
-    // =========================================
-    // TOAST MESSAGE
-    // =========================================
-
-    let toastTimeout;
-
-    function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add("show");
-
-        clearTimeout(toastTimeout);
-
-        toastTimeout = setTimeout(() => {
-            toast.classList.remove("show");
-        }, 2800);
-    }
-
-    // =========================================
-    // DATE AND TIME
-    // =========================================
-
-    function updateDateTime() {
-        const now = new Date();
-
-        document.getElementById("currentDate").textContent =
-            now.toLocaleDateString("en-NG", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            });
-
-        document.getElementById("currentTime").textContent =
-            now.toLocaleTimeString("en-NG", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-
-        document.getElementById("currentYear").textContent =
-            now.getFullYear();
-    }
-
-    updateDateTime();
-
-    // =========================================
-    // HOSTEL TABLE
-    // =========================================
-
-    function formatPrice(price) {
-        return `₦${price.toLocaleString("en-NG")}/year`;
-    }
-
-    function getStatusClass(status) {
-        if (status === "Available") {
-            return "status-available";
-        }
-
-        if (status === "Under Review") {
-            return "status-under-review";
-        }
-
-        return "status-rejected";
-    }
-
-    function renderHostels() {
-        const searchTerm = hostelSearch.value.trim().toLowerCase();
-        const selectedStatus = statusFilter.value;
-
-        const filteredHostels = hostels.filter((hostel) => {
-            const matchesSearch =
-                hostel.name.toLowerCase().includes(searchTerm) ||
-                hostel.location.toLowerCase().includes(searchTerm);
-
-            const matchesStatus =
-                selectedStatus === "all" ||
-                hostel.status === selectedStatus;
-
-            return matchesSearch && matchesStatus;
-        });
-
-        tableBody.replaceChildren();
-
-        filteredHostels.forEach((hostel) => {
-            const row = document.createElement("tr");
-
-            // Hostel name and icon
-            const hostelCell = document.createElement("td");
-            const hostelName = document.createElement("div");
-            const hostelAvatar = document.createElement("span");
-            const hostelText = document.createElement("span");
-
-            hostelName.className = "hostel-name";
-            hostelAvatar.className = "hostel-avatar";
-            hostelAvatar.innerHTML = '<i data-lucide="house"></i>';
-            hostelText.textContent = hostel.name;
-
-            hostelName.append(hostelAvatar, hostelText);
-            hostelCell.appendChild(hostelName);
-
-            // Location
-            const locationCell = document.createElement("td");
-            locationCell.className = "location-cell";
-            locationCell.textContent = hostel.location;
-
-            // Price
-            const priceCell = document.createElement("td");
-            priceCell.textContent = formatPrice(hostel.price);
-
-            // Status
-            const statusCell = document.createElement("td");
-            const statusBadge = document.createElement("span");
-
-            statusBadge.className =
-                `status-badge ${getStatusClass(hostel.status)}`;
-
-            statusBadge.textContent = hostel.status;
-            statusCell.appendChild(statusBadge);
-
-            // Actions
-            const actionsCell = document.createElement("td");
-            const actions = document.createElement("div");
-            const viewButton = document.createElement("button");
-            const moreButton = document.createElement("button");
-
-            actions.className = "row-actions";
-            viewButton.className = "view-button";
-            viewButton.type = "button";
-            viewButton.textContent = "View";
-
-           viewButton.addEventListener("click", () => {
-    window.location.href =
-        `admin-hostels.html?hostel=${encodeURIComponent(hostel.id)}`;
-});
-
-            moreButton.className = "more-button";
-            moreButton.type = "button";
-            moreButton.setAttribute(
-                "aria-label",
-                `More actions for ${hostel.name}`
-            );
-            moreButton.innerHTML = '<i data-lucide="more-vertical"></i>';
-
-           moreButton.addEventListener("click", () => {
-    window.location.href =
-        `admin-hostels.html?hostel=${encodeURIComponent(hostel.id)}`;
-});
-
-            actions.append(viewButton, moreButton);
-            actionsCell.appendChild(actions);
-
-            row.append(
-                hostelCell,
-                locationCell,
-                priceCell,
-                statusCell,
-                actionsCell
-            );
-
-            tableBody.appendChild(row);
-        });
-
-        tableEmpty.hidden = filteredHostels.length !== 0;
-
-        tableCount.textContent =
-            `Showing ${filteredHostels.length} of ${hostels.length} hostels`;
-
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }
-
-    hostelSearch.addEventListener("input", renderHostels);
-    statusFilter.addEventListener("change", renderHostels);
-
-    document.getElementById("resetTable").addEventListener("click", () => {
-        hostelSearch.value = "";
-        statusFilter.value = "all";
-        renderHostels();
+    labelsContainer.replaceChildren();
+    const shownBuckets = days === 30 ? buckets.filter((_, i) => i % 6 === 0 || i === buckets.length - 1) : buckets;
+    shownBuckets.forEach((bucket) => {
+      const span = document.createElement('span');
+      span.textContent = bucket.label;
+      labelsContainer.appendChild(span);
     });
 
-    // =========================================
-    // GLOBAL SEARCH
-    // =========================================
-
-    document.getElementById("globalSearchForm")
-        .addEventListener("submit", (event) => {
-            event.preventDefault();
-
-            const query = globalSearch.value.trim();
-
-            if (!query) {
-                showToast("Enter a hostel or location to search.");
-                return;
-            }
-
-            hostelSearch.value = query;
-            renderHostels();
-
-            document.querySelector(".hostels-panel")
-                .scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-
-    // =========================================
-    // CHART
-    // =========================================
-
-    const chartSvg = document.getElementById("activityChart");
-    const chartLabels = document.getElementById("chartLabels");
-
-    const chartConfig = [
-        {
-            key: "bookings",
-            lineId: "bookingsLine",
-            color: "#0b9b59"
-        },
-        {
-            key: "listings",
-            lineId: "listingsLine",
-            color: "#2479e8"
-        },
-        {
-            key: "reports",
-            lineId: "reportsLine",
-            color: "#9b5de5"
-        }
+    const top = 20, bottom = 270, width = 700, height = bottom - top;
+    const maxValue = Math.max(5, ...buckets.flatMap((bucket) => [bucket.bookings, bucket.listings]));
+    const pointsGroup = $('chartPoints');
+    const config = [
+      { key: 'bookings', id: 'bookingsLine', color: '#0b9b59' },
+      { key: 'listings', id: 'listingsLine', color: '#2479e8' }
     ];
-
-    function renderChart(period = "7") {
-        const data = chartData[period];
-        const maxValue = 25;
-        const width = 700;
-        const top = 20;
-        const bottom = 270;
-        const height = bottom - top;
-
-        chartLabels.replaceChildren();
-
-        data.labels.forEach((label) => {
-            const span = document.createElement("span");
-            span.textContent = label;
-            chartLabels.appendChild(span);
+    config.forEach((series) => {
+      const points = buckets.map((bucket, index) => ({
+        x: buckets.length === 1 ? 0 : index / (buckets.length - 1) * width,
+        y: bottom - bucket[series.key] / maxValue * height,
+        value: bucket[series.key]
+      }));
+      const line = $(series.id);
+      if (line) line.setAttribute('points', points.map((p) => p.x + ',' + p.y).join(' '));
+      if (pointsGroup) {
+        points.forEach((point) => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', point.x);
+          circle.setAttribute('cy', point.y);
+          circle.setAttribute('r', '4');
+          circle.setAttribute('fill', series.color);
+          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          title.textContent = series.key + ': ' + point.value;
+          circle.appendChild(title);
+          pointsGroup.appendChild(circle);
         });
+      }
+      if (series.key === 'bookings') {
+        const area = $('bookingsArea');
+        if (area && points.length) {
+          area.setAttribute('d', 'M' + points.map((p) => p.x + ' ' + p.y).join(' L') +
+            ' L' + width + ' ' + bottom + ' L0 ' + bottom + ' Z');
+        }
+      }
+    });
+    const reportsLine = $('reportsLine');
+    if (reportsLine) reportsLine.style.display = 'none';
+    if (pointsGroup) pointsGroup.replaceChildren(...Array.from(pointsGroup.childNodes));
+    svg.setAttribute('aria-label', 'Live database counts of inspection requests and hostel submissions over the selected period');
+    const yLabels = document.querySelector('.chart-y-labels');
+    if (yLabels) {
+      const spans = yLabels.querySelectorAll('span');
+      spans.forEach((span, index) => span.textContent = String(Math.round(maxValue * (5 - index) / 5)));
+    }
+  }
 
-        const pointsGroup = document.getElementById("chartPoints");
-        pointsGroup.replaceChildren();
+  function updateChartSafely() {
+    const period = $('chartPeriod')?.value || '7';
+    renderChart(period);
+  }
 
-        chartConfig.forEach((series) => {
-            const values = data[series.key];
-
-            const points = values.map((value, index) => {
-                const x = (index / (values.length - 1)) * width;
-                const y = bottom - (value / maxValue) * height;
-
-                return { x, y };
-            });
-
-            const line = document.getElementById(series.lineId);
-
-            line.setAttribute(
-                "points",
-                points.map((point) => `${point.x},${point.y}`).join(" ")
-            );
-
-            points.forEach((point) => {
-                const circle = document.createElementNS(
-                    "http://www.w3.org/2000/svg",
-                    "circle"
-                );
-
-                circle.setAttribute("cx", point.x);
-                circle.setAttribute("cy", point.y);
-                circle.setAttribute("r", "4");
-                circle.setAttribute("fill", series.color);
-                circle.setAttribute("class", "chart-point");
-
-                const title = document.createElementNS(
-                    "http://www.w3.org/2000/svg",
-                    "title"
-                );
-
-                title.textContent =
-                    `${series.key}: ${values[points.indexOf(point)]}`;
-
-                circle.appendChild(title);
-                pointsGroup.appendChild(circle);
-            });
-
-            if (series.key === "bookings") {
-                const area = document.getElementById("bookingsArea");
-                const first = points[0];
-                const last = points[points.length - 1];
-
-                const path = [
-                    `M${first.x} ${first.y}`,
-                    ...points.slice(1).map((point) =>
-                        `L${point.x} ${point.y}`
-                    ),
-                    `L${last.x} ${bottom}`,
-                    `L${first.x} ${bottom}`,
-                    "Z"
-                ].join(" ");
-
-                area.setAttribute("d", path);
-            }
-        });
-
-        chartSvg.setAttribute(
-            "aria-label",
-            `Sample platform activity chart for the last ${period === "7" ? "7 days" : "30 days"}`
-        );
+  async function start() {
+    updateDateTime();
+    const user = JSON.parse(sessionStorage.getItem(USER_KEY) || 'null');
+    if (user?.fullName) {
+      const heading = document.querySelector('.welcome-section h1');
+      if (heading) {
+        heading.replaceChildren(document.createTextNode('Welcome back, ' + user.fullName + ' '));
+        const wave = document.createElement('span');
+        wave.textContent = '👋';
+        heading.appendChild(wave);
+      }
     }
 
-    document.getElementById("chartPeriod")
-        .addEventListener("change", (event) => {
-            renderChart(event.target.value);
-        });
-
-    renderChart();
-
-    // =========================================
-    // SIDEBAR ON MOBILE
-    // =========================================
-
-    function openSidebar() {
-        sidebar.classList.add("open");
-        sidebarOverlay.classList.add("show");
-        menuToggle.setAttribute("aria-expanded", "true");
+    try {
+      const me = await apiRequest('/auth/me');
+      if (!me.user || me.user.role !== 'admin') {
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(USER_KEY);
+        window.location.replace('admin-login.html');
+        return;
+      }
+      const [hostelResult, bookingResult] = await Promise.all([
+        apiRequest('/admin/hostels'),
+        apiRequest('/admin/inspections')
+      ]);
+      hostels = Array.isArray(hostelResult.hostels) ? hostelResult.hostels : [];
+      bookings = Array.isArray(bookingResult.bookings) ? bookingResult.bookings : [];
+      updateStats();
+      renderHostels();
+      renderActivity();
+      updateChartSafely();
+    } catch (error) {
+      showToast(error.message);
+      if (tableBody) tableBody.replaceChildren();
+      if (tableCount) tableCount.textContent = 'Dashboard data could not be loaded.';
+      setStat('totalHostels', '—', 'Could not load data');
+      setStat('totalBookings', '—', 'Could not load data');
+      setStat('totalAgents', '—', 'Not connected');
+      setStat('totalReports', '—', 'Not connected');
+      if (tableEmpty) tableEmpty.hidden = false;
     }
+  }
 
-    function closeSidebar() {
-        sidebar.classList.remove("open");
-        sidebarOverlay.classList.remove("show");
-        menuToggle.setAttribute("aria-expanded", "false");
-    }
-
-    menuToggle.addEventListener("click", () => {
-        if (sidebar.classList.contains("open")) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    });
-
-    sidebarOverlay.addEventListener("click", closeSidebar);
-
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            closeSidebar();
-        }
-    });
-
-   
-
-
-
-
-/* =========================================
-   NAVIGATION PLACEHOLDERS
-========================================= */
-
-document.querySelectorAll("[data-page]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-        const page = button.dataset.page;
-
-        // Allow existing pages to open normally
-        if (
-            page === "Hostel Management" ||
-            page === "Agent Management" ||
-            page === "Inspection Bookings" ||
-            page === "Reports" ||
-            page === "Settings" ||
-            page === "User Management" ||
-            page === "Complaints"
-        ) {
-            closeSidebar();
-            return;
-        }
-
-        // Show a message only for unfinished pages
-        event.preventDefault();
-
-        showToast(
-            `${page} page is coming next. This dashboard is a frontend prototype.`
-        );
-
-        closeSidebar();
-    });
-});
-
-
-    // =========================================
-    // TOPBAR BUTTONS
-    // =========================================
-
-    document.getElementById("notificationButton")
-        .addEventListener("click", () => {
-            showToast("Notifications will be connected to the backend later.");
-        });
-
-    document.getElementById("profileButton")
-        .addEventListener("click", () => {
-            showToast("Administrator profile settings will be added later.");
-        });
-
-    // Initial render
+  hostelSearch?.addEventListener('input', renderHostels);
+  statusFilter?.addEventListener('change', renderHostels);
+  $('resetTable')?.addEventListener('click', () => {
+    hostelSearch.value = '';
+    statusFilter.value = 'all';
     renderHostels();
+  });
+  $('globalSearchForm')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const query = globalSearch.value.trim();
+    if (!query) return showToast('Enter a hostel or location to search.');
+    hostelSearch.value = query;
+    renderHostels();
+    document.querySelector('.hostels-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  $('chartPeriod')?.addEventListener('change', updateChartSafely);
 
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
+  const sidebar = $('sidebar');
+  const menuToggle = $('menuToggle');
+  const overlay = $('sidebarOverlay');
+  function closeSidebar() {
+    sidebar?.classList.remove('open');
+    overlay?.classList.remove('show');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }
+  menuToggle?.addEventListener('click', () => {
+    const open = sidebar?.classList.toggle('open');
+    overlay?.classList.toggle('show', Boolean(open));
+    menuToggle.setAttribute('aria-expanded', String(Boolean(open)));
+  });
+  overlay?.addEventListener('click', closeSidebar);
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSidebar(); });
 
-    console.log("Hostel Hub Admin Dashboard loaded.");
+  $('notificationButton')?.addEventListener('click', () => showToast('Live notifications are not connected yet.'));
+  $('profileButton')?.addEventListener('click', () => showToast('Profile settings are not connected yet.'));
+  document.querySelectorAll('[data-page="Activity Log"]').forEach((button) => {
+    button.addEventListener('click', () => showToast('The activity log page is not available yet.'));
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+  start();
 });
