@@ -113,10 +113,10 @@ router.patch('/hostels/:id/review', requireAuth, requireRole('admin'), async (re
     const { status, note } = parsed.data;
     const updated = await client.query(
       `UPDATE hostels
-       SET approval_status = $1,
+       SET approval_status = $1::varchar,
            reviewed_by = $2,
            reviewed_at = now(),
-           rejection_reason = CASE WHEN $1 = 'rejected' THEN NULLIF($3, '') ELSE NULL END,
+           rejection_reason = CASE WHEN $1::text = 'rejected' THEN NULLIF($3, '') ELSE NULL END,
            updated_at = now()
        WHERE id = $4
        RETURNING id, slug, name, description, location, address, price_ngn,
