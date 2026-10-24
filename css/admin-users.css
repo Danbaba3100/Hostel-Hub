@@ -394,7 +394,7 @@ table {
 }
 
 thead {
-    background: #f8fafc;
+    background: #f8faf9;
 }
 
 th {
@@ -419,7 +419,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background: #f8fafc;
+    background: #f8faf9;
 }
 
 tbody tr:last-child td {
@@ -498,7 +498,7 @@ tbody tr:last-child td {
 
 .status-dismissed {
     color: #475569;
-    background: #e2e8f0;
+    background: #e4e9ec;
 }
 
 .priority-high {
@@ -700,7 +700,7 @@ tbody tr:last-child td {
 .detail-description {
     padding: 14px;
     color: #334155;
-    background: #f8fafc;
+    background: #f8faf9;
     border: 1px solid var(--border);
     border-radius: 9px;
     font-weight: 400 !important;
@@ -750,7 +750,7 @@ tbody tr:last-child td {
 }
 
 .btn-secondary:hover {
-    background: #f8fafc;
+    background: #f8faf9;
 }
 
 .btn-danger {
