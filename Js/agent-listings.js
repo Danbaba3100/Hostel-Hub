@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const LISTINGS_KEY = "hostelHubAgentListings";
   const INSPECTIONS_KEY = "hostelHubAgentInspections";
   const PROFILE_KEY = "hostelHubAgentProfile";
+  const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+  const MAX_VIDEO_BYTES = 200 * 1024 * 1024;
 
   const $ = (id) => document.getElementById(id);
 
@@ -14,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let inspections = [];
   let editingId = null;
   let toastTimer = null;
+  let apiHostelsLoaded = false;
 
   const demoListings = [
     {
@@ -145,6 +148,102 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Could not save your changes in browser storage.");
       return false;
     }
+  }
+
+  function getAccessToken() {
+    return sessionStorage.getItem("hostelHubAccessToken") || "";
+  }
+
+  async function apiRequest(path, options = {}) {
+    const token = getAccessToken();
+    const headers = new Headers(options.headers || {});
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    if (options.body && !(options.body instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
+
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data?.error?.message || "The request could not be completed.");
+    }
+    return data;
+  }
+
+  function fromApiHostel(hostel) {
+    return {
+      id: hostel.id,
+      name: hostel.name,
+      location: hostel.location,
+      price: hostel.price,
+      cautionFee: hostel.cautionFee || 0,
+      agencyFee: hostel.agencyFee || 0,
+      agreementFee: hostel.agreementFee || 0,
+      serviceCharge: hostel.serviceCharge || 0,
+      type: hostel.type,
+      rooms: hostel.rooms,
+      distance: hostel.distance || "",
+      availability: hostel.availability || "Available",
+      description: hostel.description,
+      facilities: hostel.facilities || [],
+      photos: [],
+      video: hostel.videoUrl || "",
+      videoUrl: hostel.videoUrl || "",
+      status: hostel.status || "Pending Approval",
+      createdAt: hostel.createdAt || new Date().toISOString().slice(0, 10)
+    };
+  }
+
+  async function loadAgentHostels() {
+    if (!getAccessToken()) return false;
+    try {
+      const data = await apiRequest("/hostels/mine");
+      listings = (data.hostels || []).map(fromApiHostel);
+      apiHostelsLoaded = true;
+      renderListings();
+      return true;
+    } catch (error) {
+      console.warn("Could not load agent listings from API:", error.message);
+      showToast("Could not load online listings. Check that the API is running and sign in again.");
+      return false;
+    }
+  }
+
+  async function uploadVideoFile(file) {
+    if (!file) throw new Error("Choose a hostel video before submitting.");
+    if (!file.type || !file.type.startsWith("video/")) {
+      throw new Error("Please choose a valid video file.");
+    }
+    if (file.size > MAX_VIDEO_BYTES) {
+      throw new Error("This video is larger than 200 MB. Choose a smaller file.");
+    }
+
+    const signatureData = await apiRequest("/uploads/video-signature", {
+      method: "POST",
+      body: JSON.stringify({})
+    });
+
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+    uploadData.append("api_key", signatureData.apiKey);
+    uploadData.append("timestamp", String(signatureData.timestamp));
+    uploadData.append("folder", signatureData.folder);
+    uploadData.append("signature", signatureData.signature);
+
+    const uploadResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(signatureData.cloudName)}/video/upload`,
+      { method: "POST", body: uploadData }
+    );
+    const uploaded = await uploadResponse.json().catch(() => ({}));
+
+    if (!uploadResponse.ok || !uploaded.secure_url) {
+      throw new Error(uploaded?.error?.message || "Cloudinary could not upload this video.");
+    }
+    return uploaded.secure_url;
   }
 
   function formatStatus(status) {
@@ -475,7 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Save new or edited listing
   // -----------------------------------------
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!form.reportValidity()) {
@@ -550,6 +649,80 @@ document.addEventListener("DOMContentLoaded", () => {
         new Date().toISOString().slice(0, 10)
     };
 
+    if (getAccessToken()) {
+      const saveButton = $("saveListingBtn");
+      saveButton.disabled = true;
+      saveButton.textContent = videoFile ? "Uploading video..." : "Saving listing...";
+
+      try {
+        let videoUrl = existing?.videoUrl || existing?.video || "";
+        if (videoFile) {
+          videoUrl = await uploadVideoFile(videoFile);
+        }
+        if (!videoUrl) {
+          throw new Error("Please select a hostel video before submitting.");
+        }
+
+        saveButton.textContent = "Saving listing...";
+        const payload = {
+          name: listing.name,
+          description: listing.description,
+          location: listing.location,
+          address: listing.location,
+          priceNgn: listing.price,
+          roomType: listing.type,
+          unitsAvailable: listing.rooms,
+          distanceFromCampus: listing.distance,
+          cautionFeeNgn: listing.cautionFee,
+          agencyFeeNgn: listing.agencyFee,
+          agreementFeeNgn: listing.agreementFee,
+          serviceChargeNgn: listing.serviceCharge,
+          facilities: listing.facilities,
+          videoUrl,
+          availabilityStatus: ({
+            "Available": "available",
+            "Limited availability": "limited",
+            "Fully occupied": "unavailable"
+          })[listing.availability] || "available"
+        };
+
+        const saved = await apiRequest(
+          existing ? `/hostels/${encodeURIComponent(existing.id)}` : "/hostels",
+          { method: existing ? "PATCH" : "POST", body: JSON.stringify(payload) }
+        );
+        const savedHostel = fromApiHostel(saved.hostel);
+
+        if (existing) {
+          const index = listings.findIndex((item) => item.id === existing.id);
+          if (index >= 0) listings[index] = savedHostel;
+        } else {
+          listings.unshift(savedHostel);
+        }
+
+        apiHostelsLoaded = true;
+        closeModal();
+        renderListings();
+        showToast(existing
+          ? "Changes saved. Your listing is pending admin approval."
+          : "Video uploaded and hostel submitted for admin approval.");
+      } catch (error) {
+        showToast(error.message || "Could not submit the hostel listing.");
+      } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = editingId
+          ? "Save Changes for Approval"
+          : "Submit for Approval";
+      }
+      return;
+    }
+
+    // Demo mode remains available for previewing the interface without signing in.
+    listing.videoUrl = existing?.videoUrl || existing?.video || "";
+    if (videoFile) {
+      showToast("Sign in to an agent account to upload videos and save listings online.");
+      return;
+    }
+
     if (existing) {
       const index = listings.findIndex((item) => item.id === existing.id);
       listings[index] = listing;
@@ -558,7 +731,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!saveListings()) {
-      // Restore the last persisted version on a storage failure.
       listings = readArray(LISTINGS_KEY, []);
       renderListings();
       return;
@@ -566,12 +738,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     closeModal();
     renderListings();
-
-    showToast(
-      existing
-        ? "Changes saved. Your listing is pending admin approval."
-        : "Hostel added. Your listing is pending admin approval."
-    );
+    showToast(existing
+      ? "Changes saved in this browser preview."
+      : "Listing added to the browser preview. Sign in to save it online.");
   });
 
   // -----------------------------------------
@@ -699,11 +868,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const file = event.target.files?.[0];
 
     $("selectedVideo").innerHTML = file
-      ? `<div class="selected-file">▶ ${escapeHTML(file.name)}</div>`
+      ? `<div class="selected-file">▶ ${escapeHTML(file.name)} · ${(file.size / (1024 * 1024)).toFixed(1)} MB</div>`
       : "";
 
     if (file) {
-      showToast("Video selected.");
+      if (!file.type.startsWith("video/")) {
+        event.target.value = "";
+        $("selectedVideo").innerHTML = "";
+        showToast("Please choose a video file.");
+        return;
+      }
+      if (file.size > MAX_VIDEO_BYTES) {
+        event.target.value = "";
+        $("selectedVideo").innerHTML = "";
+        showToast("Choose a video smaller than 200 MB.");
+        return;
+      }
+      showToast("Video selected. It will upload when you submit the listing.");
     }
   });
 
@@ -751,4 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initialiseData();
   renderListings();
+  if (getAccessToken()) {
+    loadAgentHostels();
+  }
 });
