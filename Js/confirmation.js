@@ -4,6 +4,31 @@ document.addEventListener("DOMContentLoaded", async function () {
     const hostelName = document.getElementById("hostelName");
     const hostelLocation = document.getElementById("hostelLocation");
     const hostelVideo = document.getElementById("confirmationHostelVideo");
+    const videoMessage = document.getElementById("confirmationVideoMessage");
+
+    function showVideoUnavailable() {
+        if (hostelVideo) {
+            hostelVideo.pause();
+            hostelVideo.hidden = true;
+        }
+
+        if (videoMessage) {
+            videoMessage.hidden = false;
+        }
+    }
+
+    function showVideo() {
+        if (hostelVideo) hostelVideo.hidden = false;
+        if (videoMessage) videoMessage.hidden = true;
+    }
+
+    // A video URL can exist while the actual media file is unavailable or unsupported.
+    if (hostelVideo) {
+        hostelVideo.addEventListener("error", function () {
+            console.error("The selected hostel video could not be loaded or played.");
+            showVideoUnavailable();
+        });
+    }
 
     let booking = null;
     try {
@@ -18,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (hostelLocation) {
             hostelLocation.textContent = "We couldn't find a saved inspection confirmation. Please check your booking status before submitting another request.";
         }
-        if (hostelVideo) hostelVideo.hidden = true;
+        showVideoUnavailable();
         return;
     }
 
@@ -31,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const hostelKey = params.get("hostel") || booking.hostel;
 
     if (!hostelVideo || !hostelKey) {
-        if (hostelVideo) hostelVideo.hidden = true;
+        showVideoUnavailable();
         return;
     }
 
@@ -51,18 +76,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         hostelVideo.pause();
         hostelVideo.src = hostel.videoUrl;
-        hostelVideo.hidden = false;
+        showVideo();
         hostelVideo.load();
 
         const playPromise = hostelVideo.play();
         if (playPromise && typeof playPromise.catch === "function") {
-            playPromise.catch(() => {
-                // Browser autoplay may be blocked; the visitor can use the video controls.
+            playPromise.catch((error) => {
+                // Autoplay restrictions are normal; only show the unavailable message
+                // when the browser reports a media loading/playback error.
+                if (error && error.name !== "NotAllowedError") {
+                    console.warn("Hostel video playback did not start:", error);
+                }
             });
         }
     } catch (error) {
         console.error("Unable to load the selected hostel video:", error);
-        // Do not display the prototype video if the selected listing cannot load.
-        hostelVideo.hidden = true;
+        showVideoUnavailable();
     }
 });
