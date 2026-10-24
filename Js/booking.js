@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", async function (event) {
         event.preventDefault();
 
         if (!form.checkValidity()) {
@@ -113,21 +113,65 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (buttonSpinner) buttonSpinner.style.display = "inline-block";
         if (buttonArrow) buttonArrow.style.display = "none";
 
-        // This currently stores the form locally; connecting submission to the inspection API is a separate step.
-        const bookingData = {
-            hostel: selectedHostel.slug,
+        const visitors = document.getElementById("visitors").value;
+        const extraMessage = document.getElementById("message").value.trim();
+        const messageParts = [];
+        if (visitors) messageParts.push("Number of visitors: " + visitors);
+        if (extraMessage) messageParts.push(extraMessage);
+
+        const requestData = {
             hostelId: selectedHostel.id,
-            hostelName: selectedHostel.name,
-            name: document.getElementById("fullName").value,
-            phone: document.getElementById("phoneNumber").value,
-            email: document.getElementById("email").value,
-            date: document.getElementById("inspectionDate").value,
-            time: document.getElementById("inspectionTime").value,
-            visitors: document.getElementById("visitors").value,
-            message: document.getElementById("message").value
+            studentName: document.getElementById("fullName").value.trim(),
+            studentPhone: document.getElementById("phoneNumber").value.trim(),
+            studentEmail: document.getElementById("email").value.trim(),
+            preferredDate: inspectionDate.value,
+            preferredTime: document.getElementById("inspectionTime").value,
+            message: messageParts.join("\n")
         };
 
-        localStorage.setItem("hostelHubBooking", JSON.stringify(bookingData));
-        window.location.href = "confirmation.html?hostel=" + encodeURIComponent(selectedHostel.slug);
+        try {
+            const response = await fetch(API_BASE + "/inspections", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify(requestData)
+            });
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok || !payload.inspection) {
+                const fieldErrors = payload.error?.fields;
+                const details = Array.isArray(fieldErrors)
+                    ? fieldErrors.map(item => item.message).join(" ")
+                    : "";
+                throw new Error(details || payload.error?.message || "We couldn't submit your inspection request. Please try again.");
+            }
+
+            const bookingData = {
+                hostel: selectedHostel.slug,
+                hostelId: selectedHostel.id,
+                hostelName: selectedHostel.name,
+                hostelLocation: selectedHostel.location || selectedHostel.address || "Osogbo",
+                name: requestData.studentName,
+                phone: requestData.studentPhone,
+                email: requestData.studentEmail,
+                date: requestData.preferredDate,
+                time: requestData.preferredTime,
+                visitors: visitors,
+                message: extraMessage,
+                referenceCode: payload.inspection.referenceCode
+            };
+
+            localStorage.setItem("hostelHubBooking", JSON.stringify(bookingData));
+            window.location.href = "confirmation.html?hostel=" + encodeURIComponent(selectedHostel.slug);
+        } catch (error) {
+            console.error("Inspection request failed:", error);
+            alert(error.message || "We couldn't submit your inspection request. Please check your connection and try again.");
+            submitButton.disabled = false;
+            if (buttonText) buttonText.textContent = "Request Inspection";
+            if (buttonSpinner) buttonSpinner.style.display = "none";
+            if (buttonArrow) buttonArrow.style.display = "inline";
+        }
     });
 });
