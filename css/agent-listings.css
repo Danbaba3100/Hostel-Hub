@@ -1,8 +1,8 @@
 
 :root {
-  --primary: #2457d6;
-  --primary-dark: #1946b6;
-  --primary-light: #edf3ff;
+  --primary: #087f4b;
+  --primary-dark: #05643a;
+  --primary-light: #e9faf1;
   --text: #17233c;
   --muted: #748099;
   --border: #e7ebf2;
@@ -60,7 +60,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(36, 87, 214, 0.22);
+  outline: 3px solid rgba(8, 127, 75, 0.22);
   outline-offset: 2px;
 }
 
@@ -412,7 +412,7 @@ textarea:focus-visible {
 
 .stat-icon.blue {
   color: var(--primary);
-  background: #edf3ff;
+  background: #e9faf1;
 }
 
 .stat-icon.green {
@@ -585,7 +585,7 @@ tbody tr:hover {
   overflow: hidden;
   border-radius: 8px;
   color: var(--primary);
-  background: #edf3ff;
+  background: #e9faf1;
   font-size: 20px;
 }
 
