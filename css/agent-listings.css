@@ -990,6 +990,32 @@ tbody tr:hover {
   overflow-wrap: anywhere;
 }
 
+.existing-video-preview {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid #dfe7fa;
+  border-radius: 9px;
+  background: #f8faff;
+}
+
+.existing-video-preview video {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  border-radius: 6px;
+  background: #17233c;
+}
+
+.existing-video-preview a {
+  width: fit-content;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .modal-notice {
   display: flex;
   align-items: flex-start;
