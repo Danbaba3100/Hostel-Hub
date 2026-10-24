@@ -240,10 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateTotalCostPreview() {
     const amount = (id) => Math.max(0, Number($(id).value) || 0);
-    $('estimatedTotalCost').textContent = money({
-      valueOf: () => amount('hostelPrice') + amount('hostelCautionFee') +
-        amount('hostelAgencyFee') + amount('hostelAgreementFee') + amount('hostelServiceCharge')
-    });
+    const total = amount('hostelPrice') + amount('hostelCautionFee') +
+      amount('hostelAgencyFee') + amount('hostelAgreementFee') + amount('hostelServiceCharge');
+    $('estimatedTotalCost').textContent = money(total);
   }
 
   [
@@ -283,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
       videoUrl: $('hostelVideoUrl').value.trim()
     };
 
+    const wasEditing = Boolean(editingId);
     const button = $('saveListingBtn');
     const originalText = button.textContent;
     button.disabled = true;
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       await loadDashboardData();
       closeModal();
-      showToast(editingId ? 'Changes saved and sent for admin approval.' : 'Listing submitted for admin approval.');
+      showToast(wasEditing ? 'Changes saved and sent for admin approval.' : 'Listing submitted for admin approval.');
     } catch (error) {
       showToast(error.message);
     } finally {
