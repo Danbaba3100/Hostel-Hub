@@ -1,39 +1,46 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  const INSPECTIONS_KEY = "hostelHubAgentInspections";
   const PROFILE_KEY = "hostelHubAgentProfile";
+  const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+  const TOKEN_KEY = "hostelHubAccessToken";
+  const USER_KEY = "hostelHubUser";
+
+  async function apiRequest(path, options = {}) {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      window.location.replace("login.html");
+      throw new Error("Please sign in as an agent to view inspection requests.");
+    }
+
+    const headers = { ...(options.headers || {}), Authorization: `Bearer ${token}` };
+    if (options.body !== undefined) headers["Content-Type"] = "application/json";
+
+    let response;
+    try {
+      response = await fetch(API_BASE + path, { ...options, headers });
+    } catch {
+      throw new Error("Cannot reach the Hostel Hub API. Make sure the backend is running.");
+    }
+
+    if (response.status === 401) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(USER_KEY);
+      window.location.replace("login.html");
+      throw new Error("Your session expired. Please sign in again.");
+    }
+
+    const payload = response.status === 204 ? null : await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || "Could not complete the request.");
+    }
+    return payload;
+  }
 
   const $ = (id) => document.getElementById(id);
 
   let inspections = [];
   let toastTimer;
 
-  // Sample requests are displayed only when the browser has no
-  // inspection data saved yet.
-  const demoInspections = [
-    {
-      id: "inspection-1",
-      studentName: "Adebayo Samuel",
-      hostelName: "Peace Estate Hostel",
-      email: "samuel@example.com",
-      phone: "08012345678",
-      preferredDate: "2026-10-15",
-      preferredTime: "10:00",
-      message: "I would like to inspect an available room.",
-      status: "Pending"
-    },
-    {
-      id: "inspection-2",
-      studentName: "Oluwaseun Grace",
-      hostelName: "Royal Court Lodge",
-      email: "grace@example.com",
-      phone: "08087654321",
-      preferredDate: "2026-10-17",
-      preferredTime: "12:00",
-      message: "Please confirm if the room is still available.",
-      status: "Pending"
-    }
-  ];
 
   function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, (character) => ({
@@ -346,9 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("clearFiltersBtn").addEventListener("click", clearFilters);
   $("clearFiltersLink").addEventListener("click", clearFilters);
 
-  $("inspectionList").addEventListener("click", (event) => {
+  $("inspectionList").addEventListener("click", async (event) => {
     const button = event.target.closest("[data-action]");
-
     if (!button) return;
 
     const { action, id } = button.dataset;
@@ -364,23 +370,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const previousStatus = item.status;
+    const nextStatus = action === "complete" ? "completed" : "pending";
+    button.disabled = true;
 
-    item.status = action === "complete" ? "Completed" : "Pending";
-
-    if (!saveInspections()) {
-      item.status = previousStatus;
+    try {
+      const payload = await apiRequest(`/inspections/${encodeURIComponent(id)}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: nextStatus })
+      });
+      const updated = payload?.inspection;
+      if (updated) {
+        const index = inspections.findIndex((inspection) => inspection.id === id);
+        if (index !== -1) inspections[index] = updated;
+      }
       renderInspections();
-      return;
-    }
-
-    renderInspections();
-
-    showToast(
-      item.status === "Completed"
+      showToast(nextStatus === "completed"
         ? "Inspection marked as completed."
-        : "Inspection moved back to pending."
-    );
+        : "Inspection moved back to pending.");
+    } catch (error) {
+      button.disabled = false;
+      showToast(error.message || "Could not update this inspection.");
+    }
   });
 
   // Mobile sidebar
@@ -412,25 +422,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Escape") closeSidebar();
   });
 
-  // Initialise inspection data.
-  // Do not overwrite an existing, even empty, saved array.
-  
-// Initialise inspection data.
-// Use demo requests only when no saved data exists.
+  async function loadInspections() {
+    $("inspectionList").innerHTML = "";
+    $("emptyTitle").textContent = "Loading inspection requests...";
+    $("emptyDescription").textContent = "Fetching real inspection requests from Hostel Hub.";
+    $("emptyState").hidden = false;
 
-const saved = readArray(INSPECTIONS_KEY, null);
-
-if (saved === null) {
-  inspections = demoInspections.map((item) => ({ ...item }));
-  saveInspections();
-} else {
-  inspections = saved;
-}
-
-updateAvatar();
-renderInspections();
-
+    try {
+      const payload = await apiRequest("/inspections/mine");
+      inspections = Array.isArray(payload?.inspections) ? payload.inspections : [];
+      renderInspections();
+    } catch (error) {
+      inspections = [];
+      renderInspections();
+      $("emptyTitle").textContent = "Could not load inspection requests";
+      $("emptyDescription").textContent = error.message || "Please refresh and try again.";
+      showToast(error.message || "Could not load inspection requests.");
+    }
+  }
 
   updateAvatar();
-  renderInspections();
+  loadInspections();
 });
