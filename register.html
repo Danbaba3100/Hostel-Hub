@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a Hostel Hub agent account to manage hostel listings and inspections.">
+  <title>Create Agent Account | Hostel Hub</title>
+  <link rel="stylesheet" href="css/auth.css">
+  <script src="Js/auth.js" defer></script>
+</head>
+<body class="auth-page" data-auth-mode="register">
+  <header class="auth-header">
+    <a class="brand" href="index.html" aria-label="Hostel Hub home">Hostel<span>Hub</span></a>
+    <a class="back-link" href="index.html">← Back to website</a>
+  </header>
+
+  <main class="auth-layout register-layout">
+    <section class="auth-intro" aria-labelledby="intro-title">
+      <span class="eyebrow">JOIN HOSTEL HUB</span>
+      <h1>Bring your hostel<br><span>to the right people.</span></h1>
+      <p>Create an agent account to submit hostel listings and manage inspection requests from students.</p>
+      <div class="trust-list">
+        <span><b aria-hidden="true">✓</b> Submit video-based hostel listings</span>
+        <span><b aria-hidden="true">✓</b> Receive inspection requests</span>
+        <span><b aria-hidden="true">✓</b> Listings are reviewed before publishing</span>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="form-title">
+      <div class="card-heading">
+        <span class="card-kicker">GET STARTED</span>
+        <h2 id="form-title">Create your agent account</h2>
+        <p>Fill in your details. Fields marked required must be completed.</p>
+      </div>
+
+      <div class="form-message" id="formMessage" role="status" aria-live="polite" hidden></div>
+
+      <form id="registerForm" novalidate>
+        <div class="field">
+          <label for="fullName">Full name <span>*</span></label>
+          <input id="fullName" name="fullName" type="text" autocomplete="name" placeholder="Your full name" required minlength="2" maxlength="120">
+        </div>
+
+        <div class="field">
+          <label for="email">Email address <span>*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone number <small>(optional)</small></label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+234 800 000 0000" maxlength="25">
+        </div>
+
+        <div class="field">
+          <label for="password">Password <span>*</span></label>
+          <input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 12 characters" required minlength="12" maxlength="128" aria-describedby="passwordHint">
+          <small id="passwordHint" class="field-hint">Use at least 12 characters, including an uppercase letter, a lowercase letter and a number.</small>
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">Confirm password <span>*</span></label>
+          <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Enter the password again" required maxlength="128">
+        </div>
+
+        <button class="submit-button" id="submitButton" type="submit">
+          <span class="button-label">Create agent account</span>
+          <span class="button-spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+      <p class="public-note">Creating an account gives you agent access only. Administrator access is assigned separately.</p>
+    </section>
+  </main>
+
+  <footer class="auth-footer">© <span id="currentYear"></span> Hostel Hub · Find your hostel. Inspect with confidence.</footer>
+</body>
+</html>

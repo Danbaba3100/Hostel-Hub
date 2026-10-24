@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to manage your Hostel Hub hostel listings and inspection requests.">
+  <title>Agent Login | Hostel Hub</title>
+  <link rel="stylesheet" href="css/auth.css">
+  <script src="Js/auth.js" defer></script>
+</head>
+<body class="auth-page" data-auth-mode="login">
+  <header class="auth-header">
+    <a class="brand" href="index.html" aria-label="Hostel Hub home">Hostel<span>Hub</span></a>
+    <a class="back-link" href="index.html">← Back to website</a>
+  </header>
+
+  <main class="auth-layout">
+    <section class="auth-intro" aria-labelledby="intro-title">
+      <span class="eyebrow">HOSTEL HUB AGENT SPACE</span>
+      <h1 id="intro-title">Your listings.<br><span>Your next step.</span></h1>
+      <p>Sign in to manage your hostel listings and keep track of inspection requests in one place.</p>
+      <div class="trust-list">
+        <span><b aria-hidden="true">✓</b> Manage your own listings</span>
+        <span><b aria-hidden="true">✓</b> Track student inspection requests</span>
+        <span><b aria-hidden="true">✓</b> Submit listings for admin review</span>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="form-title">
+      <div class="card-heading">
+        <span class="card-kicker">WELCOME BACK</span>
+        <h2 id="form-title">Sign in to your account</h2>
+        <p>Use the email address and password linked to your agent account.</p>
+      </div>
+
+      <div class="form-message" id="formMessage" role="status" aria-live="polite" hidden></div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required maxlength="128">
+        </div>
+
+        <button class="submit-button" id="submitButton" type="submit">
+          <span class="button-label">Sign in</span>
+          <span class="button-spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="auth-switch">Don't have an agent account? <a href="register.html">Create one</a></p>
+      <p class="public-note">Students can browse hostels and request inspections without creating an account.</p>
+    </section>
+  </main>
+
+  <footer class="auth-footer">© <span id="currentYear"></span> Hostel Hub · Find your hostel. Inspect with confidence.</footer>
+</body>
+</html>
