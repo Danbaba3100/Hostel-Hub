@@ -4,14 +4,14 @@
 ======================================== */
 
 :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --background: #f5f7fb;
+    --primary: #087f4b;
+    --primary-dark: #05643a;
+    --background: #f8faf9;
     --surface: #ffffff;
-    --text: #172033;
-    --muted: #718096;
-    --border: #e5eaf2;
-    --success: #16a34a;
+    --text: #102131;
+    --muted: #52616f;
+    --border: #e4e9ec;
+    --success: #087f4b;
     --warning: #d97706;
     --danger: #dc2626;
     --sidebar-width: 260px;
