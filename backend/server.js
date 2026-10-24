@@ -89,13 +89,17 @@ app.use((error, req, res, next) => {
       error: { code: 'INVALID_JSON', message: 'Request body must contain valid JSON.' }
     });
   }
-  console.error(JSON.stringify({
-    level: 'error',
-    message: 'Unhandled API error',
+  // Keep detailed diagnostics in the local server terminal; never send them to the browser.
+  console.error('Unhandled API error:', {
     path: req.path,
     method: req.method,
-    timestamp: new Date().toISOString()
-  }));
+    timestamp: new Date().toISOString(),
+    error: error.message,
+    code: error.code,
+    detail: error.detail,
+    constraint: error.constraint,
+    stack: error.stack
+  });
   return res.status(500).json({
     error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' }
   });
