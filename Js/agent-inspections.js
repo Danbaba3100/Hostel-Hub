@@ -105,12 +105,21 @@ document.addEventListener("DOMContentLoaded", () => {
   function formatTime(timeString) {
     if (!timeString) return "Not specified";
 
-    const parts = timeString.split(":");
+    const raw = String(timeString).trim();
+    // The API may return a display time such as "5:00 PM" or a 24-hour time.
+    if (/^\\d{1,2}:\\d{2}\\s*(AM|PM)$/i.test(raw)) {
+      return escapeHTML(raw.toUpperCase());
+    }
 
-    if (parts.length < 2) return escapeHTML(timeString);
+    const match = raw.match(/^(\\d{1,2}):(\\d{2})(?::\\d{2})?$/);
+    if (!match) return escapeHTML(raw);
+
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    if (hours > 23 || minutes > 59) return escapeHTML(raw);
 
     const date = new Date();
-    date.setHours(Number(parts[0]), Number(parts[1]), 0, 0);
+    date.setHours(hours, minutes, 0, 0);
 
     return new Intl.DateTimeFormat("en-NG", {
       hour: "numeric",
@@ -430,7 +439,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const payload = await apiRequest("/inspections/mine");
-      inspections = Array.isArray(payload?.inspections) ? payload.inspections : [];
+      const rows = Array.isArray(payload?.inspections) ? payload.inspections : [];
+
+      // Normalize API fields before rendering so the page tolerates common
+      // casing/field-name differences without silently hiding valid requests.
+      inspections = rows.map((row) => ({
+        ...row,
+        id: row.id ?? row.inspectionId ?? row.inspection_id,
+        studentName: row.studentName ?? row.student_name ?? "Student",
+        hostelName: row.hostelName ?? row.hostel_name ?? "Not specified",
+        phone: row.phone ?? row.studentPhone ?? row.student_phone ?? "",
+        email: row.email ?? row.studentEmail ?? row.student_email ?? "",
+        preferredDate: row.preferredDate ?? row.preferred_date ?? "",
+        preferredTime: row.preferredTime ?? row.preferred_time ?? "",
+        message: row.message ?? "",
+        status: String(row.status ?? "Pending").toLowerCase() === "completed"
+          ? "Completed"
+          : "Pending"
+      }));
+
+      console.info("Hostel Hub: inspection requests loaded", inspections.length);
       renderInspections();
     } catch (error) {
       inspections = [];
