@@ -4,6 +4,7 @@ const express = require('express');
 const { z } = require('zod');
 const { pool } = require('../db');
 const { requireAuth, requireRole } = require('../auth/middleware');
+const { inspectionStatusSchema } = require('../hostels/validation');
 
 const router = express.Router();
 const reviewSchema = z.object({
@@ -43,6 +44,75 @@ function toAdminHostel(row) {
     isActive: row.is_active
   };
 }
+
+
+function toAdminInspection(row) {
+  return {
+    id: row.id,
+    referenceCode: row.reference_code,
+    hostelId: row.hostel_id,
+    hostel: row.hostel_name,
+    location: row.hostel_location || '',
+    student: row.student_name,
+    email: row.student_email || '',
+    phone: row.student_phone || '',
+    date: row.preferred_date instanceof Date ? row.preferred_date.toISOString().slice(0, 10) : String(row.preferred_date).slice(0, 10),
+    time: row.preferred_time || '',
+    status: row.status.charAt(0).toUpperCase() + row.status.slice(1),
+    note: row.message || '',
+    createdAt: row.created_at
+  };
+}
+
+router.get('/inspections', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      `SELECT i.id, i.reference_code, i.hostel_id, h.name AS hostel_name,
+              h.location AS hostel_location, i.student_name, i.student_email,
+              i.student_phone, i.preferred_date, i.preferred_time, i.status,
+              i.message, i.created_at
+       FROM inspections i
+       JOIN hostels h ON h.id = i.hostel_id
+       ORDER BY i.created_at DESC
+       LIMIT 500`
+    );
+    return res.json({ bookings: result.rows.map(toAdminInspection) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.patch('/inspections/:id/status', requireAuth, requireRole('admin'), async (req, res, next) => {
+  if (!z.string().uuid().safeParse(req.params.id).success) {
+    return res.status(400).json({ error: { code: 'INVALID_ID', message: 'The inspection ID is invalid.' } });
+  }
+  const parsed = inspectionStatusSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Choose a valid inspection status.' } });
+  }
+  try {
+    const updated = await pool.query(
+      `UPDATE inspections SET status = $1, updated_at = now()
+       WHERE id = $2 RETURNING id`,
+      [parsed.data.status, req.params.id]
+    );
+    if (!updated.rowCount) {
+      return res.status(404).json({ error: { code: 'INSPECTION_NOT_FOUND', message: 'That inspection request was not found.' } });
+    }
+    const result = await pool.query(
+      `SELECT i.id, i.reference_code, i.hostel_id, h.name AS hostel_name,
+              h.location AS hostel_location, i.student_name, i.student_email,
+              i.student_phone, i.preferred_date, i.preferred_time, i.status,
+              i.message, i.created_at
+       FROM inspections i JOIN hostels h ON h.id = i.hostel_id
+       WHERE i.id = $1`,
+      [req.params.id]
+    );
+    return res.json({ booking: toAdminInspection(result.rows[0]), message: 'Inspection status updated.' });
+  } catch (error) {
+    return next(error);
+  }
+});
 
 router.get('/hostels', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
