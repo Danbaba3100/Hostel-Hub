@@ -270,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const top = 20, bottom = 270, width = 700, height = bottom - top;
     const maxValue = Math.max(5, ...buckets.flatMap((bucket) => [bucket.bookings, bucket.listings]));
     const pointsGroup = $('chartPoints');
+    if (pointsGroup) pointsGroup.replaceChildren();
     const config = [
       { key: 'bookings', id: 'bookingsLine', color: '#0b9b59' },
       { key: 'listings', id: 'listingsLine', color: '#2479e8' }
@@ -305,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const reportsLine = $('reportsLine');
     if (reportsLine) reportsLine.style.display = 'none';
-    if (pointsGroup) pointsGroup.replaceChildren(...Array.from(pointsGroup.childNodes));
     svg.setAttribute('aria-label', 'Live database counts of inspection requests and hostel submissions over the selected period');
     const yLabels = document.querySelector('.chart-y-labels');
     if (yLabels) {
