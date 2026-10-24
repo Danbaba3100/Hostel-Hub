@@ -492,9 +492,26 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="selected-file">▧ ${escapeHTML(photo)}</div>
     `).join("");
 
-    $("selectedVideo").innerHTML = listing.video
-      ? `<div class="selected-file">▶ ${escapeHTML(listing.video)}</div>`
-      : "";
+    const videoUrl = listing.videoUrl ||
+      (typeof listing.video === "string" && /^https:\/\//i.test(listing.video)
+        ? listing.video
+        : "");
+
+    $("selectedVideo").innerHTML = videoUrl
+      ? `
+        <div class="existing-video-preview">
+          <video controls preload="metadata" playsinline>
+            <source src="${escapeHTML(videoUrl)}" type="video/mp4">
+            Your browser cannot play this video.
+          </video>
+          <a href="${escapeHTML(videoUrl)}" target="_blank" rel="noopener noreferrer">
+            Open video in a new tab
+          </a>
+        </div>
+      `
+      : listing.video
+        ? `<div class="selected-file">▶ ${escapeHTML(listing.video)}</div>`
+        : "";
   }
 
   function openModal(listing = null) {
