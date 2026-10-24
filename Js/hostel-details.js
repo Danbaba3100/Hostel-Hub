@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (bookingButton) {
-      bookingButton.href = 'book-inspection.html?hostel=' + encodeURIComponent(hostel.id);
+      bookingButton.href = 'book-inspection.html?hostel=' + encodeURIComponent(hostel.slug);
       bookingButton.hidden = false;
     }
     if (reportLink) {
