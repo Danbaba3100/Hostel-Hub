@@ -140,10 +140,10 @@
                         </div>
                         <div class="stat-info">
                             <p>Total Hostels</p>
-                            <h2 id="totalHostels">14</h2>
+                            <h2 id="totalHostels">Loading…</h2>
                             <span class="stat-note">
                                 <i data-lucide="trending-up"></i>
-                                2 added this month
+                                Live database count
                             </span>
                         </div>
                     </article>
@@ -154,10 +154,10 @@
                         </div>
                         <div class="stat-info">
                             <p>Registered Agents</p>
-                            <h2 id="totalAgents">8</h2>
+                            <h2 id="totalAgents">—</h2>
                             <span class="stat-note">
                                 <i data-lucide="trending-up"></i>
-                                1 new this month
+                                Agent totals not connected
                             </span>
                         </div>
                     </article>
@@ -168,10 +168,10 @@
                         </div>
                         <div class="stat-info">
                             <p>Inspection Bookings</p>
-                            <h2 id="totalBookings">23</h2>
+                            <h2 id="totalBookings">Loading…</h2>
                             <span class="stat-note">
                                 <i data-lucide="trending-up"></i>
-                                5 new this week
+                                Live inspection requests
                             </span>
                         </div>
                     </article>
@@ -182,9 +182,9 @@
                         </div>
                         <div class="stat-info">
                             <p>Open Reports</p>
-                            <h2 id="totalReports">6</h2>
+                            <h2 id="totalReports">—</h2>
                             <span class="stat-note warning-note">
-                                Requires attention
+                                Reports data not connected
                             </span>
                         </div>
                     </article>
@@ -221,7 +221,7 @@
                                      viewBox="0 0 700 300"
                                      preserveAspectRatio="none"
                                      role="img"
-                                     aria-label="Sample chart showing bookings, new listings and reports">
+                                     aria-label="Live chart showing inspection requests and hostel submissions">
                                     <defs>
                                         <linearGradient id="bookingFill"
                                                         x1="0" y1="0"
@@ -287,7 +287,7 @@
                         <div class="chart-legend">
                             <span><i class="legend-dot bookings-dot"></i>Bookings</span>
                             <span><i class="legend-dot listings-dot"></i>New Listings</span>
-                            <span><i class="legend-dot reports-dot"></i>Reports</span>
+                            
                         </div>
                     </article>
 
@@ -385,7 +385,7 @@
 
                         <select id="statusFilter" aria-label="Filter by status">
                             <option value="all">All statuses</option>
-                            <option value="Available">Available</option>
+                            <option value="Approved">Approved</option>
                             <option value="Under Review">Under Review</option>
                             <option value="Rejected">Rejected</option>
                         </select>
@@ -415,7 +415,7 @@
                     </div>
 
                     <div class="table-footer">
-                        <span id="tableCount">Showing 4 hostels</span>
+                        <span id="tableCount">Loading listings…</span>
                         <button class="secondary-button"
         type="button"
         onclick="window.location.href='admin-hostels.html'">
@@ -442,7 +442,7 @@
 
                 <footer class="dashboard-footer">
                     <p>© <span id="currentYear"></span> Hostel Hub. All rights reserved.</p>
-                    <span>Admin Dashboard · Demo Version</span>
+                    <span>Admin Dashboard · Live database</span>
                 </footer>
 
             </div>
