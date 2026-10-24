@@ -871,7 +871,7 @@ button {
         box-shadow: var(--shadow-sm);
     }
 
-    .nav-links.active {
+    .nav-links.show {
         display: flex;
     }
 
