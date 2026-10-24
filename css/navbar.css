@@ -110,3 +110,19 @@
     color: white;
     font-size: 25px;
 }
+
+/* Shared responsive navigation */
+@media (max-width: 900px) {
+  .nav-container { gap: 16px; }
+  .nav-links { gap: 18px; }
+}
+@media (max-width: 760px) {
+  .nav-container { position: relative; min-height: 68px; height: auto; }
+  .menu-toggle { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; }
+  .nav-links { display: none; position: absolute; top: calc(100% - 1px); left: 0; right: 0; z-index: 1001; flex-direction: column; align-items: stretch; gap: 0; padding: 10px; background: var(--navy); border: 1px solid rgba(255,255,255,.1); border-radius: 0 0 14px 14px; box-shadow: 0 16px 30px rgba(7,24,39,.18); }
+  .nav-links.show { display: flex; }
+  .nav-links a { display: block; padding: 13px 12px; border-radius: 8px; font-size: 14px; }
+  .nav-links a.active::after { display: none; }
+  .nav-links a:hover, .nav-links a:focus-visible { background: rgba(255,255,255,.08); }
+}
+@media (prefers-reduced-motion: reduce) { .navbar *, .nav-links * { transition: none !important; scroll-behavior: auto !important; } }
