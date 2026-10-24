@@ -1,287 +1,133 @@
-document.addEventListener("DOMContentLoaded", function () {
-
+document.addEventListener("DOMContentLoaded", async function () {
+    const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
     const form = document.getElementById("inspectionForm");
-
     const submitButton = document.getElementById("submitBooking");
     const buttonText = document.getElementById("buttonText");
     const buttonSpinner = document.getElementById("buttonSpinner");
     const buttonArrow = document.querySelector(".button-arrow");
-
     const inspectionDate = document.getElementById("inspectionDate");
 
-    /*
-    =========================================
-    SET MINIMUM INSPECTION DATE
-    =========================================
-    */
-
     if (inspectionDate) {
-
         const today = new Date();
-
-        const year = today.getFullYear();
-
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-
-        const day = String(today.getDate()).padStart(2, "0");
-
-        const todayString = `${year}-${month}-${day}`;
-
-        inspectionDate.min = todayString;
+        inspectionDate.min = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const hostelKey = params.get("hostel") || params.get("id");
+    let selectedHostel = null;
 
-    /*
-    =========================================
-    GET HOSTEL FROM URL
-    =========================================
-    */
+    const summaryName = document.getElementById("summaryHostelName");
+    const summaryLocation = document.getElementById("summaryLocation");
+    const summaryPrice = document.getElementById("summaryPrice");
+    const summaryRoom = document.getElementById("summaryRoom");
+    const summaryVideo = document.querySelector(".summary-video video");
+    const videoSource = summaryVideo ? summaryVideo.querySelector("source") : null;
+    const viewHostel = document.querySelector(".view-hostel");
 
-    const urlParams = new URLSearchParams(window.location.search);
-
-    const hostel = urlParams.get("hostel");
-
-
-    /*
-    =========================================
-    HOSTEL DATA
-    =========================================
-    */
-
-    const hostelData = {
-
-        "royal-court": {
-            name: "Royal Court Hostel",
-            location: "📍 Oke-Baale, Osogbo",
-            price: "₦180,000/year",
-            room: "Self-contained",
-            video: "assets/videos/hostel-1.mp4"
-        },
-
-        "peace-lodge": {
-            name: "Peace Lodge",
-            location: "📍 Alekuwodo, Osogbo",
-            price: "₦150,000/year",
-            room: "Room & Parlour",
-            video: "assets/videos/hostel-2.mp4"
-        },
-
-        "green-view": {
-            name: "Green View Hostel",
-            location: "📍 Lameco, Osogbo",
-            price: "₦200,000/year",
-            room: "Self-contained",
-            video: "assets/videos/hostel-3.mp4"
-        },
-
-        "sunrise": {
-            name: "Sunrise Hostel",
-            location: "📍 Ogo-Oluwa, Osogbo",
-            price: "₦160,000/year",
-            room: "Room & Parlour",
-            video: "assets/videos/hostel-4.mp4"
-        }
-
-    };
-
-
-    /*
-    =========================================
-    UPDATE SUMMARY
-    =========================================
-    */
-
-    if (hostel && hostelData[hostel]) {
-
-        const data = hostelData[hostel];
-
-        const summaryName =
-            document.getElementById("summaryHostelName");
-
-        const summaryLocation =
-            document.getElementById("summaryLocation");
-
-        const summaryPrice =
-            document.getElementById("summaryPrice");
-
-        const summaryRoom =
-            document.getElementById("summaryRoom");
-
-        const summaryVideo =
-            document.querySelector(".summary-video video");
-
-        const source =
-            summaryVideo
-                ? summaryVideo.querySelector("source")
-                : null;
-
-
-        if (summaryName) {
-            summaryName.textContent = data.name;
-        }
-
-        if (summaryLocation) {
-            summaryLocation.textContent = data.location;
-        }
-
-        if (summaryPrice) {
-            summaryPrice.textContent = data.price;
-        }
-
-        if (summaryRoom) {
-            summaryRoom.textContent = data.room;
-        }
-
-        if (source) {
-
-            source.src = data.video;
-
+    function showHostelUnavailable(message) {
+        if (summaryName) summaryName.textContent = "Hostel unavailable";
+        if (summaryLocation) summaryLocation.textContent = message;
+        if (summaryPrice) summaryPrice.textContent = "—";
+        if (summaryRoom) summaryRoom.textContent = "—";
+        if (summaryVideo) {
+            summaryVideo.pause();
+            if (videoSource) videoSource.removeAttribute("src");
+            summaryVideo.removeAttribute("src");
             summaryVideo.load();
         }
-
-
-        /*
-        Update View Details Link
-        */
-
-        const viewHostel =
-            document.querySelector(".view-hostel");
-
-        if (viewHostel) {
-
-            viewHostel.href =
-                `hostel-details.html?id=${encodeURIComponent(hostel)}`;
-        }
-
+        if (viewHostel) viewHostel.hidden = true;
+        if (submitButton) submitButton.disabled = true;
     }
 
+    if (!hostelKey) {
+        showHostelUnavailable("Please return to Find Hostels and select a hostel first.");
+    } else {
+        try {
+            const response = await fetch(API_BASE + "/hostels/" + encodeURIComponent(hostelKey), {
+                headers: { Accept: "application/json" }
+            });
+            const payload = await response.json().catch(() => ({}));
 
-    /*
-    =========================================
-    FORM SUBMISSION
-    =========================================
-    */
+            if (!response.ok || !payload.hostel) {
+                throw new Error(payload.error?.message || "This hostel could not be found.");
+            }
+
+            selectedHostel = payload.hostel;
+            const hostel = selectedHostel;
+            const price = new Intl.NumberFormat("en-NG", {
+                style: "currency",
+                currency: "NGN",
+                maximumFractionDigits: 0
+            }).format(Number(hostel.price) || 0);
+
+            if (summaryName) summaryName.textContent = hostel.name;
+            if (summaryLocation) summaryLocation.textContent = "📍 " + (hostel.location || hostel.address || "Osogbo");
+            if (summaryPrice) summaryPrice.textContent = price + " / year";
+
+            const roomType = String(hostel.type || "Not specified")
+                .replace(/[_-]+/g, " ")
+                .replace(/\b\w/g, letter => letter.toUpperCase());
+            if (summaryRoom) summaryRoom.textContent = roomType;
+
+            if (summaryVideo) {
+                summaryVideo.pause();
+                if (videoSource) {
+                    videoSource.src = hostel.videoUrl || "";
+                } else if (hostel.videoUrl) {
+                    summaryVideo.src = hostel.videoUrl;
+                }
+                summaryVideo.load();
+            }
+
+            if (viewHostel) {
+                viewHostel.href = "hostel-details.html?id=" + encodeURIComponent(hostel.slug);
+                viewHostel.hidden = false;
+            }
+            document.title = "Book Inspection — " + hostel.name + " | Hostel Hub";
+        } catch (error) {
+            console.error("Unable to load selected hostel for inspection:", error);
+            showHostelUnavailable(error.message || "We could not load this hostel. Please return to Find Hostels and try again.");
+        }
+    }
 
     if (!form || !submitButton) {
-
-        console.error(
-            "Inspection form or submit button not found."
-        );
-
+        console.error("Inspection form or submit button not found.");
         return;
     }
 
-
     form.addEventListener("submit", function (event) {
-
         event.preventDefault();
 
-
-        /*
-        Browser validation
-        */
-
         if (!form.checkValidity()) {
-
             form.reportValidity();
-
             return;
         }
 
-
-        /*
-        Prevent double submission
-        */
+        if (!selectedHostel) {
+            alert("The selected hostel could not be loaded. Please return to Find Hostels and select it again.");
+            return;
+        }
 
         submitButton.disabled = true;
+        if (buttonText) buttonText.textContent = "Sending Request...";
+        if (buttonSpinner) buttonSpinner.style.display = "inline-block";
+        if (buttonArrow) buttonArrow.style.display = "none";
 
+        // This currently stores the form locally; connecting submission to the inspection API is a separate step.
+        const bookingData = {
+            hostel: selectedHostel.slug,
+            hostelId: selectedHostel.id,
+            hostelName: selectedHostel.name,
+            name: document.getElementById("fullName").value,
+            phone: document.getElementById("phoneNumber").value,
+            email: document.getElementById("email").value,
+            date: document.getElementById("inspectionDate").value,
+            time: document.getElementById("inspectionTime").value,
+            visitors: document.getElementById("visitors").value,
+            message: document.getElementById("message").value
+        };
 
-        /*
-        Loading state
-        */
-
-        if (buttonText) {
-            buttonText.textContent = "Sending Request...";
-        }
-
-        if (buttonSpinner) {
-            buttonSpinner.style.display = "inline-block";
-        }
-
-        if (buttonArrow) {
-            buttonArrow.style.display = "none";
-        }
-
-
-        /*
-        =====================================
-        BACKEND WILL GO HERE LATER
-        =====================================
-
-        For now, we simulate a successful
-        request and move to confirmation.
-        */
-
-        setTimeout(function () {
-
-            let destination = "confirmation.html";
-
-            if (hostel) {
-
-                destination +=
-                    "?hostel=" +
-                    encodeURIComponent(hostel);
-            }
-
-
-            /*
-            Optional:
-            Store submitted details temporarily
-            so the confirmation page can use them.
-            */
-
-            const bookingData = {
-
-                hostel: hostel || "royal-court",
-
-                name:
-                    document.getElementById("fullName").value,
-
-                phone:
-                    document.getElementById("phoneNumber").value,
-
-                email:
-                    document.getElementById("email").value,
-
-                date:
-                    document.getElementById("inspectionDate").value,
-
-                time:
-                    document.getElementById("inspectionTime").value,
-
-                visitors:
-                    document.getElementById("visitors").value,
-
-                message:
-                    document.getElementById("message").value
-
-            };
-
-
-            localStorage.setItem(
-                "hostelHubBooking",
-                JSON.stringify(bookingData)
-            );
-
-
-            /*
-            Go to confirmation page
-            */
-
-            window.location.href = destination;
-
-        }, 900);
-
+        localStorage.setItem("hostelHubBooking", JSON.stringify(bookingData));
+        window.location.href = "confirmation.html?hostel=" + encodeURIComponent(selectedHostel.slug);
     });
-
 });
