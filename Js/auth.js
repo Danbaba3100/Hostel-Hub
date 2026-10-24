@@ -3,6 +3,7 @@
 (() => {
   const API_BASE = 'http://localhost:4000/api';
   const mode = document.body.dataset.authMode;
+  const expectedRole = document.body.dataset.authRole || 'agent';
   const form = document.getElementById(mode === 'register' ? 'registerForm' : 'loginForm');
   const message = document.getElementById('formMessage');
   const submitButton = document.getElementById('submitButton');
@@ -140,14 +141,24 @@
 
       if (!response.ok) throw new Error(readError(payload, response.status));
 
+      if (mode !== 'register' && payload.user.role !== expectedRole) {
+        showMessage(expectedRole === 'admin'
+          ? 'This account does not have administrator access.'
+          : 'Please use the administrator sign-in page for this account.', 'error');
+        return;
+      }
+
       saveSession(payload);
+      const destination = payload.user.role === 'admin' ? 'admin-hostels.html' : 'agent-dashboard.html';
       showMessage(mode === 'register'
         ? 'Your agent account has been created. Taking you to your agent dashboard…'
-        : 'You are signed in. Taking you to your agent dashboard…');
+        : (payload.user.role === 'admin'
+          ? 'Administrator sign-in successful. Opening hostel management…'
+          : 'You are signed in. Taking you to your agent dashboard…'));
 
       window.setTimeout(() => {
-        window.location.assign('agent-dashboard.html');
-      }, 900);
+        window.location.assign(destination);
+      }, 700);
     } catch (error) {
       if (error instanceof TypeError) {
         showMessage('Cannot reach the Hostel Hub API. Make sure the backend is running at http://localhost:4000 and try again.', 'error');

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure administrator sign-in for Hostel Hub.">
+  <title>Administrator Sign In | Hostel Hub</title>
+  <link rel="stylesheet" href="css/auth.css">
+  <script src="Js/auth.js" defer></script>
+</head>
+<body class="auth-page" data-auth-mode="login" data-auth-role="admin">
+  <header class="auth-header">
+    <a class="brand" href="index.html" aria-label="Hostel Hub home">Hostel<span>Hub</span></a>
+    <a class="back-link" href="index.html">← Back to website</a>
+  </header>
+
+  <main class="auth-layout">
+    <section class="auth-intro" aria-labelledby="intro-title">
+      <span class="eyebrow">HOSTEL HUB ADMINISTRATION</span>
+      <h1>Review carefully.<br><span>Keep students safe.</span></h1>
+      <p>Sign in to review hostel submissions, approve suitable listings and keep unapproved listings hidden from the public.</p>
+      <div class="trust-list">
+        <span><b aria-hidden="true">✓</b> Review submitted hostel videos and details</span>
+        <span><b aria-hidden="true">✓</b> Approve or reject pending listings</span>
+        <span><b aria-hidden="true">✓</b> Keep review decisions protected</span>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="form-title">
+      <div class="card-heading">
+        <span class="card-kicker">ADMIN ACCESS</span>
+        <h2 id="form-title">Administrator sign in</h2>
+        <p>Use the administrator account created for Hostel Hub. Agent accounts cannot access this area.</p>
+      </div>
+
+      <div class="form-message" id="formMessage" role="status" aria-live="polite" hidden></div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Administrator email</label>
+          <input id="email" name="email" type="email" autocomplete="username" placeholder="admin@example.com" required maxlength="254">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required maxlength="128">
+        </div>
+
+        <button class="submit-button" id="submitButton" type="submit">
+          <span class="button-label">Sign in securely</span>
+          <span class="button-spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="auth-switch">Are you an agent? <a href="login.html">Go to agent sign in</a></p>
+      <p class="public-note">Administrator accounts are created by the site owner; public registration cannot create admin accounts.</p>
+    </section>
+  </main>
+
+  <footer class="auth-footer">© <span id="currentYear"></span> Hostel Hub · Administrator access</footer>
+</body>
+</html>
