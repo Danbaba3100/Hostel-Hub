@@ -113,8 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameAndLocation = (hostel.name || '') + ' ' + (hostel.location || '') + ' ' + (hostel.address || '');
 
     if (query && !nameAndLocation.toLowerCase().includes(query)) return false;
-    if (locationFilter?.value !== 'all' && location !== locationFilter.value &&
-        !location.includes(locationFilter.value)) return false;
+
+    // Filter controls are optional because some pages only display the hostel grid.
+    if (locationFilter && locationFilter.value !== 'all' &&
+        location !== locationFilter.value && !location.includes(locationFilter.value)) return false;
 
     const price = Number(hostel.price) || 0;
     switch (priceFilter?.value) {
