@@ -1364,3 +1364,24 @@ textarea:focus-visible {
     bottom: 12px;
   }
 }
+
+
+/* Shared Hostel Hub dashboard shell and narrow-screen safeguards */
+.sidebar { background: #071827 !important; color: #ffffff; border-right-color: rgba(255,255,255,.12) !important; }
+.sidebar .brand, .sidebar .brand-light, .sidebar .sidebar-brand h2 { color: #ffffff; }
+.sidebar .brand-light, .sidebar .sidebar-brand h2 span { color: #36df7b; }
+.sidebar .brand-mark, .sidebar .brand-icon { background: #087f4b !important; color: #ffffff !important; }
+.sidebar .sidebar-label { color: #9db1c0; }
+.sidebar .nav-link { color: #d7e0e8; }
+.sidebar .nav-link:hover { background: rgba(255,255,255,.08); color: #ffffff; }
+.sidebar .nav-link.active { background: #087f4b !important; color: #ffffff !important; }
+.sidebar .sidebar-bottom { color: #d7e0e8; border-color: rgba(255,255,255,.12); }
+img, video, canvas { max-width: 100%; }
+input, select, textarea { max-width: 100%; min-width: 0; }
+@media (max-width: 380px) {
+  .main-content, .page-content, .content, .dashboard-content { padding-left: 12px !important; padding-right: 12px !important; }
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .topbar { gap: 8px; }
+  .topbar h1, .topbar-heading h1 { font-size: 16px; }
+  .modal, .modal-card { max-width: 100vw; }
+}
