@@ -79,7 +79,7 @@ const agentInvitationSchema = z.object({
 router.get('/agent-applications', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const result = await pool.query(
-      `SELECT a.id, a.user_id, a.status, a.review_note, a.created_at,
+      `SELECT a.id, a.user_id, a.status, a.review_note, a.created_at, a.reviewed_at,
               u.full_name, u.email, u.phone
        FROM agent_applications a
        JOIN users u ON u.id = a.user_id
@@ -90,7 +90,7 @@ router.get('/agent-applications', requireAuth, requireRole('admin'), async (req,
       applications: result.rows.map((row) => ({
         id: row.id, agentId: row.user_id, name: row.full_name,
         email: row.email, phone: row.phone || '', status: row.status,
-        note: row.review_note || '', submittedAt: row.created_at
+        note: row.review_note || '', submittedAt: row.created_at, reviewedAt: row.reviewed_at
       }))
     });
   } catch (error) { return next(error); }
