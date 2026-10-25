@@ -104,3 +104,40 @@ test('agent application and invitation administration endpoints require authenti
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
+
+
+test('admin complaints endpoints require authentication', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const list = await fetch(`http://127.0.0.1:${address.port}/api/admin/complaints`);
+    assert.equal(list.status, 401);
+    assert.equal((await list.json()).error.code, 'AUTH_REQUIRED');
+
+    const update = await fetch(`http://127.0.0.1:${address.port}/api/admin/complaints/00000000-0000-4000-8000-000000000000/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'resolved' })
+    });
+    assert.equal(update.status, 401);
+    assert.equal((await update.json()).error.code, 'AUTH_REQUIRED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test('public report submission validates fields before database access', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject: 'bad', description: 'short', targetType: 'hostel', reportedAgainst: 'X', category: 'unknown' })
+    });
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).error.code, 'VALIDATION_ERROR');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
