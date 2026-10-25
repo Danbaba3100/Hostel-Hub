@@ -167,10 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (noteElement && note !== undefined) noteElement.textContent = note;
   }
 
-  function updateStats() {
+  function updateStats(stats) {
     setStat('totalHostels', hostels.length, 'Live database count');
-    // The current API does not yet provide a platform-wide agent count or reports endpoint.
-    setStat('totalAgents', '—', 'Agent totals not connected');
+    setStat('totalAgents', Number.isInteger(stats?.totalAgents) ? stats.totalAgents : '—',
+      Number.isInteger(stats?.totalAgents) ? 'Registered agent accounts' : 'Agent total unavailable');
     setStat('totalBookings', bookings.length, 'Live inspection requests');
     setStat('totalReports', '—', 'Reports data not connected');
   }
@@ -340,13 +340,14 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.replace('admin-login.html');
         return;
       }
-      const [hostelResult, bookingResult] = await Promise.all([
+      const [hostelResult, bookingResult, statsResult] = await Promise.all([
         apiRequest('/admin/hostels'),
-        apiRequest('/admin/inspections')
+        apiRequest('/admin/inspections'),
+        apiRequest('/admin/stats')
       ]);
       hostels = Array.isArray(hostelResult.hostels) ? hostelResult.hostels : [];
       bookings = Array.isArray(bookingResult.bookings) ? bookingResult.bookings : [];
-      updateStats();
+      updateStats(statsResult.stats);
       renderHostels();
       renderActivity();
       updateChartSafely();
