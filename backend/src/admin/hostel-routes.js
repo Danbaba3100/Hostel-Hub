@@ -64,6 +64,21 @@ function toAdminInspection(row) {
   };
 }
 
+router.get('/stats', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const agents = await pool.query(
+      "SELECT COUNT(*)::int AS total FROM users WHERE role = 'agent'"
+    );
+    return res.json({
+      stats: {
+        totalAgents: agents.rows[0].total
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.get('/inspections', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const result = await pool.query(
