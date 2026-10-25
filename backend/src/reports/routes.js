@@ -118,6 +118,44 @@ router.get('/admin/complaints', requireAuth, requireRole('admin'), async (req, r
   }
 });
 
+// Live platform analytics for the Reports & Analytics page.
+router.get('/admin/reports/analytics', requireAuth, requireRole('admin'), async (req, res, next) => {
+  const requestedDays = String(req.query.days || '30');
+  if (!['7', '30', '90', 'all'].includes(requestedDays)) {
+    return res.status(400).json({ error: { code: 'INVALID_PERIOD', message: 'Choose 7, 30, 90, or all days.' } });
+  }
+  try {
+    const [hostels, agents, bookings] = await Promise.all([
+      pool.query('SELECT COUNT(*)::int AS total FROM hostels WHERE deleted_at IS NULL'),
+      pool.query("SELECT COUNT(*)::int AS total FROM users WHERE role = 'agent'"),
+      pool.query(
+        `SELECT id, reference_code, status, created_at
+         FROM inspections
+         WHERE ($1 = 'all' OR created_at >= now() - (CASE WHEN $1 = 'all' THEN 0 ELSE $1::int END * interval '1 day'))
+         ORDER BY created_at DESC
+         LIMIT 5000`,
+        [requestedDays]
+      )
+    ]);
+    const statusLabels = { pending: 'Pending', confirmed: 'Confirmed', completed: 'Completed', cancelled: 'Cancelled' };
+    const rows = bookings.rows.map((row) => ({
+      id: row.reference_code || row.id,
+      status: statusLabels[row.status] || row.status,
+      createdAt: row.created_at
+    }));
+    return res.json({
+      period: requestedDays,
+      totalHostels: hostels.rows[0].total,
+      totalAgents: agents.rows[0].total,
+      totalBookings: rows.length,
+      completedBookings: rows.filter((row) => row.status === 'Completed').length,
+      bookings: rows
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.patch('/admin/complaints/:id/status', requireAuth, requireRole('admin'), async (req, res, next) => {
   if (!z.string().uuid().safeParse(req.params.id).success) {
     return res.status(400).json({ error: { code: 'INVALID_ID', message: 'The report ID is invalid.' } });
