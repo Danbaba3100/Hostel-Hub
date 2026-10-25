@@ -149,13 +149,19 @@ router.post('/login', authLimiter, async (req, res, next) => {
 
   try {
     const result = await pool.query(
-      'SELECT id, full_name, email, phone, password_hash, role, is_active, created_at FROM users WHERE email = $1 LIMIT 1',
+      'SELECT id, full_name, email, phone, password_hash, role, is_active, agent_application_status, created_at FROM users WHERE email = $1 LIMIT 1',
       [parsed.data.email]
     );
     const user = result.rows[0];
     const passwordMatches = user
       ? await bcrypt.compare(parsed.data.password, user.password_hash)
       : await bcrypt.compare(parsed.data.password, '$2a$12$C6UzMDM.H6dfI/f/IKcEe.1dQyQ4pQ3x3M6Bv0j9p8uKqzjZp7y7K');
+
+    if (user && passwordMatches && user.agent_application_status === 'pending') {
+      return res.status(403).json({
+        error: { code: 'AGENT_APPLICATION_PENDING', message: 'Your agent application is awaiting administrator approval. You can sign in after it is approved.' }
+      });
+    }
 
     if (!user || !passwordMatches || !user.is_active) {
       return res.status(401).json({
