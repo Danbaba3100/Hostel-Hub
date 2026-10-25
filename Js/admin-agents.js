@@ -149,7 +149,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const statusClasses = {
             Active: "status-active",
             Pending: "status-pending",
-            Suspended: "status-suspended"
+            Suspended: "status-suspended",
+            Rejected: "status-suspended"
         };
 
         return statusClasses[status] || "";
@@ -216,10 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
         totalAgents.textContent = agents.length;
         activeAgents.textContent = agents.filter((agent) => agent.status === "Active").length;
         // New accounts are active by default; this backend does not have a pending-approval state.
-        pendingAgents.textContent = "—";
+        pendingAgents.textContent = agents.filter((agent) => agent.status === "Pending").length;
         suspendedAgents.textContent = agents.filter((agent) => agent.status === "Suspended").length;
         const pendingNote = pendingAgents.closest(".stat-card")?.querySelector("span");
-        if (pendingNote) pendingNote.textContent = "Approval workflow not configured";
+        if (pendingNote) pendingNote.textContent = "Awaiting admin review";
         const activeNote = activeAgents.closest(".stat-card")?.querySelector("span");
         if (activeNote) activeNote.textContent = "Active registered accounts";
         const suspendedNote = suspendedAgents.closest(".stat-card")?.querySelector("span");
@@ -534,7 +535,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function approveAgent(agentId) {
-        showToast("This system does not have a pending agent approval workflow yet.");
+        window.location.assign("admin-agent-applications.html");
         return false;
     }
 
