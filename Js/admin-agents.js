@@ -578,7 +578,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (addAgentButton) {
         addAgentButton.addEventListener("click", () => {
-            showToast("Agents create their accounts through the registration page. Admin-created accounts need a secure invitation flow.");
+            addAgentForm.reset();
+            addAgentModal.hidden = false;
+            updatePageScroll();
+            refreshIcons();
         });
     }
 
@@ -596,9 +599,28 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
-    addAgentForm.addEventListener("submit", (event) => {
+    addAgentForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-        showToast("Admin-created agent accounts are not available until secure account invitations are implemented.");
+        const submitButton = addAgentForm.querySelector('button[type="submit"]');
+        const formData = new FormData(addAgentForm);
+        const fullName = String(formData.get("name") || "").trim();
+        const email = String(formData.get("email") || "").trim().toLowerCase();
+        const phone = String(formData.get("phone") || "").trim();
+        if (submitButton) submitButton.disabled = true;
+        try {
+            const payload = await apiRequest("/admin/agents/invitations", {
+                method: "POST",
+                body: JSON.stringify({ fullName, email, ...(phone ? { phone } : {}) })
+            });
+            closeAddAgentModal();
+            addAgentForm.reset();
+            showToast("Invitation created. Copy the private link from the next prompt.");
+            window.prompt("Share this one-time agent invitation link privately. It expires in 48 hours:", payload.invitation.invitationUrl);
+        } catch (error) {
+            showToast(error.message || "Could not create the agent invitation.");
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
     });
 
     // =========================================
@@ -706,7 +728,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (prototypeNote) prototypeNote.textContent = "Live database · Agent accounts";
             const addModal = getElement("addAgentModal");
             if (addModal) addModal.hidden = true;
-            if (addAgentButton) addAgentButton.setAttribute("aria-label", "Agent account creation requires a secure invitation workflow");
+            if (addAgentButton) addAgentButton.setAttribute("aria-label", "Create a secure agent invitation");
             refreshIcons();
         } catch (error) {
             showLoadError(error);
