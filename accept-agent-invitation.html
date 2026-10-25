@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Securely accept your Hostel Hub agent invitation and create your password.">
+  <title>Accept Agent Invitation | Hostel Hub</title>
+  <link rel="stylesheet" href="css/auth.css">
+  <script src="Js/accept-agent-invitation.js" defer></script>
+</head>
+<body class="auth-page">
+  <header class="auth-header"><a class="brand" href="index.html" aria-label="Hostel Hub home">Hostel<span>Hub</span></a><a class="back-link" href="index.html">← Back to website</a></header>
+  <main class="auth-layout">
+    <section class="auth-intro"><span class="eyebrow">HOSTEL HUB AGENTS</span><h1>Your invitation.<br><span>Your account.</span></h1><p>Set a password to activate the agent account invited by the Hostel Hub administrator.</p><div class="trust-list"><span><b aria-hidden="true">✓</b> Private, one-time invitation</span><span><b aria-hidden="true">✓</b> Link expires after 48 hours</span><span><b aria-hidden="true">✓</b> You choose your own password</span></div></section>
+    <section class="auth-card">
+      <div class="card-heading"><span class="card-kicker">COMPLETE SETUP</span><h2>Accept your invitation</h2><p>Create a strong password to finish setting up your agent account.</p></div>
+      <div class="form-message" id="formMessage" role="status" aria-live="polite" hidden></div>
+      <form id="invitationForm" novalidate>
+        <div class="field"><label for="password">Create password <span>*</span></label><input id="password" name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="128" placeholder="At least 12 characters"><small class="field-hint">Use at least 12 characters, including an uppercase letter, a lowercase letter and a number.</small></div>
+        <div class="field"><label for="confirmPassword">Confirm password <span>*</span></label><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required maxlength="128" placeholder="Enter the password again"></div>
+        <button class="submit-button" id="submitButton" type="submit"><span class="button-label">Activate agent account</span><span class="button-spinner" aria-hidden="true"></span></button>
+      </form>
+      <p class="public-note">Only use an invitation link you received directly from a trusted Hostel Hub administrator.</p>
+    </section>
+  </main>
+  <footer class="auth-footer">© <span id="currentYear"></span> Hostel Hub · Find your hostel. Inspect with confidence.</footer>
+</body>
+</html>
