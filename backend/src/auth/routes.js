@@ -88,7 +88,7 @@ router.post('/accept-invitation', authLimiter, async (req, res, next) => {
     password: require('zod').z.string().min(12).max(128)
       .refine((value) => /[a-z]/.test(value), 'Password must include a lowercase letter.')
       .refine((value) => /[A-Z]/.test(value), 'Password must include an uppercase letter.')
-      .refine((value) => /\\d/.test(value), 'Password must include a number.')
+      .refine((value) => /\d/.test(value), 'Password must include a number.')
   }).strict().safeParse(req.body);
   if (!parsed.success) return validationError(res, parsed);
 
