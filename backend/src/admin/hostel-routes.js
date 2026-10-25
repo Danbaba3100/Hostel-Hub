@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const crypto = require('node:crypto');
 const { z } = require('zod');
 const { pool } = require('../db');
 const { requireAuth, requireRole } = require('../auth/middleware');
@@ -64,14 +65,135 @@ function toAdminInspection(row) {
   };
 }
 
+const agentApplicationDecisionSchema = z.object({
+  status: z.enum(['approved', 'rejected']),
+  note: z.string().trim().max(1000).optional().default('')
+}).strict();
+
+const agentInvitationSchema = z.object({
+  fullName: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
+  phone: z.string().trim().min(7).max(25).regex(/^[0-9+()\-\\s]+$/).optional().or(z.literal(''))
+}).strict();
+
+router.get('/agent-applications', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      \`SELECT a.id, a.user_id, a.status, a.review_note, a.created_at,
+              u.full_name, u.email, u.phone
+       FROM agent_applications a
+       JOIN users u ON u.id = a.user_id
+       ORDER BY CASE WHEN a.status = 'pending' THEN 0 ELSE 1 END, a.created_at DESC
+       LIMIT 1000\`
+    );
+    return res.json({
+      applications: result.rows.map((row) => ({
+        id: row.id, agentId: row.user_id, name: row.full_name,
+        email: row.email, phone: row.phone || '', status: row.status,
+        note: row.review_note || '', submittedAt: row.created_at
+      }))
+    });
+  } catch (error) { return next(error); }
+});
+
+router.patch('/agent-applications/:id/review', requireAuth, requireRole('admin'), async (req, res, next) => {
+  if (!z.string().uuid().safeParse(req.params.id).success) {
+    return res.status(400).json({ error: { code: 'INVALID_ID', message: 'The application ID is invalid.' } });
+  }
+  const parsed = agentApplicationDecisionSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Choose approve or reject and provide a valid review note.' } });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const found = await client.query('SELECT id, user_id, status FROM agent_applications WHERE id = $1 FOR UPDATE', [req.params.id]);
+    const application = found.rows[0];
+    if (!application) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: { code: 'APPLICATION_NOT_FOUND', message: 'That agent application was not found.' } });
+    }
+    if (application.status !== 'pending') {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: { code: 'APPLICATION_ALREADY_REVIEWED', message: 'This application has already been reviewed.' } });
+    }
+    await client.query(
+      \`UPDATE agent_applications
+       SET status = $1, review_note = $2, reviewed_by = $3, reviewed_at = now(), updated_at = now()
+       WHERE id = $4\`,
+      [parsed.data.status, parsed.data.note || null, req.user.id, application.id]
+    );
+    await client.query(
+      \`UPDATE users SET agent_application_status = $1, is_active = $2, updated_at = now()
+       WHERE id = $3 AND role = 'agent'\`,
+      [parsed.data.status, parsed.data.status === 'approved', application.user_id]
+    );
+    await client.query(
+      \`INSERT INTO audit_logs (actor_user_id, action, entity_type, entity_id, metadata)
+       VALUES ($1, $2, 'agent_application', $3, $4::jsonb)\`,
+      [req.user.id, parsed.data.status === 'approved' ? 'agent_application_approved' : 'agent_application_rejected',
+        application.id, JSON.stringify({ agentId: application.user_id, note: parsed.data.note || '' })]
+    );
+    await client.query('COMMIT');
+    return res.json({
+      message: parsed.data.status === 'approved' ? 'Agent application approved. The agent can now sign in.' : 'Agent application rejected.',
+      application: { id: application.id, agentId: application.user_id, status: parsed.data.status, note: parsed.data.note || '' }
+    });
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    return next(error);
+  } finally { client.release(); }
+});
+
+router.post('/agents/invitations', requireAuth, requireRole('admin'), async (req, res, next) => {
+  const parsed = agentInvitationSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Enter a valid name, email address, and optional phone number.' } });
+  }
+  const { fullName, email, phone } = parsed.data;
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  try {
+    const existing = await pool.query('SELECT 1 FROM users WHERE email = $1 LIMIT 1', [email]);
+    if (existing.rowCount) {
+      return res.status(409).json({ error: { code: 'EMAIL_ALREADY_REGISTERED', message: 'An account with this email already exists.' } });
+    }
+    const activeInvite = await pool.query(
+      \`SELECT 1 FROM agent_invitations WHERE email = $1 AND accepted_at IS NULL AND expires_at > now() LIMIT 1\`,
+      [email]
+    );
+    if (activeInvite.rowCount) {
+      return res.status(409).json({ error: { code: 'INVITATION_ALREADY_EXISTS', message: 'There is already an active invitation for this email.' } });
+    }
+    const result = await pool.query(
+      \`INSERT INTO agent_invitations (full_name, email, phone, token_hash, expires_at, created_by)
+       VALUES ($1, $2, $3, $4, now() + interval '48 hours', $5)
+       RETURNING id, expires_at\`,
+      [fullName, email, phone || null, tokenHash, req.user.id]
+    );
+    await pool.query(
+      \`INSERT INTO audit_logs (actor_user_id, action, entity_type, entity_id, metadata)
+       VALUES ($1, 'agent_invitation_created', 'agent_invitation', $2, $3::jsonb)\`,
+      [req.user.id, result.rows[0].id, JSON.stringify({ email })]
+    );
+    const frontendBase = (process.env.FRONTEND_BASE_URL || 'http://127.0.0.1:5500').replace(/\\/$/, '');
+    return res.status(201).json({
+      message: 'Invitation created. Share this link privately with the intended agent; it expires in 48 hours and can be used once.',
+      invitation: {
+        id: result.rows[0].id, email, expiresAt: result.rows[0].expires_at,
+        invitationUrl: \`\${frontendBase}/accept-agent-invitation.html?token=\${token}\`
+      }
+    });
+  } catch (error) { return next(error); }
+});
+
 router.get('/agents', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const result = await pool.query(
-      `SELECT id, full_name, email, phone, is_active, created_at
-       FROM users
-       WHERE role = 'agent'
-       ORDER BY created_at DESC
-       LIMIT 1000`
+      `SELECT u.id, u.full_name, u.email, u.phone, u.is_active, u.created_at,
+              a.status AS application_status
+       FROM users u LEFT JOIN agent_applications a ON a.user_id = u.id
+       WHERE u.role = 'agent' ORDER BY u.created_at DESC LIMIT 1000`
     );
     return res.json({
       agents: result.rows.map((row) => ({
@@ -81,7 +203,7 @@ router.get('/agents', requireAuth, requireRole('admin'), async (req, res, next) 
         phone: row.phone || '',
         location: '',
         joined: row.created_at,
-        status: row.is_active ? 'Active' : 'Suspended'
+        status: row.application_status === 'pending' ? 'Pending' : row.application_status === 'rejected' ? 'Rejected' : row.is_active ? 'Active' : 'Suspended'
       }))
     });
   } catch (error) {
