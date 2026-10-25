@@ -1,58 +1,43 @@
 document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
-    // =========================================
-    // SAMPLE AGENT DATA
-    // Replace with backend data later.
-    // =========================================
+    const API_BASE = "http://localhost:4000/api";
+    const TOKEN_KEY = "hostelHubAccessToken";
+    const USER_KEY = "hostelHubUser";
+    let agents = [];
 
-    const agents = [
-        {
-            id: "AGT-001",
-            name: "Samuel Adewale",
-            email: "samuel.adewale@example.com",
-            phone: "08012345678",
-            location: "Oke-Baale, Osogbo",
-            joined: "2026-08-12",
-            status: "Active"
-        },
-        {
-            id: "AGT-002",
-            name: "Grace Oladipo",
-            email: "grace.oladipo@example.com",
-            phone: "08023456789",
-            location: "Alekuwodo, Osogbo",
-            joined: "2026-09-05",
-            status: "Pending"
-        },
-        {
-            id: "AGT-003",
-            name: "David Okafor",
-            email: "david.okafor@example.com",
-            phone: "08034567890",
-            location: "Lameco, Osogbo",
-            joined: "2026-08-22",
-            status: "Active"
-        },
-        {
-            id: "AGT-004",
-            name: "Mary Johnson",
-            email: "mary.johnson@example.com",
-            phone: "08045678901",
-            location: "Ogo-Oluwa, Osogbo",
-            joined: "2026-09-15",
-            status: "Suspended"
-        },
-        {
-            id: "AGT-005",
-            name: "Daniel Ibrahim",
-            email: "daniel.ibrahim@example.com",
-            phone: "08056789012",
-            location: "Igbona, Osogbo",
-            joined: "2026-09-20",
-            status: "Pending"
+    async function apiRequest(path, options = {}) {
+        const token = sessionStorage.getItem(TOKEN_KEY);
+        if (!token) {
+            window.location.replace("admin-login.html");
+            throw new Error("Please sign in as an administrator.");
         }
-    ];
+        let response;
+        try {
+            response = await fetch(API_BASE + path, {
+                ...options,
+                headers: {
+                    Authorization: "Bearer " + token,
+                    "Content-Type": "application/json",
+                    ...(options.headers || {})
+                }
+            });
+        } catch {
+            throw new Error("Cannot reach the Hostel Hub API. Make sure the backend is running on port 4000.");
+        }
+        if (response.status === 401) {
+            sessionStorage.removeItem(TOKEN_KEY);
+            sessionStorage.removeItem(USER_KEY);
+            window.location.replace("admin-login.html");
+            throw new Error("Your session expired. Please sign in again.");
+        }
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            if (response.status === 403) throw new Error("Administrator access is required.");
+            throw new Error(payload?.error?.message || "The agent request could not be completed.");
+        }
+        return payload;
+    }
 
     // =========================================
     // ELEMENTS
@@ -151,12 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function formatDate(dateString) {
-        const date = new Date(`${dateString}T00:00:00`);
-
-        if (Number.isNaN(date.getTime())) {
-            return dateString;
-        }
-
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return "Date unavailable";
         return date.toLocaleDateString("en-NG", {
             day: "numeric",
             month: "short",
@@ -198,6 +179,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return agents.find((agent) => agent.id === agentId);
     }
 
+    function showLoadError(error) {
+        showToast(error.message || "Could not load agent accounts.");
+        tableBody.replaceChildren();
+        emptyState.hidden = false;
+        tableSummary.textContent = "Agent accounts could not be loaded.";
+        resultCount.textContent = "Unavailable";
+        [totalAgents, activeAgents, pendingAgents, suspendedAgents].forEach((el) => {
+            el.textContent = "—";
+        });
+    }
+
     // =========================================
     // DATE
     // =========================================
@@ -222,18 +214,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateStats() {
         totalAgents.textContent = agents.length;
-
-        activeAgents.textContent = agents.filter(
-            (agent) => agent.status === "Active"
-        ).length;
-
-        pendingAgents.textContent = agents.filter(
-            (agent) => agent.status === "Pending"
-        ).length;
-
-        suspendedAgents.textContent = agents.filter(
-            (agent) => agent.status === "Suspended"
-        ).length;
+        activeAgents.textContent = agents.filter((agent) => agent.status === "Active").length;
+        // New accounts are active by default; this backend does not have a pending-approval state.
+        pendingAgents.textContent = "—";
+        suspendedAgents.textContent = agents.filter((agent) => agent.status === "Suspended").length;
+        const pendingNote = pendingAgents.closest(".stat-card")?.querySelector("span");
+        if (pendingNote) pendingNote.textContent = "Approval workflow not configured";
+        const activeNote = activeAgents.closest(".stat-card")?.querySelector("span");
+        if (activeNote) activeNote.textContent = "Active registered accounts";
+        const suspendedNote = suspendedAgents.closest(".stat-card")?.querySelector("span");
+        if (suspendedNote) suspendedNote.textContent = "Inactive registered accounts";
     }
 
     // =========================================
@@ -313,7 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const locationCell = createTextElement(
                 "td",
                 "",
-                agent.location
+                agent.location || "Not provided"
             );
 
             // Date joined
@@ -523,63 +513,42 @@ document.addEventListener("DOMContentLoaded", () => {
     // STATUS ACTIONS
     // =========================================
 
-    function approveAgent(agentId) {
+    async function setAgentStatus(agentId, isActive) {
         const agent = getAgent(agentId);
-
-        if (!agent || agent.status !== "Pending") {
+        if (!agent) return false;
+        try {
+            const payload = await apiRequest("/admin/agents/" + encodeURIComponent(agentId) + "/status", {
+                method: "PATCH",
+                body: JSON.stringify({ isActive })
+            });
+            const index = agents.findIndex((item) => item.id === agentId);
+            if (index >= 0 && payload.agent) agents[index] = payload.agent;
+            updateStats();
+            renderAgents();
+            showToast(payload.message || (isActive ? "Agent reactivated." : "Agent suspended."));
+            return true;
+        } catch (error) {
+            showToast(error.message);
             return false;
         }
-
-        agent.status = "Active";
-
-        updateStats();
-        renderAgents();
-
-        showToast(`${agent.name} has been approved.`);
-
-        return true;
     }
 
-    function suspendAgent(agentId) {
-        const agent = getAgent(agentId);
-
-        if (!agent || agent.status !== "Active") {
-            return false;
-        }
-
-        const confirmed = window.confirm(
-            `Are you sure you want to suspend ${agent.name}?`
-        );
-
-        if (!confirmed) {
-            return false;
-        }
-
-        agent.status = "Suspended";
-
-        updateStats();
-        renderAgents();
-
-        showToast(`${agent.name} has been suspended.`);
-
-        return true;
+    async function approveAgent(agentId) {
+        showToast("This system does not have a pending agent approval workflow yet.");
+        return false;
     }
 
-    function reactivateAgent(agentId) {
+    async function suspendAgent(agentId) {
         const agent = getAgent(agentId);
+        if (!agent || agent.status !== "Active") return false;
+        if (!window.confirm(`Are you sure you want to suspend ${agent.name}?`)) return false;
+        return setAgentStatus(agentId, false);
+    }
 
-        if (!agent || agent.status !== "Suspended") {
-            return false;
-        }
-
-        agent.status = "Active";
-
-        updateStats();
-        renderAgents();
-
-        showToast(`${agent.name}'s account has been reactivated.`);
-
-        return true;
+    async function reactivateAgent(agentId) {
+        const agent = getAgent(agentId);
+        if (!agent || agent.status !== "Suspended") return false;
+        return setAgentStatus(agentId, true);
     }
 
     // =========================================
@@ -609,9 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (addAgentButton) {
         addAgentButton.addEventListener("click", () => {
-            addAgentForm.reset();
-            addAgentModal.hidden = false;
-            updatePageScroll();
+            showToast("Agents create their accounts through the registration page. Admin-created accounts need a secure invitation flow.");
         });
     }
 
@@ -631,57 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addAgentForm.addEventListener("submit", (event) => {
         event.preventDefault();
-
-        const formData = new FormData(addAgentForm);
-
-        const name = String(formData.get("name") || "").trim();
-        const email = String(formData.get("email") || "").trim();
-        const phone = String(formData.get("phone") || "").trim();
-        const location = String(formData.get("location") || "").trim();
-        const status = String(formData.get("status") || "Pending");
-
-        if (!name || !email || !phone || !location) {
-            showToast("Please complete all fields.");
-            return;
-        }
-
-        if (!["Pending", "Active"].includes(status)) {
-            showToast("Please select a valid account status.");
-            return;
-        }
-
-        const duplicateEmail = agents.some(
-            (agent) =>
-                agent.email.toLowerCase() === email.toLowerCase()
-        );
-
-        if (duplicateEmail) {
-            showToast("An agent with this email already exists.");
-            return;
-        }
-
-        const highestId = agents.reduce((highest, agent) => {
-            const number = Number(agent.id.replace("AGT-", ""));
-            return Math.max(highest, number || 0);
-        }, 0);
-
-        const newAgent = {
-            id: `AGT-${String(highestId + 1).padStart(3, "0")}`,
-            name,
-            email,
-            phone,
-            location,
-            joined: new Date().toISOString().slice(0, 10),
-            status
-        };
-
-        agents.unshift(newAgent);
-
-        closeAddAgentModal();
-        updateStats();
-        renderAgents();
-
-        showToast(`${name} has been added successfully.`);
+        showToast("Admin-created agent accounts are not available until secure account invitations are implemented.");
     });
 
     // =========================================
@@ -763,25 +680,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (notificationButton) {
         notificationButton.addEventListener("click", () => {
-            const pendingCount = agents.filter(
-                (agent) => agent.status === "Pending"
-            ).length;
-
-            showToast(
-                pendingCount > 0
-                    ? `You have ${pendingCount} pending agent application(s).`
-                    : "There are no pending agent applications."
-            );
+            const suspendedCount = agents.filter((agent) => agent.status === "Suspended").length;
+            showToast(`${agents.length} registered agents; ${suspendedCount} suspended account(s).`);
         });
     }
 
     // =========================================
-    // INITIAL RENDER
+    // INITIAL LOAD FROM THE LIVE DATABASE
     // =========================================
 
-    updateStats();
-    renderAgents();
+    async function start() {
+        try {
+            const me = await apiRequest("/auth/me");
+            if (!me.user || me.user.role !== "admin") {
+                sessionStorage.removeItem(TOKEN_KEY);
+                sessionStorage.removeItem(USER_KEY);
+                window.location.replace("admin-login.html");
+                return;
+            }
+            const result = await apiRequest("/admin/agents");
+            agents = Array.isArray(result.agents) ? result.agents : [];
+            updateStats();
+            renderAgents();
+            const prototypeNote = document.querySelector(".prototype-note");
+            if (prototypeNote) prototypeNote.textContent = "Live database · Agent accounts";
+            const addModal = getElement("addAgentModal");
+            if (addModal) addModal.hidden = true;
+            if (addAgentButton) addAgentButton.setAttribute("aria-label", "Agent account creation requires a secure invitation workflow");
+            refreshIcons();
+        } catch (error) {
+            showLoadError(error);
+        }
+    }
+
+    [totalAgents, activeAgents, pendingAgents, suspendedAgents].forEach((el) => { el.textContent = "…"; });
+    tableSummary.textContent = "Loading agent accounts…";
+    start();
     refreshIcons();
 
-    console.log("Hostel Hub Agent Management loaded.");
+    console.log("Hostel Hub Agent Management loading live account data.");
 });
