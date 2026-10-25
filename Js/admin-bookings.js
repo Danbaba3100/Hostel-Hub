@@ -536,18 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sidebarOverlay.addEventListener("click", closeSidebar);
 
-    document.querySelectorAll(".sidebar-nav [data-page]")
-        .forEach((link) => {
-            link.addEventListener("click", (event) => {
-                event.preventDefault();
-                showToast(
-                    `${link.dataset.page} page is coming next. This dashboard is a frontend prototype.`
-                );
-                closeSidebar();
-            });
-        });
-
-    // =========================================
+// =========================================
     // INITIALISE
     // =========================================
 
