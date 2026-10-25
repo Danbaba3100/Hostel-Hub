@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
 const { pool } = require('../db');
@@ -49,15 +50,80 @@ router.post('/register', authLimiter, async (req, res, next) => {
   if (!parsed.success) return validationError(res, parsed);
 
   const { fullName, email, phone, password } = parsed.data;
+  const client = await pool.connect();
   try {
     const passwordHash = await bcrypt.hash(password, 12);
-    const result = await pool.query(
-      `INSERT INTO users (full_name, email, phone, password_hash, role)
-       VALUES ($1, $2, $3, $4, 'agent')
-       RETURNING id, full_name, email, phone, role, is_active, created_at`,
+    await client.query('BEGIN');
+    const result = await client.query(
+      `INSERT INTO users (full_name, email, phone, password_hash, role, is_active, agent_application_status)
+       VALUES ($1, $2, $3, $4, 'agent', false, 'pending')
+       RETURNING id`,
       [fullName, email, phone || null, passwordHash]
     );
-    const user = result.rows[0];
+    await client.query(
+      `INSERT INTO agent_applications (user_id, status) VALUES ($1, 'pending')`,
+      [result.rows[0].id]
+    );
+    await client.query('COMMIT');
+    return res.status(201).json({
+      applicationPending: true,
+      message: 'Your agent application has been submitted. You can sign in after an administrator approves it.'
+    });
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    if (error.code === '23505') {
+      return res.status(409).json({
+        error: { code: 'EMAIL_ALREADY_REGISTERED', message: 'An account with this email already exists.' }
+      });
+    }
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+router.post('/accept-invitation', authLimiter, async (req, res, next) => {
+  const parsed = require('zod').z.object({
+    token: require('zod').z.string().min(32).max(256),
+    password: require('zod').z.string().min(12).max(128)
+      .refine((value) => /[a-z]/.test(value), 'Password must include a lowercase letter.')
+      .refine((value) => /[A-Z]/.test(value), 'Password must include an uppercase letter.')
+      .refine((value) => /\\d/.test(value), 'Password must include a number.')
+  }).strict().safeParse(req.body);
+  if (!parsed.success) return validationError(res, parsed);
+
+  const tokenHash = crypto.createHash('sha256').update(parsed.data.token).digest('hex');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const inviteResult = await client.query(
+      `SELECT id, full_name, email, phone
+       FROM agent_invitations
+       WHERE token_hash = $1 AND accepted_at IS NULL AND expires_at > now()
+       FOR UPDATE`,
+      [tokenHash]
+    );
+    const invitation = inviteResult.rows[0];
+    if (!invitation) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: { code: 'INVITATION_INVALID', message: 'This invitation is invalid, expired, or has already been used. Ask the administrator for a new invitation.' }
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+    const userResult = await client.query(
+      `INSERT INTO users (full_name, email, phone, password_hash, role, is_active, agent_application_status)
+       VALUES ($1, $2, $3, $4, 'agent', true, 'approved')
+       RETURNING id, full_name, email, phone, role, is_active, created_at`,
+      [invitation.full_name, invitation.email, invitation.phone, passwordHash]
+    );
+    await client.query(
+      'UPDATE agent_invitations SET accepted_at = now() WHERE id = $1',
+      [invitation.id]
+    );
+    await client.query('COMMIT');
+    const user = userResult.rows[0];
     return res.status(201).json({
       user: publicUser(user),
       accessToken: createAccessToken(user),
@@ -65,12 +131,15 @@ router.post('/register', authLimiter, async (req, res, next) => {
       expiresIn: process.env.JWT_ACCESS_TTL || '15m'
     });
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
     if (error.code === '23505') {
       return res.status(409).json({
         error: { code: 'EMAIL_ALREADY_REGISTERED', message: 'An account with this email already exists.' }
       });
     }
     return next(error);
+  } finally {
+    client.release();
   }
 });
 
