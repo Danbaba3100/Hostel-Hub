@@ -1,591 +1,317 @@
-
-// =========================================
-// HOSTEL HUB - COMPLAINTS MANAGEMENT
-// =========================================
-
+// Hostel Hub - persistent complaints management
 document.addEventListener("DOMContentLoaded", () => {
-    // =========================================
-    // ELEMENTS
-    // =========================================
+    "use strict";
 
-    const tableBody = document.getElementById("complaintsTableBody");
-    const searchInput = document.getElementById("complaintSearch");
-    const statusFilter = document.getElementById("statusFilter");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const priorityFilter = document.getElementById("priorityFilter");
-    const emptyState = document.getElementById("emptyState");
-    const complaintCount = document.getElementById("complaintCount");
+    const API_BASE = "http://localhost:4000/api";
+    const TOKEN_KEY = "hostelHubAccessToken";
+    const USER_KEY = "hostelHubUser";
+    const el = (id) => document.getElementById(id);
 
-    const modal = document.getElementById("complaintModal");
-    const modalTitle = document.getElementById("modalTitle");
-    const complaintDetails = document.getElementById("complaintDetails");
-    const closeModalButton = document.getElementById("closeModal");
+    const tableBody = el("complaintsTableBody");
+    const searchInput = el("complaintSearch");
+    const statusFilter = el("statusFilter");
+    const categoryFilter = el("categoryFilter");
+    const priorityFilter = el("priorityFilter");
+    const emptyState = el("emptyState");
+    const complaintCount = el("complaintCount");
+    const modal = el("complaintModal");
+    const modalTitle = el("modalTitle");
+    const complaintDetails = el("complaintDetails");
+    const closeModalButton = el("closeModal");
+    const dismissButton = el("dismissComplaint");
+    const reviewButton = el("reviewComplaint");
+    const resolveButton = el("resolveComplaint");
+    const toast = el("toast");
+    const sidebar = el("sidebar");
+    const menuToggle = el("menuToggle");
+    const sidebarOverlay = el("sidebarOverlay");
 
-    const dismissButton = document.getElementById("dismissComplaint");
-    const reviewButton = document.getElementById("reviewComplaint");
-    const resolveButton = document.getElementById("resolveComplaint");
-
-    const toast = document.getElementById("toast");
-
-    const sidebar = document.getElementById("sidebar");
-    const menuToggle = document.getElementById("menuToggle");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
-
+    let complaints = [];
     let selectedComplaintId = null;
-    let toastTimeout;
+    let toastTimer = null;
     let previousFocusedElement = null;
+    let loading = false;
 
-    // =========================================
-    // SAMPLE COMPLAINT DATA
-    // =========================================
-
-    const sampleComplaints = [
-        {
-            id: "CMP-1001",
-            subject: "Hostel room differs from advertised pictures",
-            description:
-                "The room shown during the initial enquiry looks different from the room presented during inspection. I would like the listing to be reviewed.",
-            reportedAgainst: "Royal Gardens Hostel",
-            targetType: "Hostel",
-            category: "Hostel",
-            reporter: "Student Visitor",
-            date: "2026-10-08",
-            priority: "High",
-            status: "Pending"
-        },
-        {
-            id: "CMP-1002",
-            subject: "Agent requested an extra inspection fee",
-            description:
-                "An agent requested an additional fee that was not mentioned when the inspection was arranged. Please review the details.",
-            reportedAgainst: "Sample Agent A",
-            targetType: "Agent",
-            category: "Payment",
-            reporter: "Anonymous Visitor",
-            date: "2026-10-07",
-            priority: "High",
-            status: "Under Review"
-        },
-        {
-            id: "CMP-1003",
-            subject: "Incorrect hostel address",
-            description:
-                "The address displayed on the listing appears to point to a different street. The location details may need correction.",
-            reportedAgainst: "Green View Hostel",
-            targetType: "Hostel",
-            category: "Hostel",
-            reporter: "Student Visitor",
-            date: "2026-10-06",
-            priority: "Medium",
-            status: "Pending"
-        },
-        {
-            id: "CMP-1004",
-            subject: "Possible misleading payment request",
-            description:
-                "I received a payment request before I could verify the accommodation. I would like the request and listing checked.",
-            reportedAgainst: "Sample Agent B",
-            targetType: "Agent",
-            category: "Fraud",
-            reporter: "Anonymous Visitor",
-            date: "2026-10-05",
-            priority: "High",
-            status: "Under Review"
-        },
-        {
-            id: "CMP-1005",
-            subject: "Outdated room availability",
-            description:
-                "The listing indicates that rooms are available, but I was informed that the rooms have already been occupied.",
-            reportedAgainst: "Sunrise Student Lodge",
-            targetType: "Hostel",
-            category: "Hostel",
-            reporter: "Student Visitor",
-            date: "2026-10-04",
-            priority: "Low",
-            status: "Resolved"
-        },
-        {
-            id: "CMP-1006",
-            subject: "Agent did not attend scheduled inspection",
-            description:
-                "The inspection was scheduled, but the agent did not arrive. Please review the booking and contact details.",
-            reportedAgainst: "Sample Agent C",
-            targetType: "Agent",
-            category: "Agent",
-            reporter: "Anonymous Visitor",
-            date: "2026-10-03",
-            priority: "Medium",
-            status: "Pending"
-        },
-        {
-            id: "CMP-1007",
-            subject: "Duplicate listing concern",
-            description:
-                "Two listings appear to advertise the same accommodation with different details. Please check whether both listings are valid.",
-            reportedAgainst: "Unity Student Hostel",
-            targetType: "Hostel",
-            category: "Other",
-            reporter: "Student Visitor",
-            date: "2026-10-02",
-            priority: "Low",
-            status: "Dismissed"
+    async function apiRequest(path, options = {}) {
+        const token = sessionStorage.getItem(TOKEN_KEY);
+        if (!token) {
+            window.location.replace("admin-login.html");
+            throw new Error("Please sign in as an administrator.");
         }
-    ];
-
-    let complaints = sampleComplaints.map((complaint) => ({ ...complaint }));
-
-    // =========================================
-    // TOAST NOTIFICATIONS
-    // =========================================
-
-    function showToast(message, type = "success") {
-        if (!toast) return;
-
-        clearTimeout(toastTimeout);
-
-        toast.textContent = message;
-        toast.className = `toast show ${type}`;
-
-        toastTimeout = setTimeout(() => {
-            toast.className = "toast";
-        }, 3000);
+        let response;
+        try {
+            response = await fetch(API_BASE + path, {
+                ...options,
+                headers: {
+                    Authorization: "Bearer " + token,
+                    "Content-Type": "application/json",
+                    ...(options.headers || {})
+                }
+            });
+        } catch {
+            throw new Error("Cannot reach the Hostel Hub API. Make sure the backend is running on port 4000.");
+        }
+        if (response.status === 401) {
+            sessionStorage.removeItem(TOKEN_KEY);
+            sessionStorage.removeItem(USER_KEY);
+            window.location.replace("admin-login.html");
+            throw new Error("Your session expired. Please sign in again.");
+        }
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            if (response.status === 403) throw new Error("Administrator access is required.");
+            throw new Error(payload?.error?.message || "The complaint request could not be completed.");
+        }
+        return payload;
     }
-
-    // =========================================
-    // SAFE HTML OUTPUT
-    // =========================================
 
     function escapeHTML(value) {
-        return String(value ?? "").replace(/[&<>"']/g, (character) => {
-            const entities = {
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#39;"
-            };
-
-            return entities[character];
-        });
+        return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[character]);
     }
 
-    // =========================================
-    // DATE FORMATTING
-    // =========================================
-
-    function formatDate(dateString) {
-        const date = new Date(`${dateString}T00:00:00`);
-
-        if (Number.isNaN(date.getTime())) {
-            return dateString;
-        }
-
-        return date.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        });
+    function formatDate(value) {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? "Unavailable"
+            : date.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
     }
 
-    // =========================================
-    // BADGE CLASSES
-    // =========================================
+    function showToast(message, isError = false) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.toggle("toast-error", isError);
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 3500);
+    }
 
-    function getStatusClass(status) {
-        const classes = {
+    function statusClass(status) {
+        return ({
             "Pending": "status-pending",
             "Under Review": "status-review",
             "Resolved": "status-resolved",
             "Dismissed": "status-dismissed"
-        };
-
-        return classes[status] || "status-dismissed";
+        })[status] || "status-pending";
     }
 
-    function getPriorityClass(priority) {
-        const classes = {
+    function priorityClass(priority) {
+        return ({
             "High": "priority-high",
             "Medium": "priority-medium",
             "Low": "priority-low"
-        };
-
-        return classes[priority] || "priority-low";
+        })[priority] || "priority-medium";
     }
-
-    // =========================================
-    // STATISTICS
-    // =========================================
 
     function updateStatistics() {
-        const total = complaints.length;
-        const pending = complaints.filter(
-            (item) => item.status === "Pending"
-        ).length;
-        const underReview = complaints.filter(
-            (item) => item.status === "Under Review"
-        ).length;
-        const resolved = complaints.filter(
-            (item) => item.status === "Resolved"
-        ).length;
-
-        document.getElementById("totalComplaints").textContent = total;
-        document.getElementById("pendingComplaints").textContent = pending;
-        document.getElementById("reviewComplaints").textContent = underReview;
-        document.getElementById("resolvedComplaints").textContent = resolved;
+        el("totalComplaints").textContent = complaints.length;
+        el("pendingComplaints").textContent = complaints.filter((item) => item.status === "Pending").length;
+        el("reviewComplaints").textContent = complaints.filter((item) => item.status === "Under Review").length;
+        el("resolvedComplaints").textContent = complaints.filter((item) => item.status === "Resolved").length;
     }
 
-    // =========================================
-    // SEARCH AND FILTERS
-    // =========================================
-
     function getFilteredComplaints() {
-        const searchTerm = searchInput.value.trim().toLowerCase();
+        const term = searchInput.value.trim().toLowerCase();
         const selectedStatus = statusFilter.value;
         const selectedCategory = categoryFilter.value;
         const selectedPriority = priorityFilter.value;
-
-        return complaints.filter((complaint) => {
-            const searchableText = [
-                complaint.id,
-                complaint.subject,
-                complaint.description,
-                complaint.reportedAgainst,
-                complaint.targetType,
-                complaint.category,
-                complaint.reporter,
-                complaint.status,
-                complaint.priority
+        return complaints.filter((item) => {
+            const text = [
+                item.referenceCode, item.subject, item.description, item.reportedAgainst,
+                item.targetType, item.category, item.reporter, item.reporterEmail,
+                item.status, item.priority
             ].join(" ").toLowerCase();
-
-            const matchesSearch = searchableText.includes(searchTerm);
-
-            const matchesStatus =
-                selectedStatus === "all" ||
-                complaint.status === selectedStatus;
-
-            const matchesCategory =
-                selectedCategory === "all" ||
-                complaint.category === selectedCategory;
-
-            const matchesPriority =
-                selectedPriority === "all" ||
-                complaint.priority === selectedPriority;
-
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesCategory &&
-                matchesPriority
-            );
+            return text.includes(term)
+                && (selectedStatus === "all" || item.status === selectedStatus)
+                && (selectedCategory === "all" || item.category === selectedCategory)
+                && (selectedPriority === "all" || item.priority === selectedPriority);
         });
     }
 
-    // =========================================
-    // RENDER COMPLAINTS TABLE
-    // =========================================
-
     function renderComplaints() {
         if (!tableBody) return;
-
-        const filteredComplaints = getFilteredComplaints();
-
-        tableBody.innerHTML = filteredComplaints.map((complaint) => `
+        const filtered = getFilteredComplaints();
+        tableBody.innerHTML = filtered.map((item) => `
             <tr>
                 <td>
-                    <span class="complaint-id">
-                        ${escapeHTML(complaint.id)}
-                    </span>
-                    <span class="complaint-subject">
-                        ${escapeHTML(complaint.subject)}
-                    </span>
+                    <span class="complaint-id">${escapeHTML(item.referenceCode)}</span>
+                    <span class="complaint-subject">${escapeHTML(item.subject)}</span>
                 </td>
-
                 <td>
-                    <span class="reported-name">
-                        ${escapeHTML(complaint.reportedAgainst)}
-                    </span>
-                    <span class="table-muted">
-                        ${escapeHTML(complaint.targetType)}
-                    </span>
+                    <span class="reported-name">${escapeHTML(item.reportedAgainst)}</span>
+                    <span class="table-muted">${escapeHTML(item.targetType)}</span>
                 </td>
-
+                <td><span class="category-label">${escapeHTML(item.category)}</span></td>
+                <td>${escapeHTML(formatDate(item.date))}</td>
+                <td><span class="priority-badge ${priorityClass(item.priority)}">${escapeHTML(item.priority)}</span></td>
+                <td><span class="status-badge ${statusClass(item.status)}">${escapeHTML(item.status)}</span></td>
                 <td>
-                    <span class="category-label">
-                        ${escapeHTML(complaint.category)}
-                    </span>
-                </td>
-
-                <td>${escapeHTML(formatDate(complaint.date))}</td>
-
-                <td>
-                    <span class="priority-badge ${getPriorityClass(complaint.priority)}">
-                        ${escapeHTML(complaint.priority)}
-                    </span>
-                </td>
-
-                <td>
-                    <span class="status-badge ${getStatusClass(complaint.status)}">
-                        ${escapeHTML(complaint.status)}
-                    </span>
-                </td>
-
-                <td>
-                    <button
-                        type="button"
-                        class="action-btn"
-                        data-action="view"
-                        data-id="${escapeHTML(complaint.id)}"
-                        aria-label="View complaint ${escapeHTML(complaint.id)}"
-                    >
-                        <i data-lucide="eye"></i>
-                        View
+                    <button type="button" class="action-btn" data-action="view" data-id="${escapeHTML(item.id)}">
+                        <i data-lucide="eye"></i> View
                     </button>
                 </td>
             </tr>
         `).join("");
 
         if (emptyState) {
-            emptyState.hidden = filteredComplaints.length !== 0;
+            emptyState.hidden = filtered.length !== 0;
+            const heading = emptyState.querySelector("h3");
+            const description = emptyState.querySelector("p");
+            if (heading) heading.textContent = loading ? "Loading reports…" : "No complaints found";
+            if (description) description.textContent = loading
+                ? "Fetching reports from the database."
+                : complaints.length ? "Try changing your search or filters." : "New reports submitted through the report form will appear here.";
         }
-
         if (complaintCount) {
-            complaintCount.textContent =
-                `Showing ${filteredComplaints.length} of ${complaints.length} complaints`;
+            complaintCount.textContent = loading ? "Loading complaints…" : `Showing ${filtered.length} of ${complaints.length} complaints`;
         }
-
         updateStatistics();
+        if (window.lucide) window.lucide.createIcons();
+    }
 
-        if (window.lucide) {
-            window.lucide.createIcons();
+    async function loadComplaints() {
+        loading = true;
+        renderComplaints();
+        try {
+            const payload = await apiRequest("/admin/complaints");
+            complaints = Array.isArray(payload.reports) ? payload.reports : [];
+            const badge = document.querySelector(".demo-badge");
+            if (badge) {
+                badge.textContent = "Live Database";
+                badge.classList.add("live-badge");
+            }
+        } catch (error) {
+            showToast(error.message, true);
+        } finally {
+            loading = false;
+            renderComplaints();
         }
     }
 
-    // =========================================
-    // COMPLAINT DETAILS MODAL
-    // =========================================
-
-    function openComplaintModal(complaintId) {
-        const complaint = complaints.find(
-            (item) => item.id === complaintId
-        );
-
-        if (!complaint || !modal || !complaintDetails) return;
-
-        selectedComplaintId = complaint.id;
+    function openComplaintModal(id) {
+        const item = complaints.find((complaint) => complaint.id === id);
+        if (!item || !modal || !complaintDetails) return;
+        selectedComplaintId = item.id;
         previousFocusedElement = document.activeElement;
-
-        modalTitle.textContent = complaint.id;
+        modalTitle.textContent = item.referenceCode;
 
         complaintDetails.innerHTML = `
             <div class="detail-grid">
-                <div class="detail-item">
-                    <label>Complaint ID</label>
-                    <p>${escapeHTML(complaint.id)}</p>
+                <div class="detail-item"><label>Report reference</label><p>${escapeHTML(item.referenceCode)}</p></div>
+                <div class="detail-item"><label>Date submitted</label><p>${escapeHTML(formatDate(item.date))}</p></div>
+                <div class="detail-item full-width"><label>Subject</label><p>${escapeHTML(item.subject)}</p></div>
+                <div class="detail-item"><label>Reported against</label><p>${escapeHTML(item.reportedAgainst)}</p></div>
+                <div class="detail-item"><label>Report type</label><p>${escapeHTML(item.targetType)}</p></div>
+                <div class="detail-item"><label>Category</label><p>${escapeHTML(item.category)}</p></div>
+                <div class="detail-item"><label>Reporter</label><p>${escapeHTML(item.reporter)}</p></div>
+                <div class="detail-item"><label>Reporter email</label><p>${escapeHTML(item.reporterEmail || "Not provided")}</p></div>
+                <div class="detail-item"><label>Reporter phone</label><p>${escapeHTML(item.reporterPhone || "Not provided")}</p></div>
+                <div class="detail-item"><label>Priority</label>
+                    <select id="complaintPriority" class="modal-select" aria-label="Complaint priority">
+                        <option value="High" ${item.priority === "High" ? "selected" : ""}>High</option>
+                        <option value="Medium" ${item.priority === "Medium" ? "selected" : ""}>Medium</option>
+                        <option value="Low" ${item.priority === "Low" ? "selected" : ""}>Low</option>
+                    </select>
                 </div>
-
-                <div class="detail-item">
-                    <label>Date submitted</label>
-                    <p>${escapeHTML(formatDate(complaint.date))}</p>
-                </div>
-
-                <div class="detail-item full-width">
-                    <label>Complaint subject</label>
-                    <p>${escapeHTML(complaint.subject)}</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Reported against</label>
-                    <p>${escapeHTML(complaint.reportedAgainst)}</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Report type</label>
-                    <p>${escapeHTML(complaint.targetType)}</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Category</label>
-                    <p>${escapeHTML(complaint.category)}</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Reporter</label>
-                    <p>${escapeHTML(complaint.reporter)}</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Priority</label>
-                    <p>
-                        <span class="priority-badge ${getPriorityClass(complaint.priority)}">
-                            ${escapeHTML(complaint.priority)}
-                        </span>
-                    </p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Current status</label>
-                    <p>
-                        <span class="status-badge ${getStatusClass(complaint.status)}">
-                            ${escapeHTML(complaint.status)}
-                        </span>
-                    </p>
-                </div>
-
-                <div class="detail-item full-width">
-                    <label>Description</label>
-                    <p class="detail-description">${escapeHTML(complaint.description)}</p>
+                <div class="detail-item"><label>Current status</label><p><span class="status-badge ${statusClass(item.status)}">${escapeHTML(item.status)}</span></p></div>
+                <div class="detail-item full-width"><label>Description</label><p class="detail-description">${escapeHTML(item.description)}</p></div>
+                <div class="detail-item full-width"><label for="complaintAdminNote">Internal admin note (optional)</label>
+                    <textarea id="complaintAdminNote" class="modal-note" maxlength="2000" rows="3" placeholder="Add the action taken or details for other administrators…"></textarea>
                 </div>
             </div>
         `;
+        const note = el("complaintAdminNote");
+        if (note) note.value = item.adminNote || "";
 
-        // Disable actions that would repeat the current state.
-        reviewButton.disabled = complaint.status === "Under Review";
-        resolveButton.disabled = complaint.status === "Resolved";
-        dismissButton.disabled = complaint.status === "Dismissed";
-
+        dismissButton.disabled = item.status === "Dismissed";
+        reviewButton.disabled = item.status === "Under Review";
+        resolveButton.disabled = item.status === "Resolved";
         [dismissButton, reviewButton, resolveButton].forEach((button) => {
+            if (!button) return;
             button.style.opacity = button.disabled ? "0.5" : "1";
             button.style.cursor = button.disabled ? "not-allowed" : "pointer";
         });
 
         modal.hidden = false;
         document.body.style.overflow = "hidden";
-
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-
+        if (window.lucide) window.lucide.createIcons();
         closeModalButton?.focus();
     }
 
     function closeComplaintModal() {
         if (!modal) return;
-
         modal.hidden = true;
         document.body.style.overflow = "";
         selectedComplaintId = null;
-
-        if (
-            previousFocusedElement &&
-            typeof previousFocusedElement.focus === "function"
-        ) {
-            previousFocusedElement.focus();
-        }
+        if (previousFocusedElement && typeof previousFocusedElement.focus === "function") previousFocusedElement.focus();
     }
 
-    if (tableBody) {
-        tableBody.addEventListener("click", (event) => {
-            const button = event.target.closest('[data-action="view"]');
-
-            if (!button) return;
-
-            openComplaintModal(button.dataset.id);
-        });
-    }
-
-    closeModalButton?.addEventListener("click", closeComplaintModal);
-
-    if (modal) {
-        modal.addEventListener("click", (event) => {
-            if (event.target === modal) {
-                closeComplaintModal();
-            }
-        });
-    }
-
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && modal && !modal.hidden) {
-            closeComplaintModal();
-        }
-    });
-
-    // =========================================
-    // UPDATE COMPLAINT STATUS
-    // =========================================
-
-    function updateComplaintStatus(newStatus) {
+    async function updateComplaintStatus(newStatus) {
         if (!selectedComplaintId) return;
-
-        const complaint = complaints.find(
-            (item) => item.id === selectedComplaintId
-        );
-
-        if (!complaint) return;
-
-        if (complaint.status === newStatus) {
-            showToast(`Complaint is already ${newStatus.toLowerCase()}.`);
-            return;
+        const item = complaints.find((complaint) => complaint.id === selectedComplaintId);
+        if (!item) return;
+        const prioritySelect = el("complaintPriority");
+        const noteInput = el("complaintAdminNote");
+        const statusKey = ({
+            "Pending": "pending",
+            "Under Review": "under_review",
+            "Resolved": "resolved",
+            "Dismissed": "dismissed"
+        })[newStatus];
+        const buttons = [dismissButton, reviewButton, resolveButton];
+        buttons.forEach((button) => { if (button) button.disabled = true; });
+        try {
+            const payload = await apiRequest("/admin/complaints/" + encodeURIComponent(item.id) + "/status", {
+                method: "PATCH",
+                body: JSON.stringify({
+                    status: statusKey,
+                    priority: prioritySelect ? prioritySelect.value.toLowerCase() : item.priorityKey,
+                    adminNote: noteInput ? noteInput.value.trim() : item.adminNote
+                })
+            });
+            const updated = payload.report;
+            complaints = complaints.map((complaint) => complaint.id === updated.id ? updated : complaint);
+            renderComplaints();
+            closeComplaintModal();
+            showToast(payload.message || `${item.referenceCode} updated successfully.`);
+        } catch (error) {
+            showToast(error.message, true);
+            buttons.forEach((button) => { if (button) button.disabled = false; });
         }
-
-        complaint.status = newStatus;
-
-        renderComplaints();
-        closeComplaintModal();
-
-        showToast(
-            `${complaint.id} marked as ${newStatus.toLowerCase()}.`
-        );
     }
 
-    dismissButton?.addEventListener("click", () => {
-        updateComplaintStatus("Dismissed");
+    tableBody?.addEventListener("click", (event) => {
+        const button = event.target.closest('[data-action="view"]');
+        if (button) openComplaintModal(button.dataset.id);
     });
-
-    reviewButton?.addEventListener("click", () => {
-        updateComplaintStatus("Under Review");
+    closeModalButton?.addEventListener("click", closeComplaintModal);
+    modal?.addEventListener("click", (event) => { if (event.target === modal) closeComplaintModal(); });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modal && !modal.hidden) closeComplaintModal();
     });
-
-    resolveButton?.addEventListener("click", () => {
-        updateComplaintStatus("Resolved");
-    });
-
-    // =========================================
-    // FILTER EVENTS
-    // =========================================
-
+    dismissButton?.addEventListener("click", () => updateComplaintStatus("Dismissed"));
+    reviewButton?.addEventListener("click", () => updateComplaintStatus("Under Review"));
+    resolveButton?.addEventListener("click", () => updateComplaintStatus("Resolved"));
     searchInput?.addEventListener("input", renderComplaints);
     statusFilter?.addEventListener("change", renderComplaints);
     categoryFilter?.addEventListener("change", renderComplaints);
     priorityFilter?.addEventListener("change", renderComplaints);
-
-    // =========================================
-    // MOBILE SIDEBAR
-    // =========================================
 
     function openSidebar() {
         sidebar?.classList.add("open");
         sidebarOverlay?.classList.add("active");
         menuToggle?.setAttribute("aria-expanded", "true");
     }
-
     function closeSidebar() {
         sidebar?.classList.remove("open");
         sidebarOverlay?.classList.remove("active");
         menuToggle?.setAttribute("aria-expanded", "false");
     }
-
-    menuToggle?.addEventListener("click", () => {
-        if (sidebar?.classList.contains("open")) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    });
-
+    menuToggle?.addEventListener("click", () => sidebar?.classList.contains("open") ? closeSidebar() : openSidebar());
     sidebarOverlay?.addEventListener("click", closeSidebar);
+    document.querySelectorAll(".sidebar-nav a").forEach((link) => link.addEventListener("click", closeSidebar));
 
-    document.querySelectorAll(".sidebar-nav a").forEach((link) => {
-        link.addEventListener("click", closeSidebar);
-    });
-
-    // =========================================
-    // INITIALIZE PAGE
-    // =========================================
-
-    renderComplaints();
-
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
+    loadComplaints();
+    if (window.lucide) window.lucide.createIcons();
 });
