@@ -76,3 +76,31 @@ test('admin hostel review endpoints require authentication', async () => {
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
+
+test('agent application and invitation administration endpoints require authentication', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const applications = await fetch(`http://127.0.0.1:${address.port}/api/admin/agent-applications`);
+    assert.equal(applications.status, 401);
+    assert.equal((await applications.json()).error.code, 'AUTH_REQUIRED');
+
+    const invitation = await fetch(`http://127.0.0.1:${address.port}/api/admin/agents/invitations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: 'Example Agent', email: 'agent@example.com' })
+    });
+    assert.equal(invitation.status, 401);
+    assert.equal((await invitation.json()).error.code, 'AUTH_REQUIRED');
+
+    const review = await fetch(`http://127.0.0.1:${address.port}/api/admin/agent-applications/00000000-0000-4000-8000-000000000000/review`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'approved' })
+    });
+    assert.equal(review.status, 401);
+    assert.equal((await review.json()).error.code, 'AUTH_REQUIRED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
