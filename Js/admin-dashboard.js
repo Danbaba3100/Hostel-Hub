@@ -398,9 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('notificationButton')?.addEventListener('click', () => showToast('Live notifications are not connected yet.'));
   $('profileButton')?.addEventListener('click', () => showToast('Profile settings are not connected yet.'));
-  document.querySelectorAll('[data-page="Activity Log"]').forEach((button) => {
-    button.addEventListener('click', () => showToast('The activity log page is not available yet.'));
-  });
+
 
   if (window.lucide) window.lucide.createIcons();
   start();
