@@ -64,6 +64,68 @@ function toAdminInspection(row) {
   };
 }
 
+router.get('/agents', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, full_name, email, phone, is_active, created_at
+       FROM users
+       WHERE role = 'agent'
+       ORDER BY created_at DESC
+       LIMIT 1000`
+    );
+    return res.json({
+      agents: result.rows.map((row) => ({
+        id: row.id,
+        name: row.full_name,
+        email: row.email,
+        phone: row.phone || '',
+        location: '',
+        joined: row.created_at,
+        status: row.is_active ? 'Active' : 'Suspended'
+      }))
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.patch('/agents/:id/status', requireAuth, requireRole('admin'), async (req, res, next) => {
+  if (!z.string().uuid().safeParse(req.params.id).success) {
+    return res.status(400).json({ error: { code: 'INVALID_ID', message: 'The agent ID is invalid.' } });
+  }
+  const parsed = z.object({ isActive: z.boolean() }).strict().safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Choose a valid agent account status.' } });
+  }
+  try {
+    const result = await pool.query(
+      `UPDATE users
+       SET is_active = $1, updated_at = now()
+       WHERE id = $2 AND role = 'agent'
+       RETURNING id, full_name, email, phone, is_active, created_at`,
+      [parsed.data.isActive, req.params.id]
+    );
+    if (!result.rowCount) {
+      return res.status(404).json({ error: { code: 'AGENT_NOT_FOUND', message: 'That agent account was not found.' } });
+    }
+    const row = result.rows[0];
+    return res.json({
+      agent: {
+        id: row.id,
+        name: row.full_name,
+        email: row.email,
+        phone: row.phone || '',
+        location: '',
+        joined: row.created_at,
+        status: row.is_active ? 'Active' : 'Suspended'
+      },
+      message: parsed.data.isActive ? 'Agent account reactivated.' : 'Agent account suspended.'
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.get('/stats', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const agents = await pool.query(
