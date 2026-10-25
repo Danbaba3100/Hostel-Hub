@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102a43">
+  <title>Agent Applications | Hostel Hub Admin</title>
+  <link rel="stylesheet" href="css/admin-agents.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="Js/admin-agent-applications.js" defer></script>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <a href="admin-dashboard.html" class="brand"><span class="brand-icon"><i data-lucide="building-2"></i></span><span>Hostel<span class="brand-accent">Hub</span><small>ADMIN PANEL</small></span></a>
+      <p class="nav-heading">MAIN MENU</p>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+        <a href="admin-hostels.html" class="nav-link"><i data-lucide="house"></i><span>Hostel Management</span></a>
+        <a href="admin-agents.html" class="nav-link"><i data-lucide="users"></i><span>Agent Management</span></a>
+        <a href="admin-agent-applications.html" class="nav-link active"><i data-lucide="clipboard-check"></i><span>Agent Applications</span></a>
+        <a href="admin-bookings.html" class="nav-link"><i data-lucide="calendar-check"></i><span>Booking Management</span></a>
+        <a href="admin-reports.html" class="nav-link"><i data-lucide="flag"></i><span>Reports Management</span></a>
+      </nav>
+      <div class="sidebar-bottom"><div class="admin-mini"><div class="admin-avatar">A</div><div><strong>Administrator</strong><span>Super Admin</span></div></div></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false"><i data-lucide="menu"></i></button>
+          <div><p class="breadcrumb">Admin / <span>Agent Applications</span></p><h1>Agent Applications</h1></div>
+        </div>
+        <div class="topbar-right"><span class="date-display" id="currentDate"></span><button class="icon-button" id="refreshApplications" aria-label="Refresh applications"><i data-lucide="refresh-cw"></i></button></div>
+      </header>
+      <section class="page-content">
+        <div class="page-intro"><div><h2>Review agent applications</h2><p>Approve applicants before they can sign in and manage hostel listings.</p></div></div>
+        <section class="agents-panel">
+          <div class="panel-heading"><div><h2>Submitted applications</h2><p>Pending applications appear first. Each application can only be reviewed once.</p></div><span class="result-count" id="applicationCount">Loading…</span></div>
+          <div class="table-controls">
+            <label class="search-box"><i data-lucide="search"></i><input type="search" id="applicationSearch" placeholder="Search name or email" aria-label="Search applications"></label>
+            <select id="applicationStatus" aria-label="Filter applications"><option value="pending">Pending review</option><option value="all">All applications</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+          </div>
+          <div class="table-wrapper">
+            <table><thead><tr><th>Applicant</th><th>Contact</th><th>Submitted</th><th>Status</th><th>Review</th></tr></thead><tbody id="applicationTableBody"></tbody></table>
+            <div class="empty-state" id="applicationEmpty" hidden><i data-lucide="clipboard-check"></i><h3>No applications found</h3><p>Try another filter or refresh the list.</p></div>
+          </div>
+          <div class="table-footer"><span id="applicationSummary">Loading applications…</span><span class="prototype-note">Live database · Admin-only</span></div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <div class="modal-overlay" id="reviewModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+      <div class="modal-header"><div><p class="modal-eyebrow">APPLICATION REVIEW</p><h2 id="reviewTitle">Review applicant</h2></div><button class="icon-button" id="closeReview" aria-label="Close review"><i data-lucide="x"></i></button></div>
+      <p id="reviewApplicant" class="review-applicant"></p>
+      <label class="form-field">Review note (optional)<textarea id="reviewNote" maxlength="1000" rows="4" placeholder="Add a note for the audit record"></textarea></label>
+      <div class="modal-actions"><button type="button" class="secondary-button" id="cancelReview">Cancel</button><button type="button" class="primary-button" id="approveApplication">Approve</button><button type="button" class="danger-button" id="rejectApplication">Reject</button></div>
+    </section>
+  </div>
+  <div class="toast" id="applicationToast" role="status" aria-live="polite"></div>
+</body>
+</html>
