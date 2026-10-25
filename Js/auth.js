@@ -141,6 +141,12 @@
 
       if (!response.ok) throw new Error(readError(payload, response.status));
 
+      if (mode === 'register' && payload.applicationPending === true) {
+        showMessage(payload.message || 'Your application has been submitted. You can sign in after an administrator approves it.');
+        form.reset();
+        return;
+      }
+
       if (mode !== 'register' && payload.user.role !== expectedRole) {
         showMessage(expectedRole === 'admin'
           ? 'This account does not have administrator access.'
