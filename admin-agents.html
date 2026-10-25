@@ -38,6 +38,10 @@
                     <i data-lucide="users"></i>
                     <span>Agent Management</span>
                 </a>
+                <a href="admin-agent-applications.html" class="nav-link">
+                    <i data-lucide="clipboard-check"></i>
+                    <span>Agent Applications</span>
+                </a>
 
                 <a href="admin-bookings.html" class="nav-link">
                     <i data-lucide="calendar-check"></i>
@@ -90,7 +94,7 @@
                 <div class="page-intro">
                     <div>
                         <h2>Manage your agents</h2>
-                        <p>Review applications, manage agent accounts, and monitor their status.</p>
+                        <p>Review applications, invite agents securely, and manage account status.</p>
                     </div>
 
                     <button class="primary-button" id="addAgentButton">
@@ -248,30 +252,17 @@
                 </label>
 
                 <label class="form-field">
-                    Phone number
-                    <input type="tel" name="phone" required
-                        placeholder="Enter phone number">
+                    Phone number <span>(optional)</span>
+                    <input type="tel" name="phone"
+                        placeholder="+234 800 000 0000" maxlength="25">
                 </label>
-
-                <label class="form-field">
-                    Location
-                    <input type="text" name="location" required
-                        placeholder="e.g. Osogbo, Osun State">
-                </label>
-
-                <label class="form-field">
-                    Account status
-                    <select name="status" required>
-                        <option value="Pending">Pending approval</option>
-                        <option value="Active">Active</option>
-                    </select>
-                </label>
+                <p class="form-help">Hostel Hub will create a private invitation link that expires in 48 hours and can be used only once. The agent sets their own password.</p>
 
                 <div class="modal-actions">
                     <button type="button" class="secondary-button"
                         id="cancelAddAgent">Cancel</button>
                     <button type="submit" class="primary-button">
-                        Create Agent
+                        Create Invitation
                     </button>
                 </div>
             </form>
