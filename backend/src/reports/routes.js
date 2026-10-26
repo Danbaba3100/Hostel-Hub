@@ -2,16 +2,25 @@
 
 const express = require('express');
 const { z } = require('zod');
+const rateLimit = require('express-rate-limit');
 const { pool } = require('../db');
 const { requireAuth, requireRole } = require('../auth/middleware');
 
 const router = express.Router();
 
+const publicReportLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'REPORT_RATE_LIMITED', message: 'Too many reports have been submitted from this connection. Please try again later.' } }
+});
+
 const createReportSchema = z.object({
   subject: z.string().trim().min(5).max(180),
   description: z.string().trim().min(10).max(4000),
   targetType: z.enum(['hostel', 'agent', 'other']),
-  targetId: z.string().trim().max(180).optional().or(z.literal('')),
+  targetId: z.string().uuid().optional().or(z.literal('')),
   reportedAgainst: z.string().trim().min(2).max(180),
   category: z.enum(['hostel', 'agent', 'payment', 'fraud', 'other']),
   reporterName: z.string().trim().max(120).optional().or(z.literal('')),
@@ -54,7 +63,7 @@ function toReport(row) {
 }
 
 // Public report endpoint. The form can be used by visitors without an account.
-router.post('/reports', async (req, res, next) => {
+router.post('/reports', publicReportLimiter, async (req, res, next) => {
   const parsed = createReportSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({
@@ -66,8 +75,25 @@ router.post('/reports', async (req, res, next) => {
     });
   }
   const data = parsed.data;
+  if (data.targetType === 'hostel' && !data.targetId) {
+    return res.status(400).json({
+      error: { code: 'LISTING_REQUIRED', message: 'Select a specific hostel listing before submitting this report.' }
+    });
+  }
   const priority = ['fraud', 'payment'].includes(data.category) ? 'high' : 'medium';
   try {
+    if (data.targetType === 'hostel') {
+      const listing = await pool.query(
+        `SELECT id, name FROM hostels
+         WHERE id = $1 AND approval_status = 'approved' AND is_active = true AND deleted_at IS NULL`,
+        [data.targetId]
+      );
+      if (!listing.rowCount) {
+        return res.status(404).json({
+          error: { code: 'LISTING_NOT_FOUND', message: 'The selected hostel listing could not be verified.' }
+        });
+      }
+    }
     const result = await pool.query(
       `INSERT INTO reports
         (subject, description, target_type, target_id, reported_against, category, priority,
