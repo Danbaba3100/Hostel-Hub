@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     const buttonSpinner = document.getElementById("buttonSpinner");
     const buttonArrow = document.querySelector(".button-arrow");
     const inspectionDate = document.getElementById("inspectionDate");
+    const websiteField = document.getElementById("website");
+    const formStartedAtField = document.getElementById("formStartedAt");
+    if (formStartedAtField) formStartedAtField.value = String(Date.now());
 
     if (inspectionDate) {
         const today = new Date();
@@ -126,7 +129,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             studentEmail: document.getElementById("email").value.trim(),
             preferredDate: inspectionDate.value,
             preferredTime: document.getElementById("inspectionTime").value,
-            message: messageParts.join("\n")
+            message: messageParts.join("\n"),
+            website: websiteField ? websiteField.value : "",
+            formStartedAt: formStartedAtField ? Number(formStartedAtField.value) : 0
         };
 
         try {
