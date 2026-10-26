@@ -97,9 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const bottom = makeElement('div', 'hostel-card-bottom');
     const price = makeElement('div', 'hostel-price', money(hostel.price));
     price.appendChild(makeElement('small', '', '/ year'));
+    const actions = makeElement('div', 'hostel-card-actions');
     const link = makeElement('a', 'hostel-link', 'View Hostel →');
     link.href = 'hostel-details.html?id=' + encodeURIComponent(hostel.slug || hostel.id);
-    bottom.append(price, link);
+    const reportLink = makeElement('a', 'hostel-report-link', 'Report listing');
+    reportLink.href = 'report.html?hostel=' + encodeURIComponent(hostel.slug || hostel.id);
+    reportLink.setAttribute('aria-label', 'Report ' + (hostel.name || 'this hostel listing'));
+    actions.append(link, reportLink);
+    bottom.append(price, actions);
     content.appendChild(bottom);
 
     card.append(videoWrapper, content);
