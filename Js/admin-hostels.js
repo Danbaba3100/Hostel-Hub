@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function statusClass(status) {
     if (status === 'Approved') return 'status-approved';
-    if (status === 'Removed') return 'status-rejected';
+    if (status === 'Removed' || status === 'Inactive') return 'status-rejected';
     if (status === 'Under Review') return 'status-under-review';
     return 'status-rejected';
   }
@@ -161,6 +161,15 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewButton.textContent = 'Review';
       reviewButton.addEventListener('click', () => openReview(hostel.id));
       actions.appendChild(reviewButton);
+
+      if (hostel.status === 'Removed') {
+        const restoreButton = document.createElement('button');
+        restoreButton.type = 'button';
+        restoreButton.className = 'approve-button';
+        restoreButton.textContent = 'Restore';
+        restoreButton.addEventListener('click', () => restoreHostel(hostel.id));
+        actions.appendChild(restoreButton);
+      }
 
       if (hostel.status === 'Approved') {
         const removeButton = document.createElement('button');
@@ -286,6 +295,31 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       await loadHostels();
       showToast(payload.message || (hostel.name + ' removed from public listings.'));
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      busy = false;
+    }
+  }
+
+
+  async function restoreHostel(hostelId) {
+    if (busy) return;
+    const hostel = hostels.find((item) => item.id === hostelId);
+    if (!hostel || hostel.status !== 'Removed') {
+      showToast('Only hostels removed by an administrator can be restored here.');
+      return;
+    }
+    if (!window.confirm('Restore "' + hostel.name + '" to public listings? It will become visible to students again.')) return;
+
+    busy = true;
+    try {
+      const payload = await apiRequest('/admin/hostels/' + encodeURIComponent(hostel.id) + '/restore', {
+        method: 'PATCH',
+        body: JSON.stringify({})
+      });
+      await loadHostels();
+      showToast(payload.message || (hostel.name + ' restored to public listings.'));
     } catch (error) {
       showToast(error.message);
     } finally {
