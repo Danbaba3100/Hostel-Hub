@@ -500,15 +500,13 @@ router.patch('/hostels/:id/restore', requireAuth, requireRole('admin'), async (r
       return res.status(404).json({ error: { code: 'HOSTEL_NOT_FOUND', message: 'That hostel listing was not found.' } });
     }
     const hostel = current.rows[0];
-    if (!hostel.admin_removed_at) {
+    if (hostel.admin_removed_at == null && hostel.is_active) {
       await client.query('ROLLBACK');
-      return res.status(409).json({ error: { code: 'HOSTEL_NOT_REMOVED_BY_ADMIN', message: 'This hostel was not removed by an administrator.' } });
-    }
-    if (hostel.approval_status !== 'approved') {
-      await client.query('ROLLBACK');
-      return res.status(409).json({ error: { code: 'HOSTEL_NOT_APPROVED', message: 'This hostel is not approved and cannot be restored to public listings.' } });
+      return res.status(409).json({ error: { code: 'HOSTEL_ALREADY_ACTIVE', message: 'This hostel is already active.' } });
     }
 
+    // Restore the listing's active flag without changing approval_status.
+    // Pending and rejected listings remain hidden publicly until separately approved.
     await client.query(
       'UPDATE hostels SET is_active = true, admin_removed_at = NULL, updated_at = now() WHERE id = $1',
       [req.params.id]
