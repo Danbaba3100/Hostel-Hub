@@ -492,7 +492,7 @@ router.patch('/hostels/:id/restore', requireAuth, requireRole('admin'), async (r
   try {
     await client.query('BEGIN');
     const current = await client.query(
-      'SELECT id, name, approval_status, admin_removed_at FROM hostels WHERE id = $1 AND deleted_at IS NULL FOR UPDATE',
+      'SELECT id, name, approval_status, is_active, admin_removed_at FROM hostels WHERE id = $1 AND deleted_at IS NULL FOR UPDATE',
       [req.params.id]
     );
     if (!current.rowCount) {
@@ -517,7 +517,7 @@ router.patch('/hostels/:id/restore', requireAuth, requireRole('admin'), async (r
       [req.user.id, req.params.id, JSON.stringify({ name: hostel.name })]
     );
     await client.query('COMMIT');
-    return res.json({ message: 'Hostel restored to public listings.', hostelId: req.params.id });
+    return res.json({ message: 'Hostel reactivated. Its existing approval status has been preserved.', hostelId: req.params.id });
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch (_) {}
     return next(error);
