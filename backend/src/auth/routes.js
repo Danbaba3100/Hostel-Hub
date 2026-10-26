@@ -16,7 +16,16 @@ const authLimiter = rateLimit({
   limit: 10,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { error: { code: 'AUTH_RATE_LIMITED', message: 'Too many sign-in attempts. Please wait and try again.' } }
+  message: { error: { code: 'AUTH_RATE_LIMITED', message: 'Too many account requests. Please wait and try again.' } }
+});
+
+// Login has a stricter limit to slow password guessing and automated credential attacks.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'LOGIN_RATE_LIMITED', message: 'Too many sign-in attempts. Please wait 15 minutes before trying again.' } }
 });
 
 function publicUser(user) {
@@ -143,7 +152,7 @@ router.post('/accept-invitation', authLimiter, async (req, res, next) => {
   }
 });
 
-router.post('/login', authLimiter, async (req, res, next) => {
+router.post('/login', authLimiter, loginLimiter, async (req, res, next) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) return validationError(res, parsed);
 
