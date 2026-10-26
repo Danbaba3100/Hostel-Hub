@@ -1,12 +1,21 @@
 'use strict';
 
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { randomBytes } = require('node:crypto');
 const { pool } = require('../db');
 const { requireAuth, requireRole } = require('../auth/middleware');
 const { hostelSchema, inspectionSchema, inspectionStatusSchema } = require('./validation');
 
 const router = express.Router();
+
+const inspectionRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'INSPECTION_RATE_LIMITED', message: 'Too many inspection requests. Please wait before trying again.' } }
+});
 
 function sendValidationError(res, parsed) {
   return res.status(400).json({
@@ -238,10 +247,19 @@ router.delete('/hostels/:id', requireAuth, requireRole('agent'), async (req, res
 });
 
 // Public inspection request form; student accounts are intentionally not required.
-router.post('/inspections', async (req, res, next) => {
+router.post('/inspections', inspectionRequestLimiter, async (req, res, next) => {
   const parsed = inspectionSchema.safeParse(req.body);
   if (!parsed.success) return sendValidationError(res, parsed);
   const value = parsed.data;
+
+  // Reject common automated submissions before any database query or insert.
+  const formAgeMs = Number.isFinite(value.formStartedAt) ? Date.now() - value.formStartedAt : -1;
+  if (value.website.trim() !== '' || formAgeMs < 1800 || formAgeMs > 2 * 60 * 60 * 1000) {
+    return res.status(400).json({
+      error: { code: 'AUTOMATED_SUBMISSION_REJECTED', message: 'We could not verify this request. Please reload the form and try again.' }
+    });
+  }
+
   try {
     const hostel = await pool.query(
       `SELECT id, agent_id FROM hostels
