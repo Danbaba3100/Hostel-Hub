@@ -1,284 +1,237 @@
+'use strict';
 
-document.addEventListener("DOMContentLoaded", () => {
-  const STORAGE_KEY = "hostelHubAgentProfile";
-
+document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE = 'http://localhost:4000/api';
+  const TOKEN_KEY = 'hostelHubAccessToken';
+  const USER_KEY = 'hostelHubUser';
   const $ = (id) => document.getElementById(id);
-
-  const form = $("profileForm");
-  const toast = $("toast");
-
+  const form = $('profileForm');
+  const toast = $('toast');
+  const saveButton = form.querySelector('button[type="submit"]');
   let toastTimer = null;
   let savedProfile = null;
 
-  const fields = [
-    "agentFullName",
-    "agentEmail",
-    "agentPhone",
-    "agentWhatsApp",
-    "agentAddress",
-    "agentBio",
-    "agencyName",
-    "agencyType",
-    "agencyWebsite"
-  ];
-
-  const defaultProfile = {
-    agentFullName: "",
-    agentEmail: "",
-    agentPhone: "",
-    agentWhatsApp: "",
-    agentAddress: "",
-    agentBio: "",
-    agencyName: "",
-    agencyType: "Independent Agent",
-    agencyWebsite: ""
+  const fieldMap = {
+    agentFullName: 'fullName',
+    agentEmail: 'email',
+    agentPhone: 'phone',
+    agentWhatsApp: 'whatsappPhone',
+    agentAddress: 'businessAddress',
+    agentBio: 'bio',
+    agencyName: 'agencyName',
+    agencyType: 'agencyType',
+    agencyWebsite: 'agencyWebsite'
   };
-
-  // -----------------------------------------
-  // Notifications
-  // -----------------------------------------
+  const fieldIds = Object.keys(fieldMap);
 
   function showToast(message) {
     toast.textContent = message;
-    toast.classList.add("show");
-
+    toast.classList.add('show');
     clearTimeout(toastTimer);
-
-    toastTimer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 3200);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
   }
 
-  // -----------------------------------------
-  // Read and save profile information
-  // -----------------------------------------
+  function setSaving(saving) {
+    saveButton.disabled = saving;
+    saveButton.setAttribute('aria-busy', String(saving));
+    saveButton.textContent = saving ? 'Saving…' : 'Save Profile';
+  }
 
-  function loadProfile() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-
-      if (stored) {
-        const parsed = JSON.parse(stored);
-
-        savedProfile = {
-          ...defaultProfile,
-          ...parsed
-        };
-      } else {
-        savedProfile = { ...defaultProfile };
-      }
-    } catch (error) {
-      console.error("Could not load agent profile:", error);
-      savedProfile = { ...defaultProfile };
-      showToast("Could not load saved profile information.");
+  async function apiRequest(path, options = {}) {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      window.location.replace('login.html');
+      throw new Error('Please sign in to manage your profile.');
     }
 
-    populateForm(savedProfile);
-    updateProfileSummary(savedProfile);
+    let response;
+    try {
+      response = await fetch(API_BASE + path, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: 'Bearer ' + token,
+          ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {})
+        }
+      });
+    } catch {
+      throw new Error('Cannot reach the Hostel Hub API. Make sure the backend is running at http://localhost:4000.');
+    }
+
+    const payload = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(USER_KEY);
+      window.location.replace('login.html');
+      throw new Error('Your session expired. Please sign in again.');
+    }
+    if (!response.ok) {
+      const error = payload && payload.error;
+      if (error && Array.isArray(error.fields) && error.fields.length) {
+        throw new Error(error.fields.map((field) => field.message).join(' '));
+      }
+      throw new Error(error && error.message ? error.message : 'The request could not be completed.');
+    }
+    return payload;
+  }
+
+  function normalizeProfile(profile) {
+    return {
+      fullName: profile.fullName || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      whatsappPhone: profile.whatsappPhone || '',
+      businessAddress: profile.businessAddress || '',
+      bio: profile.bio || '',
+      agencyName: profile.agencyName || '',
+      agencyType: profile.agencyType || 'Independent Agent',
+      agencyWebsite: profile.agencyWebsite || ''
+    };
   }
 
   function populateForm(profile) {
-    fields.forEach((id) => {
+    fieldIds.forEach((id) => {
       const field = $(id);
-
-      if (field) {
-        field.value = profile[id] ?? "";
-      }
+      const key = fieldMap[id];
+      if (field) field.value = profile[key] ?? '';
     });
   }
 
   function getFormData() {
     const profile = {};
-
-    fields.forEach((id) => {
-      profile[id] = $(id).value.trim();
+    fieldIds.forEach((id) => {
+      profile[fieldMap[id]] = $(id).value.trim();
     });
-
     return profile;
   }
 
-  function saveProfile(profile) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-      savedProfile = { ...profile };
-      return true;
-    } catch (error) {
-      console.error("Could not save agent profile:", error);
-      showToast("Profile could not be saved in browser storage.");
-      return false;
-    }
-  }
-
-  // -----------------------------------------
-  // Update profile preview
-  // -----------------------------------------
-
   function updateProfileSummary(profile) {
-    const name = profile.agentFullName.trim();
-    const email = profile.agentEmail.trim();
-
-    $("summaryName").textContent = name || "Your Name";
-    $("summaryEmail").textContent = email || "your@email.com";
-
-    const initial = name
-      ? name.charAt(0).toUpperCase()
-      : "A";
-
-    $("profileAvatar").textContent = initial;
-    $("headerAvatar").textContent = initial;
+    const name = String(profile.fullName || '').trim();
+    const email = String(profile.email || '').trim();
+    $('summaryName').textContent = name || 'Your Name';
+    $('summaryEmail').textContent = email || 'your@email.com';
+    const initial = name ? name.charAt(0).toUpperCase() : 'A';
+    $('profileAvatar').textContent = initial;
+    $('headerAvatar').textContent = initial;
   }
-
-  // -----------------------------------------
-  // Validate phone numbers
-  // -----------------------------------------
 
   function isValidPhone(phone) {
-    const cleaned = phone.replace(/[\s()-]/g, "");
-
-    // Accept common international format or local
-    // phone formats containing 7–15 digits.
-    return /^\+?\d{7,15}$/.test(cleaned);
+    const cleaned = phone.replace(/[\\s()-]/g, '');
+    return /^\\+?\\d{7,15}$/.test(cleaned);
   }
 
-  function isValidWebsite(url) {
-    if (!url) return true;
-
+  function isValidWebsite(value) {
+    if (!value) return true;
     try {
-      const parsed = new URL(url);
-
-      return parsed.protocol === "https:" ||
-        parsed.protocol === "http:";
+      const parsed = new URL(value);
+      return parsed.protocol === 'https:' || parsed.protocol === 'http:';
     } catch {
       return false;
     }
   }
 
-  // -----------------------------------------
-  // Save profile form
-  // -----------------------------------------
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    if (!form.reportValidity()) {
-      return;
+  async function loadProfile() {
+    setSaving(true);
+    try {
+      const payload = await apiRequest('/auth/profile');
+      savedProfile = normalizeProfile(payload.profile || {});
+      populateForm(savedProfile);
+      updateProfileSummary(savedProfile);
+      sessionStorage.setItem(USER_KEY, JSON.stringify({
+        ...(JSON.parse(sessionStorage.getItem(USER_KEY) || '{}')),
+        ...savedProfile,
+        role: 'agent'
+      }));
+      $('profileStorageStatus').textContent = 'Connected to database';
+      $('profileStorageStatus').classList.remove('local-status');
+    } catch (error) {
+      if (!/session|sign in/i.test(error.message)) showToast(error.message);
+    } finally {
+      setSaving(false);
     }
+  }
 
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
     const profile = getFormData();
 
-    if (!isValidPhone(profile.agentPhone)) {
-      $("agentPhone").setCustomValidity(
-        "Enter a valid phone number using 7 to 15 digits."
-      );
-      $("agentPhone").reportValidity();
-      $("agentPhone").setCustomValidity("");
+    if (!isValidPhone(profile.phone)) {
+      $('agentPhone').setCustomValidity('Enter a valid phone number using 7 to 15 digits.');
+      $('agentPhone').reportValidity();
+      $('agentPhone').setCustomValidity('');
       return;
     }
-
-    if (!isValidPhone(profile.agentWhatsApp)) {
-      $("agentWhatsApp").setCustomValidity(
-        "Enter a valid WhatsApp number using 7 to 15 digits."
-      );
-      $("agentWhatsApp").reportValidity();
-      $("agentWhatsApp").setCustomValidity("");
+    if (!isValidPhone(profile.whatsappPhone)) {
+      $('agentWhatsApp').setCustomValidity('Enter a valid WhatsApp number using 7 to 15 digits.');
+      $('agentWhatsApp').reportValidity();
+      $('agentWhatsApp').setCustomValidity('');
       return;
     }
-
     if (!isValidWebsite(profile.agencyWebsite)) {
-      $("agencyWebsite").setCustomValidity(
-        "Enter a valid website link beginning with http:// or https://."
-      );
-      $("agencyWebsite").reportValidity();
-      $("agencyWebsite").setCustomValidity("");
+      $('agencyWebsite').setCustomValidity('Enter a valid website link beginning with http:// or https://.');
+      $('agencyWebsite').reportValidity();
+      $('agencyWebsite').setCustomValidity('');
       return;
     }
 
-    const saved = saveProfile(profile);
-
-    if (!saved) {
-      return;
+    setSaving(true);
+    try {
+      const payload = await apiRequest('/auth/profile', {
+        method: 'PATCH',
+        body: JSON.stringify(profile)
+      });
+      savedProfile = normalizeProfile(payload.profile || profile);
+      populateForm(savedProfile);
+      updateProfileSummary(savedProfile);
+      const oldUser = JSON.parse(sessionStorage.getItem(USER_KEY) || '{}');
+      sessionStorage.setItem(USER_KEY, JSON.stringify({ ...oldUser, ...savedProfile, role: 'agent' }));
+      showToast(payload.message || 'Your profile has been saved successfully.');
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      setSaving(false);
     }
-
-    updateProfileSummary(profile);
-
-    showToast("Your profile has been saved successfully.");
   });
 
-  // -----------------------------------------
-  // Cancel unsaved changes
-  // -----------------------------------------
-
-  $("resetProfileBtn").addEventListener("click", () => {
+  $('resetProfileBtn').addEventListener('click', () => {
+    if (!savedProfile) return;
     populateForm(savedProfile);
     updateProfileSummary(savedProfile);
-
-    showToast("Unsaved changes have been cancelled.");
+    showToast('Unsaved changes have been cancelled.');
   });
 
-  // -----------------------------------------
-  // Edit profile shortcut
-  // -----------------------------------------
-
-  $("editProfileBtn").addEventListener("click", () => {
-    $("agentFullName").focus();
-
-    $("profileFormSection").scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+  $('editProfileBtn').addEventListener('click', () => {
+    $('agentFullName').focus();
+    $('profileFormSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  // -----------------------------------------
-  // Keep summary preview updated while typing
-  // -----------------------------------------
-
-  ["agentFullName", "agentEmail"].forEach((id) => {
-    $(id).addEventListener("input", () => {
-      updateProfileSummary(getFormData());
-    });
+  ['agentFullName', 'agentEmail'].forEach((id) => {
+    $(id).addEventListener('input', () => updateProfileSummary(getFormData()));
   });
 
-  // -----------------------------------------
-  // Mobile sidebar
-  // -----------------------------------------
-
-  const sidebar = $("sidebar");
-  const sidebarOverlay = $("sidebarOverlay");
-  const menuToggle = $("menuToggle");
-
-  function openSidebar() {
-    sidebar.classList.add("open");
-    sidebarOverlay.classList.add("show");
-    menuToggle.setAttribute("aria-expanded", "true");
-    document.body.classList.add("menu-open");
-  }
+  const sidebar = $('sidebar');
+  const sidebarOverlay = $('sidebarOverlay');
+  const menuToggle = $('menuToggle');
 
   function closeSidebar() {
-    sidebar.classList.remove("open");
-    sidebarOverlay.classList.remove("show");
-    menuToggle.setAttribute("aria-expanded", "false");
-    document.body.classList.remove("menu-open");
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('show');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('menu-open');
   }
 
-  menuToggle.addEventListener("click", () => {
-    if (sidebar.classList.contains("open")) {
-      closeSidebar();
-    } else {
-      openSidebar();
-    }
+  menuToggle.addEventListener('click', () => {
+    const open = !sidebar.classList.contains('open');
+    sidebar.classList.toggle('open', open);
+    sidebarOverlay.classList.toggle('show', open);
+    menuToggle.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('menu-open', open);
   });
-
-  sidebarOverlay.addEventListener("click", closeSidebar);
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeSidebar();
-    }
+  sidebarOverlay.addEventListener('click', closeSidebar);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeSidebar();
   });
-
-  // -----------------------------------------
-  // Initialise page
-  // -----------------------------------------
 
   loadProfile();
 });
