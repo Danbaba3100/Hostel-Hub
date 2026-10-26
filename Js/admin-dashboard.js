@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toast = $('toast');
   let hostels = [];
   let bookings = [];
+  let reports = [];
   let toastTimer;
 
   function showToast(message) {
@@ -172,7 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setStat('totalAgents', Number.isInteger(stats?.totalAgents) ? stats.totalAgents : '—',
       Number.isInteger(stats?.totalAgents) ? 'Registered agent accounts' : 'Agent total unavailable');
     setStat('totalBookings', bookings.length, 'Live inspection requests');
-    setStat('totalReports', '—', 'Reports data not connected');
+    const openReports = reports.filter((report) => ['pending', 'under_review'].includes(report.statusKey)).length;
+    setStat('totalReports', openReports, reports.length + ' total submitted · ' + (reports.filter((report) => report.statusKey === 'pending').length) + ' pending');
+    const navCount = document.getElementById('openReportsNavCount');
+    if (navCount) {
+      navCount.textContent = String(openReports);
+      navCount.hidden = openReports === 0;
+    }
   }
 
   function renderActivity() {
@@ -195,6 +202,15 @@ document.addEventListener('DOMContentLoaded', () => {
         title: 'Inspection request received',
         detail: (b.hostel || 'Hostel') + ' · ' + (b.student || 'Student'),
         time: b.createdAt
+      })),
+      ...reports.map((report) => ({
+        date: formatDate(report.date),
+        icon: 'flag',
+        tone: report.priorityKey === 'high' ? 'red' : 'purple',
+        title: 'New report submitted',
+        detail: (report.reportedAgainst || 'Listing or account') + ' · ' + (report.subject || 'Report received'),
+        time: report.date,
+        href: 'admin-users.html'
       }))
     ].filter((event) => event.date).sort((a, b) => b.date - a.date).slice(0, 5);
 
@@ -222,6 +238,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const time = document.createElement('time');
       time.textContent = timeAgo(event.time);
       item.append(icon, copy, time);
+      if (event.href) {
+        item.classList.add('activity-clickable');
+        item.tabIndex = 0;
+        item.setAttribute('role', 'link');
+        item.setAttribute('aria-label', event.title + ': ' + event.detail + '. Open complaints');
+        item.addEventListener('click', () => { window.location.href = event.href; });
+        item.addEventListener('keydown', (keyEvent) => {
+          if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+            keyEvent.preventDefault();
+            window.location.href = event.href;
+          }
+        });
+      }
       list.appendChild(item);
     });
     if (window.lucide) window.lucide.createIcons();
@@ -241,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
       buckets.push({ start, label: days === 7
         ? start.toLocaleDateString('en-NG', { weekday: 'short' })
         : start.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
-        bookings: 0, listings: 0 });
+        bookings: 0, listings: 0, reports: 0 });
     }
 
     const countIntoBuckets = (items, key, dateKey) => {
@@ -258,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     countIntoBuckets(hostels, 'listings', 'submitted');
     countIntoBuckets(bookings, 'bookings', 'createdAt');
+    countIntoBuckets(reports, 'reports', 'date');
 
     labelsContainer.replaceChildren();
     const shownBuckets = days === 30 ? buckets.filter((_, i) => i % 6 === 0 || i === buckets.length - 1) : buckets;
@@ -268,12 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const top = 20, bottom = 270, width = 700, height = bottom - top;
-    const maxValue = Math.max(5, ...buckets.flatMap((bucket) => [bucket.bookings, bucket.listings]));
+    const maxValue = Math.max(5, ...buckets.flatMap((bucket) => [bucket.bookings, bucket.listings, bucket.reports]));
     const pointsGroup = $('chartPoints');
     if (pointsGroup) pointsGroup.replaceChildren();
     const config = [
       { key: 'bookings', id: 'bookingsLine', color: '#0b9b59' },
-      { key: 'listings', id: 'listingsLine', color: '#2479e8' }
+      { key: 'listings', id: 'listingsLine', color: '#2479e8' },
+      { key: 'reports', id: 'reportsLine', color: '#9b59b6' }
     ];
     config.forEach((series) => {
       const points = buckets.map((bucket, index) => ({
@@ -305,8 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     const reportsLine = $('reportsLine');
-    if (reportsLine) reportsLine.style.display = 'none';
-    svg.setAttribute('aria-label', 'Live database counts of inspection requests and hostel submissions over the selected period');
+    if (reportsLine) reportsLine.style.display = '';
+    svg.setAttribute('aria-label', 'Live database counts of inspection requests, hostel submissions, and reports over the selected period');
     const yLabels = document.querySelector('.chart-y-labels');
     if (yLabels) {
       const spans = yLabels.querySelectorAll('span');
@@ -340,13 +371,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.replace('admin-login.html');
         return;
       }
-      const [hostelResult, bookingResult, statsResult] = await Promise.all([
+      const [hostelResult, bookingResult, statsResult, reportResult] = await Promise.all([
         apiRequest('/admin/hostels'),
         apiRequest('/admin/inspections'),
-        apiRequest('/admin/stats')
+        apiRequest('/admin/stats'),
+        apiRequest('/admin/complaints')
       ]);
       hostels = Array.isArray(hostelResult.hostels) ? hostelResult.hostels : [];
       bookings = Array.isArray(bookingResult.bookings) ? bookingResult.bookings : [];
+      reports = Array.isArray(reportResult.reports) ? reportResult.reports : [];
       updateStats(statsResult.stats);
       renderHostels();
       renderActivity();
@@ -358,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setStat('totalHostels', '—', 'Could not load data');
       setStat('totalBookings', '—', 'Could not load data');
       setStat('totalAgents', '—', 'Not connected');
-      setStat('totalReports', '—', 'Not connected');
+      setStat('totalReports', '—', 'Could not load reports');
       if (tableEmpty) tableEmpty.hidden = false;
     }
   }
