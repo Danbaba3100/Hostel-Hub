@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function statusClass(status) {
     if (status === 'Approved') return 'status-approved';
+    if (status === 'Removed') return 'status-rejected';
     if (status === 'Under Review') return 'status-under-review';
     return 'status-rejected';
   }
@@ -160,6 +161,15 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewButton.textContent = 'Review';
       reviewButton.addEventListener('click', () => openReview(hostel.id));
       actions.appendChild(reviewButton);
+
+      if (hostel.status === 'Approved') {
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'reject-button';
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => removeHostel(hostel.id));
+        actions.appendChild(removeButton);
+      }
       actionsCell.appendChild(actions);
 
       row.append(hostelCell, locationCell, priceCell, agentCell, statusCell, actionsCell);
@@ -252,6 +262,34 @@ document.addEventListener('DOMContentLoaded', () => {
         approveButton.disabled = !canReview;
         rejectButton.disabled = !canReview;
       }
+    }
+  }
+
+
+  async function removeHostel(hostelId) {
+    if (busy) return;
+    const hostel = hostels.find((item) => item.id === hostelId);
+    if (!hostel || hostel.status !== 'Approved') {
+      showToast('Only approved listings can be removed this way.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Remove "' + hostel.name + '" from public listings? Students will no longer see it. Its record and inspection history will be preserved.'
+    );
+    if (!confirmed) return;
+
+    busy = true;
+    try {
+      const payload = await apiRequest('/admin/hostels/' + encodeURIComponent(hostel.id), {
+        method: 'DELETE'
+      });
+      await loadHostels();
+      showToast(payload.message || (hostel.name + ' removed from public listings.'));
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      busy = false;
     }
   }
 
