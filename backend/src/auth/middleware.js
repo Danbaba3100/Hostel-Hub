@@ -15,7 +15,7 @@ async function requireAuth(req, res, next) {
   try {
     const claims = verifyAccessToken(match[1]);
     const result = await pool.query(
-      'SELECT id, full_name, email, phone, role, is_active, created_at FROM users WHERE id = $1 LIMIT 1',
+      'SELECT id, full_name, email, phone, whatsapp_phone, business_address, bio, agency_name, agency_type, agency_website, role, is_active, created_at FROM users WHERE id = $1 LIMIT 1',
       [claims.sub]
     );
     const user = result.rows[0];
