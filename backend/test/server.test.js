@@ -141,3 +141,77 @@ test('public report submission validates fields before database access', async (
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
+
+
+test('inspection API rejects honeypot submissions before database access', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/inspections`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        hostelId: '2f1c4a4c-8e8e-4d4e-a3d7-1a9bfc3f4c77',
+        studentName: 'Sample Student',
+        studentPhone: '08012345678',
+        studentEmail: 'student@example.com',
+        preferredDate: '2026-11-10',
+        preferredTime: '10:00 AM',
+        website: 'bot filled this',
+        formStartedAt: Date.now() - 3000
+      })
+    });
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).error.code, 'AUTOMATED_SUBMISSION_REJECTED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test('inspection API rejects requests missing form timing data before database access', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/inspections`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        hostelId: '2f1c4a4c-8e8e-4d4e-a3d7-1a9bfc3f4c77',
+        studentName: 'Sample Student',
+        studentPhone: '08012345678',
+        studentEmail: 'student@example.com',
+        preferredDate: '2026-11-10',
+        preferredTime: '10:00 AM'
+      })
+    });
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).error.code, 'AUTOMATED_SUBMISSION_REJECTED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test('listing reports require a selected hostel ID', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'Report: Fake listing',
+        description: 'The listing details appear misleading and should be checked.',
+        targetType: 'hostel',
+        targetId: '',
+        reportedAgainst: 'Sample Hostel',
+        category: 'fraud',
+        reporterName: 'Sample Student',
+        reporterPhone: '08012345678'
+      })
+    });
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).error.code, 'LISTING_REQUIRED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
