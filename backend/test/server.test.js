@@ -215,3 +215,24 @@ test('listing reports require a selected hostel ID', async () => {
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
+
+
+test('agent profile endpoints require authentication', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const getResponse = await fetch(`http://127.0.0.1:${address.port}/api/auth/profile`);
+    assert.equal(getResponse.status, 401);
+    assert.equal((await getResponse.json()).error.code, 'AUTH_REQUIRED');
+
+    const patchResponse = await fetch(`http://127.0.0.1:${address.port}/api/auth/profile`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: 'Example Agent' })
+    });
+    assert.equal(patchResponse.status, 401);
+    assert.equal((await patchResponse.json()).error.code, 'AUTH_REQUIRED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
