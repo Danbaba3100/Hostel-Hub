@@ -37,7 +37,10 @@ const inspectionSchema = z.object({
   studentEmail: z.string().trim().email().max(254).transform((value) => value.toLowerCase()).optional().or(z.literal('')),
   preferredDate: z.string().date(),
   preferredTime: z.string().trim().min(1).max(30),
-  message: z.string().trim().max(2000).optional().or(z.literal(''))
+  message: z.string().trim().max(2000).optional().or(z.literal('')),
+  // Honeypot and form timing are checked by the API before any database insert.
+  website: z.string().max(200).optional().default(''),
+  formStartedAt: z.number().int().positive().optional()
 }).strict();
 
 const inspectionStatusSchema = z.object({
