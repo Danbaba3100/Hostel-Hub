@@ -162,16 +162,15 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewButton.addEventListener('click', () => openReview(hostel.id));
       actions.appendChild(reviewButton);
 
-      if (hostel.status === 'Removed') {
+      const isInactive = hostel.status === 'Removed' || hostel.status === 'Inactive';
+      if (isInactive) {
         const restoreButton = document.createElement('button');
         restoreButton.type = 'button';
         restoreButton.className = 'approve-button';
         restoreButton.textContent = 'Restore';
         restoreButton.addEventListener('click', () => restoreHostel(hostel.id));
         actions.appendChild(restoreButton);
-      }
-
-      if (hostel.status === 'Approved') {
+      } else {
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
         removeButton.className = 'reject-button';
@@ -278,13 +277,13 @@ document.addEventListener('DOMContentLoaded', () => {
   async function removeHostel(hostelId) {
     if (busy) return;
     const hostel = hostels.find((item) => item.id === hostelId);
-    if (!hostel || hostel.status !== 'Approved') {
-      showToast('Only approved listings can be removed this way.');
+    if (!hostel || hostel.status === 'Removed' || hostel.status === 'Inactive') {
+      showToast('This listing is already inactive. Use Restore to make it active again.');
       return;
     }
 
     const confirmed = window.confirm(
-      'Remove "' + hostel.name + '" from public listings? Students will no longer see it. Its record and inspection history will be preserved.'
+      'Remove "' + hostel.name + '" from public listings? Students will no longer see it. Its approval status, record and inspection history will be preserved.'
     );
     if (!confirmed) return;
 
@@ -306,11 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function restoreHostel(hostelId) {
     if (busy) return;
     const hostel = hostels.find((item) => item.id === hostelId);
-    if (!hostel || hostel.status !== 'Removed') {
-      showToast('Only hostels removed by an administrator can be restored here.');
+    if (!hostel || (hostel.status !== 'Removed' && hostel.status !== 'Inactive')) {
+      showToast('This listing is already active.');
       return;
     }
-    if (!window.confirm('Restore "' + hostel.name + '" to public listings? It will become visible to students again.')) return;
+    if (!window.confirm('Restore "' + hostel.name + '" to an active state? It will only be visible publicly if its approval status allows publication.')) return;
 
     busy = true;
     try {
