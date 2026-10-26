@@ -330,11 +330,14 @@ router.patch('/inspections/:id/status', requireAuth, requireRole('agent'), async
   }
 });
 
+// Public detail lookup accepts either a hostel slug or its UUID. Frontend
+// links may carry either identifier, so reporting and booking work consistently.
 router.get('/hostels/:slug', async (req, res, next) => {
   try {
     const result = await pool.query(
-      hostelSelect + ` WHERE slug=$1 AND approval_status='approved'
-        AND is_active=true AND deleted_at IS NULL LIMIT 1`,
+      hostelSelect + ` WHERE (slug=$1 OR id::text=$1)
+        AND approval_status='approved' AND is_active=true
+        AND deleted_at IS NULL LIMIT 1`,
       [req.params.slug]
     );
     if (!result.rowCount) return res.status(404).json({ error: { code: 'HOSTEL_NOT_FOUND', message: 'This hostel listing was not found.' } });
