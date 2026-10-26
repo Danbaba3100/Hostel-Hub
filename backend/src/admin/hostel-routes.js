@@ -14,8 +14,10 @@ const reviewSchema = z.object({
 }).strict();
 
 function toAdminHostel(row) {
-  const status = (!row.is_active || row.deleted_at)
+  const status = row.admin_removed_at
     ? 'Removed'
+    : (!row.is_active || row.deleted_at)
+      ? 'Inactive'
     : ({
         approved: 'Approved',
         pending: 'Under Review',
@@ -321,7 +323,7 @@ router.get('/hostels', requireAuth, requireRole('admin'), async (req, res, next)
       `SELECT h.id, h.slug, h.name, h.description, h.location, h.address,
               h.price_ngn, h.room_type, h.occupancy, h.units_available,
               h.distance_from_campus, h.facilities, h.video_url,
-              h.availability_status, h.approval_status, h.is_active,
+              h.availability_status, h.approval_status, h.is_active, h.admin_removed_at,
               h.reviewed_at, h.rejection_reason, h.created_at,
               u.full_name AS agent_name, u.email AS agent_email, u.phone AS agent_phone
        FROM hostels h
@@ -459,7 +461,7 @@ router.delete('/hostels/:id', requireAuth, requireRole('admin'), async (req, res
     }
 
     await client.query(
-      'UPDATE hostels SET is_active = false, updated_at = now() WHERE id = $1',
+      'UPDATE hostels SET is_active = false, admin_removed_at = now(), updated_at = now() WHERE id = $1',
       [req.params.id]
     );
     await client.query(
@@ -472,6 +474,52 @@ router.delete('/hostels/:id', requireAuth, requireRole('admin'), async (req, res
     return res.json({
       message: 'Hostel removed from public listings. Its record and inspection history have been preserved.'
     });
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+
+router.patch('/hostels/:id/restore', requireAuth, requireRole('admin'), async (req, res, next) => {
+  if (!z.string().uuid().safeParse(req.params.id).success) {
+    return res.status(400).json({ error: { code: 'INVALID_ID', message: 'The hostel ID is invalid.' } });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const current = await client.query(
+      'SELECT id, name, approval_status, admin_removed_at FROM hostels WHERE id = $1 AND deleted_at IS NULL FOR UPDATE',
+      [req.params.id]
+    );
+    if (!current.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: { code: 'HOSTEL_NOT_FOUND', message: 'That hostel listing was not found.' } });
+    }
+    const hostel = current.rows[0];
+    if (!hostel.admin_removed_at) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: { code: 'HOSTEL_NOT_REMOVED_BY_ADMIN', message: 'This hostel was not removed by an administrator.' } });
+    }
+    if (hostel.approval_status !== 'approved') {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: { code: 'HOSTEL_NOT_APPROVED', message: 'This hostel is not approved and cannot be restored to public listings.' } });
+    }
+
+    await client.query(
+      'UPDATE hostels SET is_active = true, admin_removed_at = NULL, updated_at = now() WHERE id = $1',
+      [req.params.id]
+    );
+    await client.query(
+      `INSERT INTO audit_logs (actor_user_id, action, entity_type, entity_id, metadata)
+       VALUES ($1, 'hostel.restored_to_public_listings', 'hostel', $2, $3::jsonb)`,
+      [req.user.id, req.params.id, JSON.stringify({ name: hostel.name })]
+    );
+    await client.query('COMMIT');
+    return res.json({ message: 'Hostel restored to public listings.', hostelId: req.params.id });
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch (_) {}
     return next(error);
