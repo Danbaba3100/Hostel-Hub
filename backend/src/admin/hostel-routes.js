@@ -12,11 +12,13 @@ const reviewSchema = z.object({
 }).strict();
 
 function toAdminHostel(row) {
-  const status = ({
-    approved: 'Approved',
-    pending: 'Under Review',
-    rejected: 'Rejected'
-  })[row.approval_status] || 'Under Review';
+  const status = (!row.is_active || row.deleted_at)
+    ? 'Removed'
+    : ({
+        approved: 'Approved',
+        pending: 'Under Review',
+        rejected: 'Rejected'
+      })[row.approval_status] || 'Under Review';
 
   return {
     id: row.id,
@@ -148,6 +150,58 @@ router.patch('/hostels/:id/review', requireAuth, requireRole('admin'), async (re
       message: status === 'approved'
         ? 'Hostel approved and now eligible to appear publicly.'
         : 'Hostel rejected. It will remain hidden from public listings.'
+    });
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    return next(error);
+  } finally {
+    client.release();
+  }
+});
+
+
+router.delete('/hostels/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
+  if (!z.string().uuid().safeParse(req.params.id).success) {
+    return res.status(400).json({
+      error: { code: 'INVALID_ID', message: 'The hostel ID is invalid.' }
+    });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const current = await client.query(
+      'SELECT id, name, approval_status, is_active FROM hostels WHERE id = $1 AND deleted_at IS NULL FOR UPDATE',
+      [req.params.id]
+    );
+
+    if (!current.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({
+        error: { code: 'HOSTEL_NOT_FOUND', message: 'That hostel listing was not found or has already been removed.' }
+      });
+    }
+
+    if (!current.rows[0].is_active) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: { code: 'HOSTEL_ALREADY_REMOVED', message: 'This hostel has already been removed from public listings.' }
+      });
+    }
+
+    await client.query(
+      'UPDATE hostels SET is_active = false, updated_at = now() WHERE id = $1',
+      [req.params.id]
+    );
+    await client.query(
+      `INSERT INTO audit_logs (actor_user_id, action, entity_type, entity_id, metadata)
+       VALUES ($1, 'hostel.removed_from_public_listings', 'hostel', $2, $3::jsonb)`,
+      [req.user.id, req.params.id, JSON.stringify({ name: current.rows[0].name })]
+    );
+    await client.query('COMMIT');
+
+    return res.json({
+      message: 'Hostel removed from public listings. Its record and inspection history have been preserved.'
     });
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch (_) {}
