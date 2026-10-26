@@ -116,10 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function isValidPhone(phone) {
-    const cleaned = phone.replace(/[\\s()-]/g, '');
-    return /^\\+?\\d{7,15}$/.test(cleaned);
+    const cleaned = phone.replace(/[\s()-]/g, '');
+    return /^\+?\d{7,15}$/.test(cleaned);
   }
-
   function isValidWebsite(value) {
     if (!value) return true;
     try {
