@@ -1,32 +1,46 @@
-/* Hostel Hub - public report form connected to the reports API */
-document.addEventListener("DOMContentLoaded", () => {
+/* Hostel Hub - public listing report form connected to the reports API */
+document.addEventListener("DOMContentLoaded", async () => {
     "use strict";
 
-    const API = "http://localhost:4000/api";
+    const API = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
     const reportForm = document.getElementById("reportForm");
     const hostelName = document.getElementById("hostelName");
     const hostelLocation = document.getElementById("hostelLocation");
     const submitReport = document.getElementById("submitReport");
     const buttonText = document.getElementById("buttonText");
     const buttonSpinner = document.getElementById("buttonSpinner");
-
-    const hostelData = {
-        "royal-court": { name: "Royal Court Hostel", location: "Oke-Baale, Osogbo" },
-        "peace-lodge": { name: "Peace Lodge", location: "Alekuwodo, Osogbo" },
-        "green-view": { name: "Green View Hostel", location: "Lameco, Osogbo" },
-        "sunrise": { name: "Sunrise Hostel", location: "Ogo-Oluwa, Osogbo" }
-    };
-
     const urlParams = new URLSearchParams(window.location.search);
-    const hostelId = urlParams.get("hostel");
-    const selectedHostel = hostelData[hostelId];
+    const hostelKey = urlParams.get("hostel") || urlParams.get("id");
+    let selectedHostel = null;
+    let listingLoadFailed = false;
 
-    if (selectedHostel) {
-        hostelName.textContent = selectedHostel.name;
-        hostelLocation.textContent = selectedHostel.location;
+    if (!reportForm || !hostelName || !hostelLocation || !submitReport) return;
+
+    if (hostelKey) {
+        hostelName.textContent = "Loading selected listing…";
+        hostelLocation.textContent = "Please wait while we verify this hostel.";
+        submitReport.disabled = true;
+        try {
+            const response = await fetch(API + "/hostels/" + encodeURIComponent(hostelKey), {
+                headers: { Accept: "application/json" }
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || !payload.hostel || !payload.hostel.id) {
+                throw new Error(payload.error?.message || "This listing could not be found.");
+            }
+            selectedHostel = payload.hostel;
+            hostelName.textContent = selectedHostel.name || "Selected hostel";
+            hostelLocation.textContent = selectedHostel.location || selectedHostel.address || "Location not specified";
+        } catch (error) {
+            listingLoadFailed = true;
+            hostelName.textContent = "Listing unavailable";
+            hostelLocation.textContent = error.message || "Please return to the homepage and select the listing again.";
+        } finally {
+            submitReport.disabled = listingLoadFailed;
+        }
     } else {
-        hostelName.textContent = "Hostel listing";
-        hostelLocation.textContent = "Listing not specified";
+        hostelName.textContent = "General report";
+        hostelLocation.textContent = "No specific listing selected";
     }
 
     const reasonLabels = {
@@ -41,6 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     reportForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        if (listingLoadFailed) {
+            alert("This listing could not be verified. Return to the homepage and select the listing again.");
+            return;
+        }
 
         const reason = document.getElementById("reportReason").value;
         const details = document.getElementById("reportDetails").value.trim();
@@ -52,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Please complete all required fields and provide at least 10 characters describing the issue.");
             return;
         }
-
         if (!/^[0-9+()\-\s]{7,25}$/.test(phone)) {
             alert("Please enter a valid phone number.");
             return;
@@ -62,10 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
             : reason === "agent-issue" ? "agent"
             : reason === "other" ? "other"
             : "hostel";
-        const targetType = reason === "agent-issue" ? "agent" : "hostel";
+        const targetType = selectedHostel ? "hostel" : (reason === "agent-issue" ? "agent" : "other");
         const reportedAgainst = selectedHostel
             ? selectedHostel.name
-            : (targetType === "agent" ? "Agent report" : "Hostel listing");
+            : (targetType === "agent" ? "Agent report" : "General report");
 
         submitReport.disabled = true;
         submitReport.classList.add("loading");
@@ -75,12 +92,12 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(API + "/reports", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
                 body: JSON.stringify({
                     subject: "Report: " + reasonLabels[reason],
                     description: details,
                     targetType,
-                    targetId: hostelId || "",
+                    targetId: selectedHostel ? selectedHostel.id : "",
                     reportedAgainst,
                     category,
                     reporterName: name,
@@ -92,11 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!response.ok) {
                 throw new Error(payload?.error?.message || "Your report could not be submitted. Please try again.");
             }
-
             alert("Thank you. Your report has been submitted for review. Reference code: " + payload.report.referenceCode);
             reportForm.reset();
         } catch (error) {
-            alert(error.message || "Unable to connect to Hostel Hub. Please make sure the service is available and try again.");
+            alert(error.message || "Unable to connect to Hostel Hub. Please try again.");
         } finally {
             submitReport.disabled = false;
             submitReport.classList.remove("loading");
