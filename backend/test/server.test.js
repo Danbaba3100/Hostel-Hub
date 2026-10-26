@@ -30,3 +30,16 @@ test('unknown routes return a safe JSON 404', async () => {
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
+
+test('admin hostel review endpoints require authentication', async () => {
+  const server = app.listen(0);
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/admin/hostels`);
+    assert.equal(response.status, 401);
+    const body = await response.json();
+    assert.equal(body.error.code, 'AUTH_REQUIRED');
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});

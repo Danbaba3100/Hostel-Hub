@@ -93,9 +93,9 @@
                 <div class="panel-heading">
                     <div>
                         <h2>All Listings</h2>
-                        <p>Search listings and review their current status.</p>
+                        <p>Live listings from the database. Approve or reject pending submissions.</p>
                     </div>
-                    <span class="demo-label">DEMO DATA</span>
+                    
                 </div>
 
                 <div class="filters">
@@ -111,6 +111,7 @@
                         <option value="Under Review">Under Review</option>
                         <option value="Approved">Approved</option>
                         <option value="Rejected">Rejected</option>
+                        <option value="Removed">Removed from listings</option>
                     </select>
 
                     <select id="locationFilter" aria-label="Filter by location">
@@ -155,7 +156,7 @@
             </section>
 
             <footer class="footer">
-                Hostel Hub Admin Panel · Demo version
+                Hostel Hub Admin Panel · Live listing review
             </footer>
         </div>
     </main>
@@ -179,7 +180,7 @@
                   placeholder="Optional note about this decision..."></textarea>
 
         <p class="modal-warning">
-            Demo only: decisions are not saved to a server.
+            Rejected listings remain hidden from public visitors. Approved, active listings can appear publicly.
         </p>
 
         <div class="modal-actions">
@@ -192,7 +193,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="js/admin-hostels.js"></script>
+<script src="Js/admin-hostels.js"></script>
 </body>
 </html>
 ```
