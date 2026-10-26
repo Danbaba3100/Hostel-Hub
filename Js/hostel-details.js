@@ -107,7 +107,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       bookingButton.hidden = false;
     }
     if (reportLink) {
-      reportLink.href = 'report.html?hostel=' + encodeURIComponent(hostel.id);
+      // Keep the same identifier that successfully loaded this listing. The report page
+      // resolves this key through GET /hostels/:key, then submits the canonical hostel.id.
+      reportLink.href = 'report.html?hostel=' + encodeURIComponent(hostelKey);
       reportLink.hidden = false;
     }
   } catch (error) {
