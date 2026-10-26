@@ -5,6 +5,8 @@
 - `POST /api/auth/register` — public registration creates **agent accounts only**.
 - `POST /api/auth/login` — signs an agent or administrator in.
 - `GET /api/auth/me` — returns the current active account; requires `Authorization: Bearer <accessToken>`.
+- `GET /api/auth/profile` — returns the signed-in agent's profile fields; requires a bearer token.
+- `PATCH /api/auth/profile` — validates and saves the signed-in agent's profile to PostgreSQL; agents can only edit their own profile.
 
 Access tokens expire after 15 minutes by default. Configure `JWT_SECRET` as a random secret with at least 32 bytes. Keep it private and rotate it if exposed. Never commit it to Git.
 
