@@ -138,11 +138,48 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
+  // The homepage has a grid but no search/filter controls. Keep it focused on
+  // the three newest approved listings; the Find Hostels page shows all listings.
+  const isHomepage = !search && !locationFilter && !priceFilter && !roomFilter;
+
+  function getListingDate(hostel) {
+    const value = hostel.createdAt || hostel.created_at ||
+      hostel.approvedAt || hostel.approved_at ||
+      hostel.updatedAt || hostel.updated_at;
+    if (!value) return null;
+    const timestamp = Date.parse(value);
+    return Number.isNaN(timestamp) ? null : timestamp;
+  }
+
   function render() {
     const filtered = hostels.filter(matchesFilters);
-    grid.replaceChildren(...filtered.map(createCard));
-    count.textContent = 'Showing ' + filtered.length + ' ' + (filtered.length === 1 ? 'hostel' : 'hostels');
-    emptyState.style.display = filtered.length ? 'none' : 'block';
+
+    // Sort newest-first when the API provides a listing timestamp. If it does
+    // not, preserve the API's order, which is the source order for listings.
+    const ordered = filtered.map((hostel, index) => ({
+      hostel,
+      index,
+      timestamp: getListingDate(hostel)
+    }));
+
+    if (ordered.some((item) => item.timestamp !== null)) {
+      ordered.sort((a, b) => {
+        if (a.timestamp === null && b.timestamp === null) return a.index - b.index;
+        if (a.timestamp === null) return 1;
+        if (b.timestamp === null) return -1;
+        return b.timestamp - a.timestamp;
+      });
+    }
+
+    const visibleHostels = isHomepage
+      ? ordered.slice(0, 3).map((item) => item.hostel)
+      : ordered.map((item) => item.hostel);
+
+    grid.replaceChildren(...visibleHostels.map(createCard));
+    count.textContent = isHomepage
+      ? 'Showing ' + visibleHostels.length + ' featured ' + (visibleHostels.length === 1 ? 'hostel' : 'hostels')
+      : 'Showing ' + visibleHostels.length + ' ' + (visibleHostels.length === 1 ? 'hostel' : 'hostels');
+    emptyState.style.display = visibleHostels.length ? 'none' : 'block';
   }
 
   function applyUrlFilters() {
