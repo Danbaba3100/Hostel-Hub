@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       show("Your agent account is active. Opening your dashboard…");
       window.setTimeout(()=>window.location.assign("agent-dashboard.html"),700);
     } catch(error) {
-      show(error instanceof TypeError ? "Cannot reach the Hostel Hub API. Make sure the backend is running on port 4000." : error.message,true);
+      show(error instanceof TypeError ? "Cannot reach the live Hostel Hub service. Please try again in a moment." : error.message,true);
     } finally {
       button.disabled=false; button.classList.remove("is-loading"); button.setAttribute("aria-busy","false");
     }
