@@ -433,3 +433,22 @@ tbody tr:hover { background: #fbfdfc; }
     .filters select { flex-basis: 100%; width: 100%; }
     .modal { padding: 17px; }
 }
+
+
+/* Admin-created listing form */
+.create-hostel-modal { width: min(760px, calc(100vw - 28px)); max-height: 90vh; overflow-y: auto; }
+.create-hostel-note { color: var(--text); margin: -4px 0 16px; }
+.create-hostel-form { display: grid; gap: 9px; }
+.create-hostel-form input, .create-hostel-form select, .create-hostel-form textarea {
+    width: 100%; min-width: 0; padding: 10px 11px; border: 1px solid var(--border);
+    border-radius: 7px; background: #fff; color: var(--text-dark);
+}
+.create-hostel-form input[type="file"] { padding: 8px; }
+.create-hostel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.create-hostel-grid > div { min-width: 0; }
+.create-hostel-help { color: var(--text); margin-top: -6px; }
+.create-hostel-form .modal-actions { margin-top: 10px; }
+@media (max-width: 600px) {
+    .create-hostel-grid { grid-template-columns: 1fr; }
+    .create-hostel-modal { padding: 18px; }
+}
