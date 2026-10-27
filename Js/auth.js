@@ -167,7 +167,7 @@
       }, 700);
     } catch (error) {
       if (error instanceof TypeError) {
-        showMessage('Cannot reach the Hostel Hub API. Make sure the backend is running at http://localhost:4000 and try again.', 'error');
+        showMessage('Cannot reach the Hostel Hub API. Make sure the backend is running at https://hostel-hub-api-a4ie.onrender.com and try again.', 'error');
       } else {
         showMessage(error.message || 'Something went wrong. Please try again.', 'error');
       }
