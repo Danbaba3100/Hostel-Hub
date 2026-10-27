@@ -332,6 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTable();
   }
 
+  // Allow the admin-create-hostel form to refresh the existing listing table after saving.
+  window.refreshAdminHostels = loadHostels;
+
   function clearFilters() {
     searchInput.value = '';
     statusFilter.value = 'all';
