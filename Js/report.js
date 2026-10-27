@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
     "use strict";
 
-    const API = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+    const API = window.HOSTEL_HUB_API_BASE || "https://hostel-hub-api-a4ie.onrender.com/api";
     const reportForm = document.getElementById("reportForm");
     const hostelName = document.getElementById("hostelName");
     const hostelLocation = document.getElementById("hostelLocation");
