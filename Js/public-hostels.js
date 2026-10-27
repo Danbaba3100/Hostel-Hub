@@ -1,7 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE = window.HOSTEL_HUB_API_BASE || 'http://localhost:4000/api';
+  const API_BASE = window.HOSTEL_HUB_API_BASE || 'https://hostel-hub-api-a4ie.onrender.com/api';
   const grid = document.getElementById('hostelGrid');
   const count = document.getElementById('resultsCount');
   const emptyState = document.getElementById('emptyState');
