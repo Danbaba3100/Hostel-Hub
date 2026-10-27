@@ -1,7 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const PROFILE_KEY = "hostelHubAgentProfile";
-  const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+  const API_BASE = "https://hostel-hub-api-a4ie.onrender.com/api";
   const TOKEN_KEY = "hostelHubAccessToken";
   const USER_KEY = "hostelHubUser";
 
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       response = await fetch(API_BASE + path, { ...options, headers });
     } catch {
-      throw new Error("Cannot reach the Hostel Hub API. Make sure the backend is running.");
+      throw new Error("Cannot reach the live Hostel Hub service. Please try again in a moment.");
     }
 
     if (response.status === 401) {
