@@ -8,23 +8,14 @@ Node.js + Express + PostgreSQL API for the existing Hostel Hub static frontend. 
 - PostgreSQL 14 or newer
 - npm
 
-## Local setup
+## Live deployment
 
-From the repository root:
-
-1. Create a PostgreSQL database named `hostel_hub`.
-2. Copy `.env.example` to `.env` and set `DATABASE_URL` to your local database connection string.
-3. Install dependencies: `cd backend && npm install`
-4. Return to the repository root before running the backend, so dotenv loads the root `.env`.
-5. Run migrations: `cd backend && npm run migrate`
-6. Start the API: `npm run dev`
-7. Check `http://localhost:4000/api/health`.
-
-Example database creation command (run in a PostgreSQL terminal as a database administrator):
-
-```sql
-CREATE DATABASE hostel_hub;
-```
+- Public website: `https://hostel-hub-frontend.onrender.com`
+- API health endpoint: `https://hostel-hub-api-a4ie.onrender.com/api/health`
+- Production API and database run on Render and Neon; end users do not need Node.js, PostgreSQL, or a local server on their computers.
+- Set production environment variables and secrets in Render. Do not commit real credentials or connect production to a personal computer.
+- The Render build command applies the SQL migrations before starting the API.
+- Local development and automated tests are separate from the live deployment.
 
 ## Phase 1 delivered
 
