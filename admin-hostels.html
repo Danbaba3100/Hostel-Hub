@@ -104,7 +104,9 @@
                         <h2>All Listings</h2>
                         <p>Live listings from the database. Approve or reject pending submissions.</p>
                     </div>
-                    
+                    <button class="approve-button" id="addHostelForAgentButton" type="button">
+                        <i data-lucide="plus"></i> Add Hostel for Agent
+                    </button>
                 </div>
 
                 <div class="filters">
@@ -172,6 +174,48 @@
     </main>
 </div>
 
+<!-- Admin creates a listing on behalf of an agent -->
+<div class="modal-backdrop" id="createHostelModal" hidden>
+    <section class="modal create-hostel-modal" role="dialog" aria-modal="true" aria-labelledby="createHostelTitle">
+        <div class="modal-heading">
+            <div><span class="eyebrow">ADMIN LISTING</span><h2 id="createHostelTitle">Add Hostel for Agent</h2></div>
+            <button class="icon-button" id="closeCreateHostel" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <p class="create-hostel-note">Choose the agent who owns this listing. It will be approved and published immediately.</p>
+        <form id="createHostelForm" class="create-hostel-form">
+            <label class="field-label" for="createAgentId">Agent owner *</label>
+            <select id="createAgentId" required><option value="">Loading agents...</option></select>
+            <div class="create-hostel-grid">
+                <div><label class="field-label" for="createHostelName">Hostel name *</label><input id="createHostelName" required minlength="3" maxlength="180"></div>
+                <div><label class="field-label" for="createHostelLocation">Location / area *</label><input id="createHostelLocation" required maxlength="180" placeholder="e.g. Oke-Baale"></div>
+                <div><label class="field-label" for="createHostelAddress">Full address</label><input id="createHostelAddress" maxlength="1000"></div>
+                <div><label class="field-label" for="createHostelPrice">Annual rent (₦) *</label><input id="createHostelPrice" type="number" min="0" max="100000000000" step="1" required></div>
+                <div><label class="field-label" for="createHostelType">Room type *</label><input id="createHostelType" required maxlength="80" placeholder="e.g. Self-contained"></div>
+                <div><label class="field-label" for="createHostelRooms">Available units *</label><input id="createHostelRooms" type="number" min="1" max="10000" step="1" required></div>
+                <div><label class="field-label" for="createHostelDistance">Distance from campus</label><input id="createHostelDistance" maxlength="100"></div>
+                <div><label class="field-label" for="createHostelAvailability">Availability *</label><select id="createHostelAvailability"><option value="available">Available</option><option value="limited">Limited availability</option><option value="unavailable">Fully occupied</option></select></div>
+                <div><label class="field-label" for="createCautionFee">Caution fee (₦)</label><input id="createCautionFee" type="number" min="0" step="1" value="0"></div>
+                <div><label class="field-label" for="createAgencyFee">Agency fee (₦)</label><input id="createAgencyFee" type="number" min="0" step="1" value="0"></div>
+                <div><label class="field-label" for="createAgreementFee">Agreement fee (₦)</label><input id="createAgreementFee" type="number" min="0" step="1" value="0"></div>
+                <div><label class="field-label" for="createServiceCharge">Service charge (₦)</label><input id="createServiceCharge" type="number" min="0" step="1" value="0"></div>
+            </div>
+            <label class="field-label" for="createHostelDescription">Description *</label>
+            <textarea id="createHostelDescription" rows="3" minlength="10" maxlength="5000" required></textarea>
+            <label class="field-label" for="createHostelFacilities">Facilities (comma-separated)</label>
+            <input id="createHostelFacilities" placeholder="Water, electricity, security">
+            <label class="field-label" for="createHostelVideoFile">Hostel video walkthrough *</label>
+            <input id="createHostelVideoFile" type="file" accept="video/*">
+            <small class="create-hostel-help">Or paste an existing hosted video URL below. Video-only listings are supported.</small>
+            <label class="field-label" for="createHostelVideoUrl">Existing video URL</label>
+            <input id="createHostelVideoUrl" type="url" placeholder="https://...">
+            <div class="modal-actions">
+                <button class="secondary-button" id="cancelCreateHostel" type="button">Cancel</button>
+                <button class="approve-button" id="saveCreateHostel" type="submit">Create &amp; Publish Hostel</button>
+            </div>
+        </form>
+    </section>
+</div>
+
 <!-- Listing review modal -->
 <div class="modal-backdrop" id="reviewModal" hidden>
     <section class="modal" role="dialog" aria-modal="true"
@@ -204,6 +248,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="Js/admin-hostels.js"></script>
+<script src="Js/admin-create-hostel.js"></script>
 </body>
 </html>
 ```
