@@ -452,3 +452,78 @@ tbody tr:hover { background: #fbfdfc; }
     .create-hostel-grid { grid-template-columns: 1fr; }
     .create-hostel-modal { padding: 18px; }
 }
+
+
+/* Admin create-hostel modal: match the Agent My Listings form styling */
+#createHostelModal[hidden] { display: none !important; }
+#createHostelModal.modal-backdrop {
+    position: fixed; inset: 0; z-index: 150; display: flex; align-items: center; justify-content: center;
+    padding: 20px; background: rgba(18, 30, 52, .5);
+}
+#createHostelModal .admin-create-modal {
+    display: flex; width: min(760px, 100%); height: min(900px, calc(100vh - 40px));
+    max-height: calc(100vh - 40px); min-height: 0; flex-direction: column; overflow: hidden;
+    border: 0; border-radius: 14px; background: #fff; color: #25334c;
+    box-shadow: 0 18px 55px rgba(20, 35, 65, .2); font-family: "DM Sans", sans-serif;
+}
+#createHostelModal .admin-create-modal > form { display: flex; min-height: 0; flex: 1 1 auto; flex-direction: column; overflow: hidden; }
+#createHostelModal .modal-header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
+    padding: 22px 25px; border-bottom: 1px solid #e6eaf1;
+}
+#createHostelModal .modal-header .eyebrow { display: block; margin-bottom: 5px; color: #8a95aa; font-size: 9px; font-weight: 700; letter-spacing: 1.2px; }
+#createHostelModal .modal-header h2 { margin: 0 0 7px; color: #202d44; font: 800 19px "Manrope", sans-serif; }
+#createHostelModal .modal-header p { margin: 0; color: #7b879b; font-size: 11px; line-height: 1.6; }
+#createHostelModal .modal-close {
+    display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center;
+    border: 1px solid #e6eaf1; border-radius: 8px; color: #64718a; background: #fff; font-size: 23px;
+}
+#createHostelModal .modal-body { flex: 1 1 auto; min-height: 0; padding: 0 25px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+#createHostelModal .form-section { padding: 23px 0; border-bottom: 1px solid #edf0f5; }
+#createHostelModal .form-section h3 { margin: 0 0 16px; color: #202d44; font: 800 13px "Manrope", sans-serif; }
+#createHostelModal .section-description { margin: -8px 0 15px; color: #7b879b; font-size: 10px; line-height: 1.6; }
+#createHostelModal .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+#createHostelModal .form-field { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
+#createHostelModal .full-field { grid-column: 1 / -1; }
+#createHostelModal .form-field > label { color: #43516a; font-size: 11px; font-weight: 700; }
+#createHostelModal .form-field label > span { color: #c33c4b; }
+#createHostelModal .form-field input:not([type="checkbox"]), #createHostelModal .form-field select, #createHostelModal .form-field textarea {
+    width: 100%; min-width: 0; border: 1px solid #dfe4ed; border-radius: 8px; outline: none;
+    color: #25334c; background: #fff; font-family: "DM Sans", sans-serif; font-size: 11px;
+    transition: border-color .2s, box-shadow .2s;
+}
+#createHostelModal .form-field input:not([type="checkbox"]), #createHostelModal .form-field select { min-height: 41px; padding: 0 11px; }
+#createHostelModal .form-field input[type="file"] { padding: 9px 10px; }
+#createHostelModal .form-field textarea { min-height: 95px; padding: 11px; resize: vertical; line-height: 1.7; }
+#createHostelModal .form-field input:focus, #createHostelModal .form-field select:focus, #createHostelModal .form-field textarea:focus { border-color: #8ca9f8; box-shadow: 0 0 0 3px rgba(36,87,214,.08); }
+#createHostelModal .form-field input::placeholder, #createHostelModal .form-field textarea::placeholder { color: #a5adbb; }
+#createHostelModal .form-field small { color: #8d98aa; font-size: 10px; line-height: 1.6; }
+#createHostelModal .cost-preview { display: flex; flex-direction: column; gap: 7px; padding: 16px; border: 1px solid #dce7ff; border-radius: 10px; background: #f1f6ff; }
+#createHostelModal .cost-preview > span { color: #52688e; font-size: 11px; }
+#createHostelModal .cost-preview strong { color: #2457d6; font: 800 24px "Manrope", sans-serif; }
+#createHostelModal .cost-preview small { color: #7182a0; font-size: 10px; }
+#createHostelModal .facilities-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#createHostelModal .facilities-grid label { display: flex; align-items: center; gap: 9px; color: #58667e; font-size: 11px; line-height: 1.5; }
+#createHostelModal .facilities-grid input { width: 15px; height: 15px; accent-color: #2457d6; }
+#createHostelModal .selected-files { display: flex; flex-wrap: wrap; gap: 7px; }
+#createHostelModal .selected-file { padding: 7px 9px; border: 1px solid #dfe7fa; border-radius: 7px; color: #52688e; background: #f5f8ff; font-size: 10px; overflow-wrap: anywhere; }
+#createHostelModal .modal-notice { display: flex; align-items: flex-start; gap: 10px; margin: 20px 0; padding: 13px; border: 1px solid #dce7ff; border-radius: 9px; background: #f2f6ff; }
+#createHostelModal .modal-notice > span { color: #2457d6; font-size: 16px; }
+#createHostelModal .modal-notice p { margin: 0; color: #61769e; font-size: 10px; line-height: 1.7; }
+#createHostelModal .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 25px; border-top: 1px solid #e6eaf1; background: #fff; }
+#createHostelModal .modal-actions .btn { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 1px solid transparent; border-radius: 8px; font: 700 11px "DM Sans", sans-serif; cursor: pointer; }
+#createHostelModal .modal-actions .btn-outline { border-color: #dfe4ee; color: #53617b; background: #fff; }
+#createHostelModal .modal-actions .btn-primary { color: #fff; background: #2457d6; }
+#createHostelModal .modal-actions .btn:disabled { opacity: .65; cursor: wait; }
+@media (max-width: 560px) {
+    #createHostelModal.modal-backdrop { align-items: flex-end; padding: 0; }
+    #createHostelModal .admin-create-modal { width: 100%; max-height: 94vh; border-radius: 15px 15px 0 0; }
+    #createHostelModal .modal-header { padding: 18px 16px; }
+    #createHostelModal .modal-header h2 { font-size: 16px; }
+    #createHostelModal .modal-body { padding: 0 16px; }
+    #createHostelModal .form-grid { grid-template-columns: 1fr; gap: 14px; }
+    #createHostelModal .full-field { grid-column: auto; }
+    #createHostelModal .facilities-grid { grid-template-columns: 1fr 1fr; gap: 13px 8px; }
+    #createHostelModal .modal-actions { padding: 13px 16px; }
+    #createHostelModal .modal-actions .btn { flex: 1; }
+}
