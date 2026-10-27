@@ -180,7 +180,7 @@ router.post('/agents/invitations', requireAuth, requireRole('admin'), async (req
        VALUES ($1, 'agent_invitation_created', 'agent_invitation', $2, $3::jsonb)`,
       [req.user.id, result.rows[0].id, JSON.stringify({ email })]
     );
-    const frontendBase = (process.env.FRONTEND_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+    const frontendBase = (process.env.FRONTEND_BASE_URL || 'https://hostel-hub-frontend.onrender.com').replace(/\/$/, '');
     return res.status(201).json({
       message: 'Invitation created. Share this link privately with the intended agent; it expires in 48 hours and can be used once.',
       invitation: {
