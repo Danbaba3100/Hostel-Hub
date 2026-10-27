@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const videoFileInput = $('createHostelVideoFile');
   const videoUrlInput = $('createHostelVideoUrl');
   const toast = $('toast');
+  const feeIds = ['createHostelPrice', 'createCautionFee', 'createAgencyFee', 'createAgreementFee', 'createServiceCharge'];
+
+  function updateCostPreview() {
+    const total = feeIds.reduce((sum, id) => sum + Math.max(0, Number($(id).value) || 0), 0);
+    $('createEstimatedTotalCost').textContent = '₦' + total.toLocaleString('en-NG');
+  }
   let agentsLoaded = false;
   let saving = false;
 
@@ -83,6 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
     $('createAgencyFee').value = '0';
     $('createAgreementFee').value = '0';
     $('createServiceCharge').value = '0';
+    document.querySelectorAll('input[name="createFacilities"]').forEach((input) => { input.checked = false; });
+    $('createSelectedVideo').textContent = '';
+    updateCostPreview();
   }
 
   async function uploadVideoFile(file) {
@@ -139,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       agencyFeeNgn: numberValue('createAgencyFee'),
       agreementFeeNgn: numberValue('createAgreementFee'),
       serviceChargeNgn: numberValue('createServiceCharge'),
-      facilities: $('createHostelFacilities').value.split(',').map((item) => item.trim()).filter(Boolean),
+      facilities: Array.from(document.querySelectorAll('input[name="createFacilities"]:checked')).map((input) => input.value),
       availabilityStatus: $('createHostelAvailability').value
     };
     if (!payload.agentId) {
@@ -147,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
       agentSelect.focus();
       return;
     }
-    const feeIds = ['createHostelPrice', 'createCautionFee', 'createAgencyFee', 'createAgreementFee', 'createServiceCharge'];
     if (feeIds.some((id) => !Number.isSafeInteger(numberValue(id)) || numberValue(id) < 0)) {
       showToast('Rent and fees must be valid non-negative whole amounts.');
       return;
@@ -170,6 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
       $('createAgencyFee').value = '0';
       $('createAgreementFee').value = '0';
       $('createServiceCharge').value = '0';
+      document.querySelectorAll('input[name="createFacilities"]').forEach((input) => { input.checked = false; });
+      $('createSelectedVideo').textContent = '';
+      updateCostPreview();
       showToast(result.message || 'Hostel created and published under the selected agent.');
       if (typeof window.refreshAdminHostels === 'function') {
         await window.refreshAdminHostels();
@@ -194,9 +205,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   videoFileInput?.addEventListener('change', () => {
     const file = videoFileInput.files && videoFileInput.files[0];
-    if (file) videoUrlInput.value = '';
+    if (file) {
+      videoUrlInput.value = '';
+      $('createSelectedVideo').textContent = file.name;
+      $('createSelectedVideo').className = 'selected-files selected-file';
+    } else {
+      $('createSelectedVideo').textContent = '';
+      $('createSelectedVideo').className = 'selected-files';
+    }
   });
   videoUrlInput?.addEventListener('input', () => {
-    if (videoUrlInput.value.trim()) videoFileInput.value = '';
+    if (videoUrlInput.value.trim()) {
+      videoFileInput.value = '';
+      $('createSelectedVideo').textContent = '';
+      $('createSelectedVideo').className = 'selected-files';
+    }
   });
+  feeIds.forEach((id) => $(id)?.addEventListener('input', updateCostPreview));
+  updateCostPreview();
 });
