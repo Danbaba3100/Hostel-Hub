@@ -8,7 +8,7 @@ const router = express.Router();
 const uploadFolder = 'hostel-hub/hostels';
 
 // Returns a short-lived upload signature. The Cloudinary API secret stays on the server.
-router.post('/video-signature', requireAuth, requireRole('agent'), (req, res) => {
+router.post('/video-signature', requireAuth, requireRole('agent', 'admin'), (req, res) => {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
