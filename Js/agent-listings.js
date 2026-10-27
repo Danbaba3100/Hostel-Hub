@@ -767,7 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Edit, deactivate, reactivate, delete
   // -----------------------------------------
 
-  tableBody.addEventListener("click", (event) => {
+  tableBody.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-action]");
 
     if (!button) return;
@@ -786,8 +786,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (action === "toggle") {
-      const previousStatus = listing.status;
+      if (getAccessToken()) {
+        button.disabled = true;
+        try {
+          const isActive = listing.status === "Inactive";
+          const result = await apiRequest(
+            `/hostels/${encodeURIComponent(id)}/availability`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({ isActive })
+            }
+          );
+          const updated = fromApiHostel(result.hostel);
+          const index = listings.findIndex((item) => item.id === id);
+          if (index >= 0) listings[index] = updated;
+          renderListings();
+          showToast(isActive
+            ? "Listing reactivated and sent for admin approval."
+            : "Listing deactivated.");
+        } catch (error) {
+          showToast(error.message || "Could not update this listing.");
+        } finally {
+          button.disabled = false;
+        }
+        return;
+      }
 
+      const previousStatus = listing.status;
       listing.status = previousStatus === "Inactive"
         ? "Pending Approval"
         : "Inactive";
@@ -798,25 +823,39 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       renderListings();
-
       showToast(
         listing.status === "Inactive"
           ? "Listing deactivated."
           : "Listing reactivated and sent for admin approval."
       );
-
       return;
     }
 
     if (action === "delete") {
       const confirmed = window.confirm(
-        `Delete "${listing.name}"? This removes it from the saved listings in this browser.`
+        `Delete "${listing.name}"? This will remove the listing from Hostel Hub.`
       );
 
       if (!confirmed) return;
 
-      const previousListings = [...listings];
+      if (getAccessToken()) {
+        button.disabled = true;
+        try {
+          await apiRequest(`/hostels/${encodeURIComponent(id)}`, {
+            method: "DELETE"
+          });
+          listings = listings.filter((item) => item.id !== id);
+          renderListings();
+          showToast("Your hostel listing has been deleted.");
+        } catch (error) {
+          showToast(error.message || "Could not delete this listing.");
+        } finally {
+          button.disabled = false;
+        }
+        return;
+      }
 
+      const previousListings = [...listings];
       listings = listings.filter((item) => item.id !== id);
 
       if (!saveListings()) {
@@ -826,7 +865,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       renderListings();
-      showToast("Listing deleted.");
+      showToast("Listing deleted from this browser preview.");
     }
   });
 
