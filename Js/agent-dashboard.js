@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       response = await fetch(API_BASE + path, Object.assign({}, settings, { headers }));
     } catch (error) {
-      throw new Error('Cannot reach the Hostel Hub API. Start the backend at http://localhost:4000 and try again.');
+      throw new Error('Cannot reach the Hostel Hub API. Start the backend at https://hostel-hub-api-a4ie.onrender.com and try again.');
     }
 
     if (response.status === 401) {
