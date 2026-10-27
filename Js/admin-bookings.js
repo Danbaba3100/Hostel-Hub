@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+    const API_BASE = window.HOSTEL_HUB_API_BASE || "https://hostel-hub-api-a4ie.onrender.com/api";
     const TOKEN_KEY = "hostelHubAccessToken";
     const USER_KEY = "hostelHubUser";
     let bookings = [];
