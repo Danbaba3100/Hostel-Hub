@@ -17,10 +17,16 @@ const { assertJwtSecret } = require('./src/auth/tokens');
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
-const allowedOrigins = (process.env.CORS_ORIGINS || '')
+const configuredOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+// Always allow the production static frontend, even if CORS_ORIGINS was
+// recently edited in Render. Keep all other origins explicitly configured.
+const allowedOrigins = [...new Set([
+  ...configuredOrigins,
+  'https://hostel-hub-frontend.onrender.com'
+])];
 
 app.disable('x-powered-by');
 app.set('trust proxy', Number(process.env.TRUST_PROXY || 0));
