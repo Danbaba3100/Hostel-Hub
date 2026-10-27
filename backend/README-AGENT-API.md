@@ -2,15 +2,14 @@
 
 This stage connects the existing agent dashboard to the Node.js/Express API and PostgreSQL database.
 
-## Local setup
+## Live deployment
 
-1. Use Node.js 20 or newer.
-2. Keep the local `.env` file in the repository root (one folder above `backend`). Never commit it.
-3. Install dependencies from the `backend` folder with `npm install`.
-4. Run database migrations from the `backend` folder with `npm run migrate`.
-5. Start the API with `npm run dev` or `npm start`.
-6. Serve the website through Live Server at an origin listed in `CORS_ORIGINS` in the root `.env`. The default example lists `http://127.0.0.1:5500` and `http://localhost:5500`.
-7. Sign in through `login.html`. The dashboard requires a valid agent session.
+- Public website: `https://hostel-hub-frontend.onrender.com`
+- API: `https://hostel-hub-api-a4ie.onrender.com/api`
+- The deployed frontend uses the live API; visitors and agents do not need a local server running on a personal computer.
+- Configure `DATABASE_URL`, `DATABASE_SSL`, `JWT_SECRET`, `CORS_ORIGINS`, and `FRONTEND_BASE_URL` in Render's environment settings. Keep credentials out of GitHub.
+- Backend code changes deploy through the connected Render service. Run database migrations through the configured Render build command.
+- For local development only, use an isolated development environment and never point production data at a local database.
 
 ## API routes
 
