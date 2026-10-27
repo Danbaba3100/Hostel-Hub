@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const API_BASE = 'http://localhost:4000/api';
+  const API_BASE = 'https://hostel-hub-api-a4ie.onrender.com/api';
   const mode = document.body.dataset.authMode;
   const expectedRole = document.body.dataset.authRole || 'agent';
   const form = document.getElementById(mode === 'register' ? 'registerForm' : 'loginForm');
