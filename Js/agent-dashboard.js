@@ -379,8 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('listingSearch').addEventListener('input', renderListings);
   $('listingStatusFilter').addEventListener('change', renderListings);
-  $('addListingBtnTop').addEventListener('click', () => openModal());
-  $('emptyAddListingBtn').addEventListener('click', () => openModal());
   $('closeListingModal').addEventListener('click', closeModal);
   $('cancelListingBtn').addEventListener('click', closeModal);
   modal.addEventListener('click', (event) => {
