@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   "use strict";
-  const API = "http://localhost:4000/api";
+  const API = "https://hostel-hub-api-a4ie.onrender.com/api";
   const tokenKey = "hostelHubAccessToken";
   const userKey = "hostelHubUser";
   const el = (id) => document.getElementById(id);
