@@ -1,6 +1,6 @@
 'use strict';
 document.addEventListener("DOMContentLoaded", () => {
-  const API = "http://localhost:4000/api";
+  const API = "https://hostel-hub-api-a4ie.onrender.com/api";
   const form = document.getElementById("invitationForm");
   const message = document.getElementById("formMessage");
   const button = document.getElementById("submitButton");
