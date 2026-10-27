@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+    const API_BASE = "https://hostel-hub-api-a4ie.onrender.com/api";
     const referenceNumber = document.getElementById("referenceNumber");
     const hostelName = document.getElementById("hostelName");
     const hostelLocation = document.getElementById("hostelLocation");
