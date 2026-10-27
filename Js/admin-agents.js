@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         } catch {
-            throw new Error("Cannot reach the Hostel Hub API. Make sure the backend is running on port 4000.");
+            throw new Error("Cannot reach the live Hostel Hub service. Please try again in a moment.");
         }
         if (response.status === 401) {
             sessionStorage.removeItem(TOKEN_KEY);
