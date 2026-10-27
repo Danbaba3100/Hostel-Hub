@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const LISTINGS_KEY = "hostelHubAgentListings";
   const INSPECTIONS_KEY = "hostelHubAgentInspections";
   const PROFILE_KEY = "hostelHubAgentProfile";
-  const API_BASE = window.HOSTEL_HUB_API_BASE || "http://localhost:4000/api";
+  const API_BASE = window.HOSTEL_HUB_API_BASE || "https://hostel-hub-api-a4ie.onrender.com/api";
   const MAX_VIDEO_BYTES = 200 * 1024 * 1024;
 
   const $ = (id) => document.getElementById(id);
