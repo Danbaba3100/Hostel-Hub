@@ -1,7 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE = 'http://localhost:4000/api';
+  const API_BASE = 'https://hostel-hub-api-a4ie.onrender.com/api';
   const TOKEN_KEY = 'hostelHubAccessToken';
   const USER_KEY = 'hostelHubUser';
   const $ = (id) => document.getElementById(id);
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     } catch {
-      throw new Error('Cannot reach the Hostel Hub API. Make sure the backend is running at http://localhost:4000.');
+      throw new Error('Cannot reach the Hostel Hub API. Make sure the backend is running at https://hostel-hub-api-a4ie.onrender.com.');
     }
 
     const payload = await response.json().catch(() => ({}));
