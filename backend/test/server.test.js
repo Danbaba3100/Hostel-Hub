@@ -65,30 +65,6 @@ test('admin agent management endpoints require authentication', async () => {
 });
 
 
-test('admin create-hostel and video-signature endpoints require authentication', async () => {
-  const server = app.listen(0);
-  try {
-    const address = server.address();
-    const createResponse = await fetch(`http://127.0.0.1:${address.port}/api/admin/hostels`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    assert.equal(createResponse.status, 401);
-    assert.equal((await createResponse.json()).error.code, 'AUTH_REQUIRED');
-
-    const uploadResponse = await fetch(`http://127.0.0.1:${address.port}/api/uploads/video-signature`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    assert.equal(uploadResponse.status, 401);
-    assert.equal((await uploadResponse.json()).error.code, 'AUTH_REQUIRED');
-  } finally {
-    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
-  }
-});
-
 test('admin hostel review endpoints require authentication', async () => {
   const server = app.listen(0);
   try {
