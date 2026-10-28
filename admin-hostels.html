@@ -106,10 +106,7 @@
                         <h2>All Listings</h2>
                         <p>Live listings from the database. Approve or reject pending submissions.</p>
                     </div>
-                    <button class="approve-button" id="addHostelForAgentButton" type="button">
-                        <i data-lucide="plus"></i> Add Hostel for Agent
-                    </button>
-                </div>
+</div>
 
                 <div class="filters">
                     <label class="search-box">
@@ -176,155 +173,8 @@
     </main>
 </div>
 
-<!-- Add Hostel for Agent — mirrors the Agent My Listings form layout -->
-<div class="modal-backdrop" id="createHostelModal" hidden>
-  <div class="modal-card admin-create-modal" role="dialog" aria-modal="true" aria-labelledby="createHostelTitle">
-    <div class="modal-header">
-      <div>
-        <span class="eyebrow">HOSTEL MANAGEMENT</span>
-        <h2 id="createHostelTitle">Add Hostel for Agent</h2>
-        <p>Enter accurate information about the property and assign it to an agent.</p>
-      </div>
-      <button class="modal-close" id="closeCreateHostel" type="button" aria-label="Close modal">×</button>
-    </div>
-
-    <form id="createHostelForm">
-      <div class="modal-body">
-        <div class="form-section">
-          <h3>Agent and basic information</h3>
-          <div class="form-grid">
-            <div class="form-field full-field">
-              <label for="createAgentId">Agent owner <span>*</span></label>
-              <select id="createAgentId" required><option value="">Loading active agents...</option></select>
-              <small>The listing will be assigned to this agent and appear in their dashboard.</small>
-            </div>
-            <div class="form-field full-field">
-              <label for="createHostelName">Hostel name <span>*</span></label>
-              <input id="createHostelName" type="text" maxlength="180" placeholder="Enter hostel name" required>
-            </div>
-            <div class="form-field">
-              <label for="createHostelType">Hostel type <span>*</span></label>
-              <select id="createHostelType" required>
-                <option value="Self-contained">Self-contained</option>
-                <option value="Single room">Single room</option>
-                <option value="Shared room">Shared room</option>
-                <option value="One-bedroom apartment">One-bedroom apartment</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label for="createHostelRooms">Available rooms <span>*</span></label>
-              <input id="createHostelRooms" type="number" min="1" max="10000" step="1" placeholder="e.g. 5" required>
-            </div>
-            <div class="form-field full-field">
-              <label for="createHostelLocation">Full location <span>*</span></label>
-              <input id="createHostelLocation" type="text" maxlength="180" placeholder="Area, town, and state" required>
-            </div>
-            <div class="form-field full-field">
-              <label for="createHostelAddress">Street address</label>
-              <input id="createHostelAddress" type="text" maxlength="1000" placeholder="Enter street address (optional)">
-            </div>
-            <div class="form-field">
-              <label for="createHostelDistance">Distance to campus</label>
-              <input id="createHostelDistance" type="text" maxlength="100" placeholder="e.g. 5 minutes by bike">
-            </div>
-            <div class="form-field">
-              <label for="createHostelAvailability">Availability <span>*</span></label>
-              <select id="createHostelAvailability" required>
-                <option value="available">Available</option>
-                <option value="limited">Limited availability</option>
-                <option value="unavailable">Fully occupied</option>
-              </select>
-            </div>
-            <div class="form-field full-field">
-              <label for="createHostelDescription">Hostel description <span>*</span></label>
-              <textarea id="createHostelDescription" rows="4" maxlength="5000" placeholder="Describe the property, rooms, surroundings, and what students should know..." required></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Pricing and additional fees</h3>
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="createHostelPrice">Annual rent (₦) <span>*</span></label>
-              <input id="createHostelPrice" type="number" min="0" max="100000000000" step="100" placeholder="250000" required>
-            </div>
-            <div class="form-field">
-              <label for="createCautionFee">Caution fee (₦)</label>
-              <input id="createCautionFee" type="number" min="0" step="100" placeholder="0" value="0">
-            </div>
-            <div class="form-field">
-              <label for="createAgencyFee">Agency fee (₦)</label>
-              <input id="createAgencyFee" type="number" min="0" step="100" placeholder="0" value="0">
-            </div>
-            <div class="form-field">
-              <label for="createAgreementFee">Agreement fee (₦)</label>
-              <input id="createAgreementFee" type="number" min="0" step="100" placeholder="0" value="0">
-            </div>
-            <div class="form-field full-field">
-              <label for="createServiceCharge">Other service charges (₦)</label>
-              <input id="createServiceCharge" type="number" min="0" step="100" placeholder="0" value="0">
-            </div>
-            <div class="full-field cost-preview">
-              <span>Estimated upfront cost</span>
-              <strong id="createEstimatedTotalCost">₦0</strong>
-              <small>Annual rent plus the additional fees entered above.</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Facilities</h3>
-          <p class="section-description">Select all facilities available at this property.</p>
-          <div class="facilities-grid">
-            <label><input type="checkbox" name="createFacilities" value="Water supply"> Water supply</label>
-            <label><input type="checkbox" name="createFacilities" value="Electricity"> Electricity</label>
-            <label><input type="checkbox" name="createFacilities" value="Security"> Security</label>
-            <label><input type="checkbox" name="createFacilities" value="Prepaid meter"> Prepaid meter</label>
-            <label><input type="checkbox" name="createFacilities" value="Kitchen"> Kitchen</label>
-            <label><input type="checkbox" name="createFacilities" value="Private bathroom"> Private bathroom</label>
-            <label><input type="checkbox" name="createFacilities" value="Parking"> Parking</label>
-            <label><input type="checkbox" name="createFacilities" value="Internet access"> Internet access</label>
-            <label><input type="checkbox" name="createFacilities" value="Laundry area"> Laundry area</label>
-            <label><input type="checkbox" name="createFacilities" value="Furnished"> Furnished</label>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Property media</h3>
-          <div class="form-grid">
-            <div class="form-field full-field">
-              <label for="createHostelVideoFile">Hostel video walkthrough <span>*</span></label>
-              <input id="createHostelVideoFile" type="file" accept="video/*">
-              <small>Choose a video up to 200 MB. It will upload securely to Cloudinary when you create the listing.</small>
-              <div class="selected-files" id="createSelectedVideo"></div>
-            </div>
-            <div class="form-field full-field">
-              <label for="createHostelVideoUrl">Or paste an existing video URL</label>
-              <input id="createHostelVideoUrl" type="url" placeholder="https://...">
-              <small>Use either a video file or an existing hosted video URL.</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-notice">
-          <span>ⓘ</span>
-          <p>This listing will be approved and published immediately after it is created.</p>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-outline" id="cancelCreateHostel" type="button">Cancel</button>
-        <button class="btn btn-primary" id="saveCreateHostel" type="submit">Create &amp; Publish Hostel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="Js/admin-hostels.js"></script>
-<script src="Js/admin-create-hostel.js"></script>
 </body>
 </html>
