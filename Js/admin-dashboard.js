@@ -421,10 +421,12 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay?.classList.remove('show');
     menuToggle?.setAttribute('aria-expanded', 'false');
   }
+  // The button's inline handler provides a fallback if this script fails to load.
+  // Keep this script responsible for closing the menu and syncing its accessible label.
   menuToggle?.addEventListener('click', () => {
-    const open = sidebar?.classList.toggle('open');
-    overlay?.classList.toggle('show', Boolean(open));
-    menuToggle.setAttribute('aria-expanded', String(Boolean(open)));
+    const open = sidebar?.classList.contains('open');
+    menuToggle?.setAttribute('aria-expanded', String(Boolean(open)));
+    menuToggle?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
   });
   overlay?.addEventListener('click', closeSidebar);
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSidebar(); });
