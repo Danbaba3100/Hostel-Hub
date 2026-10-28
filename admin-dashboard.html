@@ -84,7 +84,8 @@
                 <button class="icon-button menu-toggle"
                         id="menuToggle"
                         aria-label="Open navigation"
-                        aria-expanded="false">
+                        aria-expanded="false"
+                        onclick="(function(button){const sidebar=document.getElementById('sidebar');const overlay=document.getElementById('sidebarOverlay');if(!sidebar||!overlay)return;const open=sidebar.classList.toggle('open');overlay.classList.toggle('show',open);button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Close navigation':'Open navigation');})(this)">
                     <i data-lucide="menu"></i>
                 </button>
 
