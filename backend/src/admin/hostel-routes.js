@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const { z } = require('zod');
 const { pool } = require('../db');
 const { requireAuth, requireRole } = require('../auth/middleware');
-const { inspectionStatusSchema, hostelSchema } = require('../hostels/validation');
+const { inspectionStatusSchema } = require('../hostels/validation');
 
 const router = express.Router();
 const reviewSchema = z.object({
@@ -317,92 +317,6 @@ router.patch('/inspections/:id/status', requireAuth, requireRole('admin'), async
   }
 });
 
-
-const adminCreateHostelSchema = z.object({
-  agentId: z.string().uuid(),
-  ...hostelSchema.shape
-}).strict();
-
-router.post('/hostels', requireAuth, requireRole('admin'), async (req, res, next) => {
-  const parsed = adminCreateHostelSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'Check the agent and hostel details. A valid video URL is required.',
-        fields: parsed.error.issues.map((issue) => ({
-          field: issue.path.join('.'),
-          message: issue.message
-        }))
-      }
-    });
-  }
-
-  const value = parsed.data;
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    const agentResult = await client.query(
-      "SELECT id, full_name AS agent_name, email AS agent_email, phone AS agent_phone FROM users WHERE id = $1 AND role = 'agent' AND is_active = true FOR UPDATE",
-      [value.agentId]
-    );
-    if (!agentResult.rowCount) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({
-        error: { code: 'AGENT_NOT_FOUND', message: 'Choose an active agent account to own this listing.' }
-      });
-    }
-
-    const created = await client.query(
-      `INSERT INTO hostels (
-         slug, name, description, location, address, price_ngn,
-         caution_fee_ngn, agency_fee_ngn, agreement_fee_ngn, service_charge_ngn,
-         room_type, occupancy, units_available, distance_from_campus, facilities,
-         video_url, availability_status, approval_status, is_active, agent_id,
-         reviewed_by, reviewed_at
-       ) VALUES (
-         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12,$13,$14,$15,$16,
-         'approved',true,$17,$18,now()
-       )
-       RETURNING id`,
-      [
-        slugify(value.name), value.name, value.description, value.location,
-        value.address || null, value.priceNgn, value.cautionFeeNgn,
-        value.agencyFeeNgn, value.agreementFeeNgn, value.serviceChargeNgn,
-        value.roomType, value.unitsAvailable, value.distanceFromCampus || null,
-        value.facilities, value.videoUrl, value.availabilityStatus,
-        value.agentId, req.user.id
-      ]
-    );
-    const hostelId = created.rows[0].id;
-    await client.query(
-      `INSERT INTO audit_logs (actor_user_id, action, entity_type, entity_id, metadata)
-       VALUES ($1, 'hostel.created_by_admin', 'hostel', $2, $3::jsonb)`,
-      [req.user.id, hostelId, JSON.stringify({ name: value.name, agentId: value.agentId, approvalStatus: 'approved' })]
-    );
-    await client.query('COMMIT');
-
-    const result = await pool.query(
-      `SELECT h.id, h.slug, h.name, h.description, h.location, h.address,
-              h.price_ngn, h.room_type, h.occupancy, h.units_available,
-              h.distance_from_campus, h.facilities, h.video_url,
-              h.availability_status, h.approval_status, h.is_active, h.admin_removed_at,
-              h.reviewed_at, h.rejection_reason, h.created_at,
-              u.full_name AS agent_name, u.email AS agent_email, u.phone AS agent_phone
-       FROM hostels h JOIN users u ON u.id = h.agent_id WHERE h.id = $1`,
-      [hostelId]
-    );
-    return res.status(201).json({
-      hostel: toAdminHostel(result.rows[0]),
-      message: 'Hostel created, approved and published under the selected agent.'
-    });
-  } catch (error) {
-    await client.query('ROLLBACK').catch(() => {});
-    return next(error);
-  } finally {
-    client.release();
-  }
-});
 
 router.get('/hostels', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
